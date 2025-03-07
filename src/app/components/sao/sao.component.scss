@@ -1,0 +1,133 @@
+/* Main container */
+.p-m-4 {
+  padding: 2rem;
+}
+
+/* Top bar for Create button */
+.top-bar {
+  display: flex;
+  justify-content: flex-end; /* Pushes Create button to right */
+  margin-bottom: 1rem;
+}
+
+/* Table Styling */
+.p-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.p-table th,
+.p-table td {
+  padding: 10px;
+  text-align: left; /* Default left alignment */
+  vertical-align: middle; /* Center vertically */
+  border: 1px solid #dee2e6;
+}
+
+.p-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  text-align: center; /* Center align headers */
+}
+
+/* Align specific columns */
+.p-table td:nth-child(2) { /* SAO Code */
+  text-align: center;
+}
+.p-table td:nth-child(3) { /* Next Level Code */
+  text-align: center;
+}
+
+/* Actions cell styling */
+.actions-cell {
+  display: flex;
+  justify-content: center; /* Center buttons horizontally */
+  align-items: center; /* Center buttons vertically */
+  gap: 0.5rem; /* Space between buttons */
+  white-space: nowrap; /* Prevent buttons from wrapping */
+}
+
+.actions-cell button {
+  margin: 0; /* Remove default button margins */
+}
+
+
+/* Dialog Styling */
+.p-dialog .p-dialog-header {
+  background-color: #f0f0f0;
+  padding: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 20px;
+}
+
+.p-fluid .p-field {
+  margin-bottom: 15px;
+}
+
+.p-fluid label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.p-fluid input[type="text"],
+.p-fluid input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.p-fluid input[type="text"]:focus,
+.p-fluid input[type="number"]:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.p-dialog .p-dialog-footer {
+  padding: 15px;
+  border-top: 1px solid #dee2e6;
+  text-align: right;
+}
+
+.p-dialog .p-dialog-footer button {
+  margin-left: 10px;
+}
+
+/* Button Styling */
+.p-button-rounded {
+  border-radius: 50%;
+}
+
+.p-button-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+}
+
+.p-button-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .p-table {
+      display: block;
+      overflow-x: auto;
+  }
+
+  .p-table th,
+  .p-table td {
+      padding: 8px;
+  }
+
+  .actions-cell {
+      flex-direction: column; /* Stack buttons vertically */
+  }
+}

@@ -1,0 +1,28 @@
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; // Full viewport height
+  }
+  
+  .main-content {
+    flex: 1; // Fills the available space between navbar and footer
+    padding: 1rem;
+  }
+  
+  /* Background and Global Styles */
+  body {
+    background-color: #f0f0f0; /* Light greyish background */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Ensure Full Height */
+  html, body, app-root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  

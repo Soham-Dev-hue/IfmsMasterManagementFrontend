@@ -1,0 +1,28 @@
+<p-menubar [model]="items">
+    <!-- Logo on the left -->
+    <ng-template pTemplate="start">
+      <img src="assets/layout/images/logo_mini.png" alt="IFMS Logo" height="40" style="cursor: pointer;" />
+    </ng-template>
+  
+    <!-- User profile and logout on the right -->
+    <ng-template pTemplate="end">
+      <div class="user-profile" style="display: flex; align-items: center;">
+        <span class="pi pi-user" style="margin-right: 0.5rem;"></span>
+        <span class="user-role">User</span>
+  
+        <!-- Logout Icon -->
+        <span class="pi pi-sign-out" 
+              style="margin-left: 1rem; cursor: pointer;" 
+              (click)="onLogout()" 
+              title="Logout">
+        </span>
+     
+          
+        <button class="theme-toggle-btn" (click)="toggleTheme()">
+          <i class="pi" [ngClass]="{'pi-moon': isDarkMode(), 'pi-sun': !isDarkMode()}"></i>
+        </button>
+        
+      </div>
+    </ng-template>
+  </p-menubar>
+  

@@ -1,0 +1,84 @@
+<h2 class="p-text-bold p-mb-0">Financial-Years</h2>
+<div class="search-container">
+  
+  <button
+  pButton
+  type="button"
+  label="Create Financial-Year"
+  icon="pi pi-plus"
+  class="p-button-success p-button-lg"
+  (click)="openDialog()"
+></button>
+</div>
+<div class="card">
+    <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Financial Years</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item let-i="rowIndex">
+        <tr>
+          <td>{{ item.stringValue }}</td>
+          <td class="actions-cell">
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-rounded p-button-info"
+              (click)="openDialog(true, i)"
+              title="Edit"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="p-button-rounded p-button-danger"
+              (click)="deleteFinancialYear(i)"
+              title="Delete"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <!-- Show spinner while loading -->
+    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+    <p-dialog
+    [header]="isEditMode ? 'Edit FinancialYear' : 'Create FinancialYear'"
+    [(visible)]="displayDialog"
+    [modal]="true"
+    [closable]="true"
+    [style]="{ width: '500px' }"
+    class="custom-dialog"
+  >
+    <div class="p-fluid">
+      <div class="p-field">
+        <label for="FinancialYear">Financial-Year</label>
+        <input
+          id="FinancialYear"
+          type="text"
+          pInputText
+          [(ngModel)]="item.stringValue"
+          class="custom-input"
+        />
+      </div>
+    </div> <!-- Make sure this closing div is in the right place -->
+  
+    <!-- Dialog Footer (Actions) -->
+    <p-footer class="custom-footer">
+      <button
+        pButton
+        icon="pi pi-check"
+        [label]="isEditMode ? 'Update FinancialYear' : 'Create FinancialYear'"
+        class="p-button-primary p-mr-2"
+        (click)="saveFinancialYear()"
+      ></button>
+      <button
+        pButton
+        label="Cancel"
+        icon="pi pi-times"
+        class="p-button-secondary"
+        (click)="displayDialog = false"
+      ></button>
+    </p-footer>
+  </p-dialog> <!-- Ensure this closing tag is correctly placed -->
+  </div>

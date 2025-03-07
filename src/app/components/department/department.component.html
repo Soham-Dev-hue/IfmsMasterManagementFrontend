@@ -1,0 +1,40 @@
+<h2 class="p-text-bold p-mb-0">Manage Departments</h2>
+<div class="search-container">
+  <input
+    pInputText
+    type="text"
+    placeholder="Search Departments..."
+    [(ngModel)]="searchQuery"
+    (input)="onSearchChange()"
+  />
+  <p-dropdown
+    [options]="filterOptions"
+    [(ngModel)]="selectedFilter"
+    placeholder="Filter by..."
+    (onChange)="onFilterChange()"
+  ></p-dropdown>
+</div>
+<div class="card">
+    <p-table [value]="departments" [paginator]="true" [rows]="10" [loading]="loading">
+      <ng-template pTemplate="header">
+        <tr>
+            <th>Code</th>
+          <th>Name</th>
+          <th>Demand Code</th>
+          <th>Address</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-department>
+        <tr>
+            <td>{{department.code}}</td>
+          <td>{{ department.name }}</td>
+          <td>{{ department.demandCode }}</td>
+          <td>{{ department.address }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  
+    <!-- Show spinner while loading -->
+    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+  </div>
+  

@@ -1,0 +1,25 @@
+/* You can add global styles to this file, and also import other style files */
+/* Default Light Theme */
+body {
+    background-color: #ffffff;
+    color: #000000;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  /* Dark Mode Theme */
+  body.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  /* Example Styling for Components */
+  .dark-mode .app-container {
+    background-color: #222;
+  }
+  
+  .dark-mode button {
+    background-color: #444;
+    color: white;
+    border: 1px solid white;
+  }
+  
