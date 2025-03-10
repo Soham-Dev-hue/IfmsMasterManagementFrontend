@@ -67,14 +67,31 @@ export class CommonService {
       });
     }
 
-  getAllDepartments(search:string='',filter:string=''): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}DepartmentsMaster`,{
-      params: {
-        search: search,
-        filter: filter
-      }
-    });
-  }
+    getAllDepartments(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any> {
+      return this.http.get(`${this.apiUrl}DepartmentsMaster/departments`, {
+        params: {
+          search,
+          filter,
+          pageNumber,
+          pageSize
+        }
+      });
+    }
+    
+    createDepartment(department: any): Observable<any> {
+      return this.http.post(`${this.apiUrl}DepartmentsMaster/create`, department);
+    }
+    
+    updateDepartment(id: number, department: any): Observable<any> {
+      return this.http.put(`api/Departments/update/${id}`, department);
+    }
+    
+    deleteDepartment(id: number): Observable<any> {
+      return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
+        isdeleted: true
+      });
+    }
+    
 
   getAllDesignations(search:string='',filter:string=''): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}DesignationMaster`,{
@@ -127,13 +144,52 @@ export class CommonService {
   getAllSchemeTypes(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}SchemeType/get-scheme-types`);
   }
+  createSchemeType(department: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}DepartmentsMaster/create`, department);
+  }
+  
+  updateSchemeType(id: number, department: any): Observable<any> {
+    return this.http.put(`api/Departments/update/${id}`, department);
+  }
+  
+  deleteSchemeType(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
+      isdeleted: true
+    });
+  }
 
   getAllSubSchemeTypes(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}SubSchemeType/get-sub-scheme-types`);
   }
+  createSubSchemeType(department: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}DepartmentsMaster/create`, department);
+  }
+  
+  updateSubSchemeType(id: number, department: any): Observable<any> {
+    return this.http.put(`api/Departments/update/${id}`, department);
+  }
+  
+  deleteSubSchemeType(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
+      isdeleted: true
+    });
+  }
 
   getAllSAOLevels(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}SaoLevelMaster`);
+  }
+  createSaoLevel(department: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}DepartmentsMaster/create`, department);
+  }
+  
+  updateSaoLevel(id: number, department: any): Observable<any> {
+    return this.http.put(`api/Departments/update/${id}`, department);
+  }
+  
+  deleteSaoLevel(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
+      isdeleted: true
+    });
   }
 
   getAllAdmissibleReappropriations(): Observable<any[]> {

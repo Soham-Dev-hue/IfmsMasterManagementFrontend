@@ -47,6 +47,7 @@
         <th>District Code</th>
         <th>Officer Name</th>
         <th>Address</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </ng-template>
@@ -57,7 +58,16 @@
         <td>{{ item.districtCode }}</td>
         <td>{{ item.officerName }}</td>
         <td>{{ item.address }}</td>
-        <td class="actions-cell">
+        <td>
+          <p-tag 
+              (click)="confirmToggleStatus(item)" 
+              [value]="item.isactive ? 'Active' : 'Inactive'" 
+              [severity]="item.isactive ? 'success' : 'danger'" 
+              [style]="{ cursor: 'pointer' }"
+          >
+          </p-tag>
+      </td>
+        <td class="actions-cell" style="display: flex; gap: 10px;">
           <button
             pButton
             icon="pi pi-pencil"

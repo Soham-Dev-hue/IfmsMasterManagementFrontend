@@ -72,20 +72,21 @@
           </p-tag>
       </td>
       
-        <td class="actions-cell">
-          <button
-            pButton
-            icon="pi pi-pencil"
-            class="p-button-rounded p-button-warning"
-            (click)="openDialog(true, i)"
-          ></button>
-          <button
-            pButton
-            icon="pi pi-trash"
-            class="p-button-rounded p-button-danger"
-            (click)="deleteSao(i)"
-          ></button>
-        </td>
+      <td class="actions-cell" style="display: flex; gap: 10px;">
+        <button
+          pButton
+          icon="pi pi-pencil"
+          class="p-button-rounded p-button-warning"
+          (click)="openDialog(true, i)"
+        ></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-rounded p-button-danger"
+          (click)="deleteSao(i)"
+        ></button>
+      </td>
+      
       </tr>
     </ng-template>
 

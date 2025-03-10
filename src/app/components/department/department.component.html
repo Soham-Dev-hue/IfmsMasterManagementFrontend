@@ -13,28 +13,67 @@
     placeholder="Filter by..."
     (onChange)="onFilterChange()"
   ></p-dropdown>
+  <button type="button" pButton icon="pi pi-plus" (click)="openDialog()">Create Department</button>
 </div>
 <div class="card">
-    <p-table [value]="departments" [paginator]="true" [rows]="10" [loading]="loading">
-      <ng-template pTemplate="header">
-        <tr>
-            <th>Code</th>
-          <th>Name</th>
-          <th>Demand Code</th>
-          <th>Address</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-department>
-        <tr>
-            <td>{{department.code}}</td>
-          <td>{{ department.name }}</td>
-          <td>{{ department.demandCode }}</td>
-          <td>{{ department.address }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  
-    <!-- Show spinner while loading -->
-    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
-  </div>
-  
+  <p-table   [value]="departments"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[5, 10, 20]"
+  [loading]="loading"
+  [responsiveLayout]="'scroll'">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Demand Code</th>
+        <th>Address</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-department let-index="rowIndex">
+      <tr>
+        <td>{{ department.code }}</td>
+        <td>{{ department.name }}</td>
+        <td>{{ department.demandCode }}</td>
+        <td>{{ department.address }}</td>
+        <td style="display: flex; gap: 10px;">
+          <button type="button" pButton icon="pi pi-pencil"   class="p-button-rounded p-button-info" (click)="openDialog(true, index)">Update</button>
+          <button type="button" pButton icon="pi pi-trash"    class="p-button-rounded p-button-danger" (click)="deleteDepartment(index)">Delete</button>
+        </td>
+       
+      </tr>
+    </ng-template>
+  </p-table>
+  <!-- Show spinner while loading -->
+  <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+</div>
+
+<!-- Dialog for creating/updating departments -->
+<p-dialog [(visible)]="displayDialog" [modal]="true" [style]="{ width: '70vw' }">
+  <p-header>{{ isEditMode ? 'Update Department' : 'Create Department' }}</p-header>
+  <form>
+    <div class="p-fluid">
+      <div class="p-field">
+        <label for="name">Name</label>
+        <input id="name" type="text" [(ngModel)]="department.name" name="name" />
+      </div>
+      <div class="p-field">
+        <label for="code">Code</label>
+        <input id="code" type="text" [(ngModel)]="department.code" name="code" />
+      </div>
+      <div class="p-field">
+        <label for="demandCode">Demand Code</label>
+        <input id="demandCode" type="text" [(ngModel)]="department.demandCode" name="demandCode" />
+      </div>
+      <div class="p-field">
+        <label for="address">Address</label>
+        <input id="address" type="text" [(ngModel)]="department.address" name="address" />
+      </div>
+    </div>
+  </form>
+  <p-footer>
+    <button type="button" pButton icon="pi pi-times" (click)="displayDialog = false">Cancel</button>
+    <button type="button" pButton icon="pi pi-check" (click)="saveDepartment()">Save</button>
+  </p-footer>
+</p-dialog>

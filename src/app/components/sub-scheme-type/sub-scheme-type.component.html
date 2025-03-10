@@ -1,16 +1,40 @@
 <h2 class="p-text-bold p-mb-0">Manage Sub-Scheme-Types</h2>
+<button style="align-self: right inherit;"
+  pButton
+  type="button"
+  label="Create Sub-Scheme-Types"
+  icon="pi pi-plus"
+  class="p-button-success p-button-lg"
+  (click)="openDialog()"
+></button>
 <div class="card">
     <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
       <ng-template pTemplate="header">
         <tr>
           <th>Scheme-Type</th>
           <th>Description</th>
+          <th>Actions</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-item>
+      <ng-template pTemplate="body" let-item let-i="rowIndex">
         <tr>
           <td>{{ item.type}}</td>
           <td>{{ item.description }}</td>
+          <td class="actions-cell" style="display: flex; gap: 10px;">
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-rounded p-button-info"
+              (click)="openDialog(true, i)"
+              title="Edit"
+            ></button>
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="p-button-rounded p-button-danger"
+              (click)="deleteSubSchemeType(i)"
+              title="Delete"
+            ></button>
         </tr>
       </ng-template>
     </p-table>

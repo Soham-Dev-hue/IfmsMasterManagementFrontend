@@ -9,6 +9,7 @@ import { HttpClientModule } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DropdownModule } from 'primeng/dropdown';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-treasury',
@@ -21,7 +22,8 @@ import { DropdownModule } from 'primeng/dropdown';
     ButtonModule,
     DialogModule,
     DropdownModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    TagModule
   ],
   providers: [CommonService],
   templateUrl: './treasury.component.html',
@@ -186,5 +188,29 @@ codes:any[]=[];
           });
         }
       });
+   }
+   confirmToggleStatus(item: any) {
+     Swal.fire({
+       title: `Are you sure?`,
+       text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
+       icon: 'warning',
+       showCancelButton: true,
+       confirmButtonColor: item.isactive ? '#d33' : '#28a745',
+       cancelButtonColor: '#6c757d',
+       confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+     }).then((result) => {
+       if (result.isConfirmed) {
+         // Toggle status
+         item.isactive = !item.isactive;
+   
+         // Show success message
+         Swal.fire({
+           title: 'Updated!',
+           text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
+           icon: 'success',
+           timer: 1500
+         });
+       }
+     });
    }
 }

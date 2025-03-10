@@ -124,7 +124,10 @@ export class SaoComponent implements OnInit {
   onLevelChange(event: any): void {
     this.loading = true;
     
-    const selectedCode = event?.value; // Extract selected code
+    const selectedCode:number = event?.value; // Extract selected code
+    console.log(event);
+    console.log(typeof selectedCode);
+    
     console.log("Selected Level Code:", selectedCode);
     
     if (!selectedCode) {
