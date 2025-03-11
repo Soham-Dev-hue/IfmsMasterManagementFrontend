@@ -83,7 +83,7 @@ export class CommonService {
     }
     
     updateDepartment(id: number, department: any): Observable<any> {
-      return this.http.put(`api/Departments/update/${id}`, department);
+      return this.http.put(`${this.apiUrl}DepartmentsMaster/update/${id}`, department);
     }
     
     deleteDepartment(id: number): Observable<any> {
@@ -141,53 +141,77 @@ export class CommonService {
     return this.http.get<any[]>(`${this.apiUrl}SubDetailHeadsMaster`);
   }
 
-  getAllSchemeTypes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SchemeType/get-scheme-types`);
+  getAllSchemeTypes(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}SchemeType/schemetype`,{
+      params: {
+        search,
+        filter,
+        pageNumber,
+        pageSize
+      }}
+    );
   }
-  createSchemeType(department: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}DepartmentsMaster/create`, department);
+  createSchemeType(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}SchemeType/create`, data);
   }
   
-  updateSchemeType(id: number, department: any): Observable<any> {
-    return this.http.put(`api/Departments/update/${id}`, department);
+  updateSchemeType(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}SchemeType/update/${id}`, data);
   }
   
   deleteSchemeType(id: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
+    return this.http.patch(`${this.apiUrl}SchemeType/isdeleted/${id}`,{
       isdeleted: true
     });
   }
 
-  getAllSubSchemeTypes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SubSchemeType/get-sub-scheme-types`);
+  getAllSubSchemeTypes(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}SubSchemeType/get-sub-scheme-types`,{
+      params:{
+        search:search,
+        filter:filter,
+        pageNumber:pageNumber,
+        pageSize:pageSize
+
+      }
+    });
   }
-  createSubSchemeType(department: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}DepartmentsMaster/create`, department);
+  createSubSchemeType(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}SubSchemeType/create`, data);
   }
   
-  updateSubSchemeType(id: number, department: any): Observable<any> {
-    return this.http.put(`api/Departments/update/${id}`, department);
+  updateSubSchemeType(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}SubSchemeType/update/${id}`, data);
   }
   
   deleteSubSchemeType(id: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
+    return this.http.patch(`${this.apiUrl}SubSchemeType/isdeleted/${id}`,{
       isdeleted: true
     });
   }
 
-  getAllSAOLevels(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SaoLevelMaster`);
+  getAllSAOLevels(search:string='',filter:string='',pageNumber:any,pageSize:any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}SaoLevelMaster`,{
+      params:{
+        search:search,
+        filter:filter,
+        pageNumber:pageNumber,
+        pageSize:pageSize
+
+      }
+    });
   }
-  createSaoLevel(department: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}DepartmentsMaster/create`, department);
+
+  createSaoLevel(data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}SaoLevelMaster`, data);
   }
   
-  updateSaoLevel(id: number, department: any): Observable<any> {
-    return this.http.put(`api/Departments/update/${id}`, department);
+  updateSaoLevel(id: number, data: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}SaoLevelMaster/update/${id}`, data);
   }
   
   deleteSaoLevel(id: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
+    return this.http.patch(`${this.apiUrl}SaoLevelMaster/isdeleted/${id}`,{
       isdeleted: true
     });
   }

@@ -10,6 +10,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-department',
@@ -23,7 +24,8 @@ import { InputTextModule } from 'primeng/inputtext';
     DropdownModule,
     DialogModule,
     ButtonModule,
-    InputTextModule
+    InputTextModule,
+    TagModule
   ],
   providers: [CommonService],
   templateUrl: './department.component.html',
@@ -225,5 +227,28 @@ console.log(department);
     });
   }
   
+  confirmToggleStatus(item: any) {
+    Swal.fire({
+      title: `Are you sure?`,
+      text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: item.isactive ? '#d33' : '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Toggle status
+        item.isactive = !item.isactive;
   
+        // Show success message
+        Swal.fire({
+          title: 'Updated!',
+          text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
+          icon: 'success',
+          timer: 1500
+        });
+      }
+    });
+  }
 }

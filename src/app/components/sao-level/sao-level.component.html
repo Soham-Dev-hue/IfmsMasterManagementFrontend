@@ -1,45 +1,65 @@
 <h2 class="p-text-bold p-mb-0">Manage SAO-Levels</h2>
-<button
-  pButton
-  type="button"
-  label="Create Sao Level"
-  icon="pi pi-plus"
-  class="p-button-success p-button-lg"
-  (click)="openDialog()"
-></button>
 <div class="card">
-    <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Code</th>
-          <th>Name</th>
-          <th>Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-item let-i="rowIndex">
-        <tr>
-          <td>{{ item.code }}</td>
-          <td>{{ item.name }}</td>
-          <td class="actions-cell" style="display: flex; gap: 10px;">
-            <button
-              pButton
-              icon="pi pi-pencil"
-              class="p-button-rounded p-button-info"
-              (click)="openDialog(true, i)"
-              title="Edit"
-            ></button>
-            <button
-              pButton
-              icon="pi pi-trash"
-              class="p-button-rounded p-button-danger"
-              (click)="deleteSaoLevel(i)"
-              title="Delete"
-            ></button>
+  <div class="p-grid p-dir-col">
+    <div class="p-col" style="display: flex; gap: 10px;">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input type="text" pInputText [(ngModel)]="searchText" (input)="onSearch()" placeholder="Search..." />
+      </span>
+      <button pButton type="button" icon="pi pi-plus" label="Add SAO Level" (click)="addSaoLevel()" class="p-button-success p-ml-2"></button>
+    </div>
+    <div class="p-col">
+      <p-table [value]="items" [paginator]="true" [rows]="rows" [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="fetchSaoLevels($event)" [loading]="loading">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td>{{ item.code }}</td>
+            <td>{{ item.name }}</td>
+            <td>
+              <p-tag 
+                  (click)="confirmToggleStatus(item)" 
+                  [value]="item.isactive ? 'Active' : 'Inactive'" 
+                  [severity]="item.isactive ? 'success' : 'danger'" 
+                  [style]="{ cursor: 'pointer' }"
+              >
+              </p-tag>
           </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  
-    <!-- Show spinner while loading -->
-    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+            <td class="actions-cell">
+              <button pButton type="button" icon="pi pi-pencil" class="p-button-warning p-mr-2" (click)="editSaoLevel(item)"></button>
+              <button pButton type="button" icon="pi pi-trash" class="p-button-danger" (click)="deleteSaoLevel(item.id)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
   </div>
+  <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+</div>
+
+<!-- Dialog for adding/editing SAO level -->
+<p-dialog [(visible)]="displayDialog" [modal]="true" [style]="{ width: '450px' }" (onHide)="displayDialog = false">
+  <ng-template pTemplate="header">
+    <h3>{{ isEditMode ? 'Edit SAO Level' : 'Add SAO Level' }}</h3>
+  </ng-template>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="code">Code</label>
+      <input id="code" type="text" pInputText [(ngModel)]="currentSaoLevel.code" />
+    </div>
+    <div class="p-field">
+      <label for="name">Name</label>
+      <input id="name" type="text" pInputText [(ngModel)]="currentSaoLevel.name" />
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button"  [label]="isEditMode ? 'Update Sao-Level' : 'Create Sao-Level'" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text"></button>
+    <button pButton type="button"  [label]="isEditMode ? 'Update Sao-Level' : 'Create Sao-Level'" icon="pi pi-check" (click)="saveSaoLevel()" class="p-button-success"></button>
+  </ng-template>
+</p-dialog>

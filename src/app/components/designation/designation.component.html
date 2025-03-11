@@ -3,7 +3,7 @@
   <input
     pInputText
     type="text"
-    placeholder="Search Departments..."
+    placeholder="Search items..."
     [(ngModel)]="searchQuery"
     (input)="onSearchChange()"
   />
@@ -25,14 +25,24 @@
 <div class="card">
     <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
       <ng-template pTemplate="header">
-        <tr>
+        <tr >
             <th>Designation Names</th>
+            <th>Status</th>
             <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-item  let-i="rowIndex">
         <tr>
           <td>{{ item.name }}</td>
+          <td>
+            <p-tag 
+                (click)="confirmToggleStatus(item)" 
+                [value]="item.isactive ? 'Active' : 'Inactive'" 
+                [severity]="item.isactive ? 'success' : 'danger'" 
+                [style]="{ cursor: 'pointer' }"
+            >
+            </p-tag>
+        </td>
           <td class="actions-cell" style="display: flex; gap: 10px;">
             <button
               pButton

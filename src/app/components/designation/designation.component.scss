@@ -1,18 +1,16 @@
 .card {
-    max-width: 1000px; // Adjusted for only 2 columns
-    margin: 20px auto;
-    padding: 20px;
+   
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.12);
     text-align: center;
   }
   
-  p-table {
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-  }
+  // p-table {
+  //   width: 100%;
+  //   border-radius: 8px;
+  //   overflow: hidden;
+  // }
   
   th, td {
     padding: 12px;
@@ -25,7 +23,39 @@
     color: white;
     text-transform: uppercase;
   }
-  
+  /* Ensure table cells do not expand unevenly */
+.p-table th,
+.p-table td {
+    text-align: center; /* Center everything */
+    vertical-align: middle; /* Ensure vertical centering */
+    padding: 12px;
+    width: auto; /* Let content define width */
+}
+
+/* Make Actions column a fixed size */
+.p-table th:nth-child(2), 
+.p-table td:nth-child(2) { 
+    width: 120px; /* Adjust as needed */
+}
+
+/* Stack buttons vertically */
+.actions-cell {
+    display: flex;
+    ; /* Stack buttons vertically */
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Add space between buttons */
+}
+
+/* Reduce button size */
+.actions-cell button {
+    width: 36px; /* Make buttons smaller */
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
   tr:hover {
     background: rgba(0, 123, 255, 0.12);
   }

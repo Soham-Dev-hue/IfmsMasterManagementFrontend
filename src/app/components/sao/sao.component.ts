@@ -70,6 +70,7 @@ export class SaoComponent implements OnInit {
         this.saos = data
           .filter((sao: any) => !sao.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+console.log(data);
 
         this.loading = false;
       },
@@ -86,14 +87,19 @@ export class SaoComponent implements OnInit {
   }
   
   getSaoLevels(): void {
-    this.commonService.getAllSAOLevels().subscribe({
+    this.commonService.getAllSAOLevels('','',1,10).subscribe({
       next: (response:any) => {
         console.log("API Response:", response);
   
-        if (response && Array.isArray(response.result)) {
-          this.levels = response.result;
+        if (response && Array.isArray(response.result?.items)) {
+          this.levels = response.result?.items;
           this.levelOptions = this.levels.map((level: any) => ({
-            label: level.name, // Use 'name' instead of 'code' for better UX
+
+
+
+            label: level.name === 'Department'? 'ALL' : level.name, // Use 'Department' instead of 'Department Level' for better UX
+           
+         
             value: level.code, // Value should remain as 'code'
           }));
         } else {
@@ -107,7 +113,7 @@ export class SaoComponent implements OnInit {
         Swal.fire({
           icon: 'error',
           title: 'Error!',
-          text: 'Failed to fetch SAO Levels. Please try again.',
+          text: 'Failed to fetch SAO Levels. Please try again.',  
         });
       }
     });
@@ -123,7 +129,10 @@ export class SaoComponent implements OnInit {
   }
   onLevelChange(event: any): void {
     this.loading = true;
-    
+    if(event?.value===1)
+    {
+      this.ngOnInit();
+    }
     const selectedCode:number = event?.value; // Extract selected code
     console.log(event);
     console.log(typeof selectedCode);

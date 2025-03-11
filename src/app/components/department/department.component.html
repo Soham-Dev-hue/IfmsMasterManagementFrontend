@@ -1,5 +1,5 @@
 <h2 class="p-text-bold p-mb-0">Manage Departments</h2>
-<div class="search-container">
+<div class="search-container" style="display: flex; gap:20px;">
   <input
     pInputText
     type="text"
@@ -28,6 +28,7 @@
         <th>Name</th>
         <th>Demand Code</th>
         <th>Address</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </ng-template>
@@ -37,6 +38,15 @@
         <td>{{ department.name }}</td>
         <td>{{ department.demandCode }}</td>
         <td>{{ department.address }}</td>
+        <td>
+          <p-tag 
+              (click)="confirmToggleStatus(department)" 
+              [value]="department.isactive ? 'Active' : 'Inactive'" 
+              [severity]="department.isactive ? 'success' : 'danger'" 
+              [style]="{ cursor: 'pointer' }"
+          >
+          </p-tag>
+      </td>
         <td style="display: flex; gap: 10px;">
           <button type="button" pButton icon="pi pi-pencil"   class="p-button-rounded p-button-info" (click)="openDialog(true, index)">Update</button>
           <button type="button" pButton icon="pi pi-trash"    class="p-button-rounded p-button-danger" (click)="deleteDepartment(index)">Delete</button>

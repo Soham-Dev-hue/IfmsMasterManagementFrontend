@@ -15,13 +15,23 @@
       <ng-template pTemplate="header">
         <tr>
           <th>Financial Years</th>
+          <th>Status</th>
           <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-item let-i="rowIndex">
         <tr>
           <td>{{ item.stringValue }}</td>
-          <td class="actions-cell">
+          <td>
+            <p-tag 
+                (click)="confirmToggleStatus(item)" 
+                [value]="item.isactive ? 'Active' : 'Inactive'" 
+                [severity]="item.isactive ? 'success' : 'danger'" 
+                [style]="{ cursor: 'pointer' }"
+            >
+            </p-tag>
+        </td>
+          <td class="actions-cell" style="gap:20px;">
             <button
               pButton
               icon="pi pi-pencil"

@@ -7,39 +7,100 @@
   class="p-button-success p-button-lg"
   (click)="openDialog()"
 ></button>
+
 <div class="card">
-    <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Scheme-Type</th>
-          <th>Description</th>
-          <th>Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-item let-i="rowIndex">
-        <tr>
-          <td>{{ item.type}}</td>
-          <td>{{ item.description }}</td>
-          <td class="actions-cell" style="display: flex; gap: 10px;">
-            <button
-              pButton
-              icon="pi pi-pencil"
-              class="p-button-rounded p-button-info"
-              (click)="openDialog(true, i)"
-              title="Edit"
-            ></button>
-            <button
-              pButton
-              icon="pi pi-trash"
-              class="p-button-rounded p-button-danger"
-              (click)="deleteSchemeType(i)"
-              title="Delete"
-            ></button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  
-    <!-- Show spinner while loading -->
-    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
-  </div>
+  <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Scheme-Type</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td>{{ item.type }}</td>
+        <td>{{ item.description }}</td>
+        <td>
+          <p-tag 
+              (click)="confirmToggleStatus(item)" 
+              [value]="item.isactive ? 'Active' : 'Inactive'" 
+              [severity]="item.isactive ? 'success' : 'danger'" 
+              [style]="{ cursor: 'pointer' }"
+          >
+          </p-tag>
+      </td>
+        <td class="actions-cell">
+          <button
+            pButton
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info"
+            (click)="openDialog(true, i)"
+            title="Edit"
+          ></button>
+          <button
+            pButton
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger"
+            (click)="deleteSchemeType(i)"
+            title="Delete"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+
+  <p-dialog
+    [header]="isEditMode ? 'Edit Scheme-Type' : 'Create Scheme-Type'"
+    [(visible)]="displayDialog"
+    [modal]="true"
+    [closable]="true"
+    [style]="{ width: '500px' }"
+    class="custom-dialog"
+  >
+    <div class="p-fluid">
+      <div class="p-field">
+        <label for="SchemeType">Scheme-Type</label>
+        <input
+          id="SchemeType"
+          type="text"
+          pInputText
+          [(ngModel)]="item.type"
+          class="custom-input"
+        />
+      </div>
+
+      <div class="p-field">
+        <label for="description">Description</label>
+        <input
+          id="description"
+          type="text"
+          pInputText
+          [(ngModel)]="item.description"
+          class="custom-input"
+        />
+      </div>
+    </div>
+
+    <p-footer class="custom-footer">
+      <button
+        pButton
+        icon="pi pi-check"
+        [label]="isEditMode ? 'Update Scheme-Type' : 'Create Scheme-Type'"
+        class="p-button-primary p-mr-2"
+        (click)="saveSchemeType()"
+      ></button>
+      <button
+        pButton
+        label="Cancel"
+        icon="pi pi-times"
+        class="p-button-secondary"
+        (click)="displayDialog = false"
+      ></button>
+    </p-footer>
+  </p-dialog>
+</div>

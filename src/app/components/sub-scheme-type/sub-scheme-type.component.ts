@@ -35,10 +35,10 @@ items: any[] = [];
   fetchSubSchemeTypes(): void {
     this.loading = true;
   
-    this.commonService.getAllSubSchemeTypes().subscribe({
+    this.commonService.getAllSubSchemeTypes('','',1,100).subscribe({
       next: (response: any) => {
         // Extract the `result` array from the response
-        const data = Array.isArray(response) ? response : response?.data || [];
+        const data = Array.isArray(response) ? response : response?.result.items || [];
   
         // Check if `data` is an array
         if (!Array.isArray(data)) {
@@ -50,7 +50,7 @@ items: any[] = [];
   
         // Process the valid array
         this.items = data
-          .filter((item: any) => !item.isDeleted)
+          .filter((item: any) => !item.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
   
         this.loading = false;
@@ -66,6 +66,30 @@ items: any[] = [];
       },
     });
   }
+    confirmToggleStatus(item: any) {
+      Swal.fire({
+        title: `Are you sure?`,
+        text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: item.isactive ? '#d33' : '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Toggle status
+          item.isactive = !item.isactive;
+    
+          // Show success message
+          Swal.fire({
+            title: 'Updated!',
+            text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
+            icon: 'success',
+            timer: 1500
+          });
+        }
+      });
+    }
     openDialog(isEdit: boolean = false, index?: number): void {
         this.isEditMode = isEdit;
         this.displayDialog = true;
@@ -78,7 +102,7 @@ items: any[] = [];
           };
         }
       }
-    saveSchemeType(): void {
+    saveSubSchemeType(): void {
         if (this.saving) return; // Prevent duplicate clicks
         this.saving = true;
     

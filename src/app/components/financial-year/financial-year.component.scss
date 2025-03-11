@@ -1,6 +1,6 @@
 .card {
-    max-width: 400px; // Adjusted for only 2 columns
-    margin: 20px auto;
+    // max-width: 1000px; // Adjusted for only 2 columns
+    // margin: 20px auto;
     padding: 20px;
     background: #ffffff;
     border-radius: 12px;
@@ -8,11 +8,12 @@
     text-align: center;
   }
   
-  p-table {
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-  }
+  // p-table {
+  //   width: 200%;
+  //   border-radius: 8px;
+  //   overflow: hidden;
+  //   height: 200%;
+  // }
   
   th, td {
     padding: 12px;
@@ -35,7 +36,22 @@
     justify-content: center;
     margin-top: 10px;
   }
-  
+  .actions-cell {
+    display: flex;
+    ; /* Stack buttons vertically */
+    justify-content: center;
+    align-items: center;
+    gap: 8px; /* Add space between buttons */
+}
+
+/* Reduce button size */
+.actions-cell button {
+    width: 36px; /* Make buttons smaller */
+    height: 36px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
   @media (max-width: 600px) {
     .card {
       width: 90%;
