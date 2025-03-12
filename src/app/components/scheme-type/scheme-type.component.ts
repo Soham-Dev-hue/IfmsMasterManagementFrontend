@@ -73,7 +73,7 @@ saving: boolean = false;
         this.item = { ...this.items[index] };
       } else {
         this.item = {
-          name: '',
+          description: '',
           type: '',
         };
       }

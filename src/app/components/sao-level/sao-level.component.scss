@@ -28,7 +28,7 @@ input[pInputText] {
 
 th, td {
   padding: 12px;
-  text-align: center;
+  text-align: left;
   font-size: 16px;
 }
 
@@ -71,6 +71,7 @@ p-progressSpinner {
   }
 
   th, td {
+    text-align: left;
     font-size: 14px;
   }
 }

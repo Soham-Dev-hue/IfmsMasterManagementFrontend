@@ -1,4 +1,18 @@
 <h2 class="p-text-bold p-mb-0">Manage Sub-Detail-Heads</h2>
+<div style="display: flex; gap: 50px;">
+  <p-dropdown 
+id="DetailHeadId"
+[options]="DetailHeadIdOptions"
+[(ngModel)]="item.detailHeadId"
+placeholder="Select Detail-Head-Code"
+[filter]="true"
+filterPlaceholder="Search Detail-Head-Code"
+(onChange)="getSubDetailHeadByDetailHeadId(item.detailHeadId)"
+></p-dropdown>
+  <p-button (click)="resetFilters()" >Reset</p-button>
+
+
+</div>
 <div class="card">
     <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
       <ng-template pTemplate="header">

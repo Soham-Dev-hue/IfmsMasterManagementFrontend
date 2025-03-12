@@ -17,10 +17,22 @@
   
   th, td {
     padding: 12px;
-    text-align: center;
+    text-align: left;
     font-size: 16px;
   }
+  .dropdown-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
   
+  .dropdown-label {
+    font-weight: bold;
+  }
+  
+  .card {
+    margin-top: 20px;
+  }
   th {
     background: linear-gradient(135deg, #007bff, #0056b3);
     color: white;
@@ -60,6 +72,7 @@
   
     th, td {
       font-size: 14px;
+      text-align: left;
     }
   }
   

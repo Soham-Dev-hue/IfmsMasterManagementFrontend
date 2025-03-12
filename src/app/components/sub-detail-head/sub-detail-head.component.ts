@@ -5,10 +5,24 @@ import { TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 @Component({
   selector: 'app-sub-detail-head',
   standalone: true,
-  imports: [TableModule, ProgressSpinnerModule, CommonModule, HttpClientModule],
+imports: [ CommonModule,
+      TableModule,
+      ButtonModule,
+      DialogModule,
+      FormsModule,
+      HttpClientModule,
+      ProgressSpinnerModule,
+      DropdownModule,
+      TagModule],
   providers: [CommonService],
   templateUrl: './sub-detail-head.component.html',
   styleUrl: './sub-detail-head.component.scss'
@@ -16,11 +30,17 @@ import { HttpClientModule } from '@angular/common/http';
 export class SubDetailHeadComponent {
 items: any[] = [];
   loading: boolean = false;
+  item:any={};
+  displayDialog: boolean = false;
+saving: boolean = false;
+codes: any[] = []; //
+DetailHeadIdOptions: any[]=[];
 
-  constructor(private commonService: CommonService) {}
+  constructor(private commonService: CommonService,private router:Router) {}
 
   ngOnInit(): void {
     this.fetchSubDetailHeads();
+    this.getDetailHeadIds();
   }
 
   fetchSubDetailHeads(): void {
@@ -57,4 +77,54 @@ items: any[] = [];
       },
     });
   }
+   getDetailHeadIds(): void {
+          this.commonService.getAllDetailHeads().subscribe({
+            next: (codes) => {
+      
+      console.log(this.codes);
+      
+              this.DetailHeadIdOptions = codes.map((code: any) => ({
+                label: code.code, 
+                value: code.code
+              }));
+            },
+            error: (error) => {
+              console.error('Error fetching Treasury Codes:', error);
+              Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to fetch Treasury Codes. Please try again.',
+              });
+            }
+          });
+        }
+        getSubDetailHeadByDetailHeadId(code: any): void{
+          console.log(code);
+          
+            this.loading = true;
+            this.commonService.getSubDetailHeadByDetailHeadId(code).subscribe({
+              next: (item) => {
+                console.log(code);
+                
+                this.items = item;
+                console.log(this.items);
+                
+                this.loading = false;
+              },
+              error: (error) => {
+                console.error('Error fetching item:', error);
+                this.loading = false;
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error!',
+                  text: 'Failed to fetch item. Please try again.',
+                });
+              },
+            });
+          }
+          resetFilters(): void {
+            this.router.navigateByUrl("/master/sub-detail-head").then(() => {
+              window.location.reload();
+            });
+          }
 }

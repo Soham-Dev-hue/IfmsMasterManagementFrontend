@@ -98,7 +98,8 @@ items: any[] = [];
           this.item = { ...this.items[index] };
         } else {
           this.item = {
-            name: '',
+            description: '',
+            type: '',
           };
         }
       }
@@ -115,17 +116,17 @@ items: any[] = [];
             Swal.fire({
               icon: 'success',
               title: 'Success!',
-              text: this.isEditMode ? ' fetchSchemeTypes updated successfully!' : ' fetchSchemeTypes added successfully!',
+              text: this.isEditMode ? ' SUBSchemeTypes updated successfully!' : ' SUBSchemeTypes added successfully!',
             });
             this.displayDialog = false;
             this.fetchSubSchemeTypes();
           },
           error: (error) => {
-            console.error('Error saving  fetchSchemeTypes:', error);
+            console.error('Error saving  SUBSchemeTypes:', error);
             Swal.fire({
               icon: 'error',
               title: 'Error!',
-              text: 'Failed to save  fetchSchemeTypes. Please try again.',
+              text: 'Failed to save  SUBSchemeTypes. Please try again.',
             });
           },
           complete: () => {

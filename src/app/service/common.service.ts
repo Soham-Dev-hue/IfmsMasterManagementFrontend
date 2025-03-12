@@ -124,7 +124,18 @@ export class CommonService {
   getAllSubMajorHeads(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}SubMajorHeadsMaster`);
   }
-
+  getSubMajorHeadByMajorHeadId(id: any): Observable<any>{
+    return this.http.get<any>(`${this.apiUrl}SubMajorHeadsMaster/SubMajorHeadByMajorHeadId/${id}`);
+  }
+getMinorHeadBySubMajorId(id: any): Observable<any>{
+  return this.http.get<any>(`${this.apiUrl}MinorHeadMaster/MinorHeadBySubMajorHead/${id}`);
+}
+getSchemeHeadByMinorHeadId(id: any,demandCode:any): Observable<any>{
+  return this.http.get<any>(`${this.apiUrl}SchemeHeadsMaster/SchemeHeadByMinorHeadId/${id}/${demandCode}`);
+}
+getMajorHeadByDemandCode(demandCode: any): Observable<any>{
+  return this.http.get<any>(`${this.apiUrl}MajorHeadsMaster/GeMajorByDemand/${demandCode}`);
+}
   getAllMinorHeads(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}MinorHeadMaster`);
   }
@@ -140,7 +151,9 @@ export class CommonService {
   getAllSubDetailHeads(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}SubDetailHeadsMaster`);
   }
-
+getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
+  return this.http.get<any>(`${this.apiUrl}SubDetailHeadsMaster/SubdetailHeadByDetailHeadId/${id}`);
+}
   getAllSchemeTypes(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}SchemeType/schemetype`,{
       params: {
@@ -166,7 +179,7 @@ export class CommonService {
   }
 
   getAllSubSchemeTypes(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SubSchemeType/get-sub-scheme-types`,{
+    return this.http.get<any[]>(`${this.apiUrl}SubSchemeType/subschemetype`,{
       params:{
         search:search,
         filter:filter,

@@ -1,6 +1,4 @@
 .card {
-  // max-width: 1000px; // Adjusted for only 2 columns
-  // margin: 20px auto;
   padding: 20px;
   background: #ffffff;
   border-radius: 12px;
@@ -8,16 +6,16 @@
   text-align: center;
 }
 
-// p-table {
-//   width: 200%;
-//   border-radius: 8px;
-//   overflow: hidden;
-//   height: 200%;
-// }
+p-table {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
 
+/* Table Header and Cells */
 th, td {
   padding: 12px;
-  text-align: center;
+  text-align: left; /* Ensuring left alignment */
   font-size: 16px;
 }
 
@@ -31,27 +29,31 @@ tr:hover {
   background: rgba(0, 123, 255, 0.12);
 }
 
+/* Progress Spinner */
 p-progressSpinner {
   display: flex;
   justify-content: center;
   margin-top: 10px;
 }
+
+/* Actions Cell */
 .actions-cell {
   display: flex;
-  ; /* Stack buttons vertically */
   justify-content: center;
   align-items: center;
-  gap: 8px; /* Add space between buttons */
+  gap: 8px;
 }
 
 /* Reduce button size */
 .actions-cell button {
-  width: 36px; /* Make buttons smaller */
+  width: 36px;
   height: 36px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
+/* Responsive Design */
 @media (max-width: 600px) {
   .card {
     width: 90%;

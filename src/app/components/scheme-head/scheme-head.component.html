@@ -1,24 +1,93 @@
 <h2 class="p-text-bold p-mb-0">Manage Scheme-Heads</h2>
-<div class="card">
-    <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>DemandCode</th>
-          <th>Code</th>
-          <th>Name</th>
-          <th>MinorHeadId</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-item>
-        <tr>
-          <td>{{ item.demandCode }}</td>
-          <td>{{ item.code }}</td>
-          <td>{{ item.name }}</td>
-          <td>{{ item.minorHeadId }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  
-    <!-- Show spinner while loading -->
-    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+<div style="display: flex; gap: 50px;">
+  <!-- Demand Code Dropdown -->
+   <div class="dropdown-container">
+    <label for="DemandCodeDropDown" class="dropdown-label">DemandCode:</label>
+    <p-dropdown
+      id="DemandCode"
+      [options]="DemandCodeOptions"
+      [(ngModel)]="selectedDemandCode"
+      placeholder="Select DemandCode"
+      [filter]="true"
+      filterPlaceholder="Search DemandCode"
+      (onChange)="OnChangeDemandCode()"
+    ></p-dropdown>
+   </div>
+
+
+  <!-- Major Head Dropdown -->
+  <div class="dropdown-container" *ngIf="MajorHeadOptions.length > 0">
+    <label for="MajorHeadDropdown" class="dropdown-label">Major Head:</label>
+    <p-dropdown
+      id="MajorHeadDropdown"
+      [options]="MajorHeadOptions"
+      [(ngModel)]="selectedMajorHeadId"
+      placeholder="Select Major Head"
+      (onChange)="getSubMajorHeadByMajorHeadId()"
+    ></p-dropdown>
   </div>
+
+  <!-- Sub-Major Head Dropdown -->
+  <div class="dropdown-container" *ngIf="subMajorHeadOptions.length > 0">
+    <label for="subMajorHeadDropdown" class="dropdown-label">Sub-Major Head:</label>
+    <p-dropdown
+      id="subMajorHeadDropdown"
+      [options]="subMajorHeadOptions"
+      [(ngModel)]="selectedSubMajorHeadId"
+      placeholder="Select Sub-Major Head"
+      (onChange)="getMinorHeadBySubMajorHeadId()"
+    ></p-dropdown>
+  </div>
+
+  <!-- Minor Head Dropdown -->
+  <div class="dropdown-container" *ngIf="minorHeadOptions.length > 0">
+    <label for="minorHeadCodeDropdown" class="dropdown-label">Minor Head Code:</label>
+    <p-dropdown
+      id="minorHeadCodeDropdown"
+      [options]="minorHeadOptions"
+      [(ngModel)]="selectedMinorHeadCode"
+      placeholder="Select Minor Head Code"
+      (onChange)="onMinorHeadCodeChange()"
+    ></p-dropdown>
+  </div>
+
+  <!-- Scheme Head Dropdown -->
+  <div class="dropdown-container" *ngIf="schemeHeadOptions.length > 0">
+    <label for="schemeHeadCodeDropdown" class="dropdown-label">Scheme Head Code:</label>
+    <p-dropdown
+      id="schemeHeadCodeDropdown"
+      [options]="schemeHeadOptions"
+      [(ngModel)]="selectedSchemeHeadCode"
+      placeholder="Select Scheme Head Code"
+      (onChange)="onSchemeHeadCodeChange()"
+    ></p-dropdown>
+  </div>
+
+  <!-- Reset Button -->
+  <p-button (click)="resetFilters()">Reset</p-button>
+</div>
+
+<!-- Table to Display Scheme Heads -->
+<div class="card">
+  <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
+    <ng-template pTemplate="header">
+      <tr>
+        <!-- <th>DemandCode</th> -->
+        <th>Code</th>
+        <th>Name</th>
+        <!-- <th>MinorHeadId</th> -->
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <!-- <td>{{ item.demandCode }}</td> -->
+        <td>{{ item.code }}</td>
+        <td>{{ item.name }}</td>
+        <!-- <td>{{ item.minorHeadId }}</td> -->
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Show spinner while loading -->
+  <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+</div>

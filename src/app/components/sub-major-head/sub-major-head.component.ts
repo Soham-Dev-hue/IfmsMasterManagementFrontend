@@ -5,10 +5,24 @@ import { TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
+import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-sub-major-head',
   standalone: true,
-  imports: [TableModule, ProgressSpinnerModule, CommonModule, HttpClientModule],
+  imports: [ CommonModule,
+      TableModule,
+      ButtonModule,
+      DialogModule,
+      FormsModule,
+      HttpClientModule,
+      ProgressSpinnerModule,
+      DropdownModule,
+      TagModule],
   providers: [CommonService],
   templateUrl: './sub-major-head.component.html',
   styleUrl: './sub-major-head.component.scss'
@@ -19,13 +33,21 @@ items: any[] = [];
   selectedMajorHead: string ='';
   codes: any[] = []; //
   MajorHeadIdOptions: any[]=[];
+  item:any={};
 
-  constructor(private commonService: CommonService) {}
+
+  constructor(private commonService: CommonService,private router:Router) {}
 
   ngOnInit(): void {
     this.fetchSubMajorHeads();
+    this. getMajorHeadIds();
   }
-
+  resetFilters(): void {
+    this.router.navigateByUrl("/master/sub-major-head").then(() => {
+      window.location.reload();
+    });
+  }
+  
   fetchSubMajorHeads(): void {
     this.loading = true;
   
@@ -81,26 +103,28 @@ items: any[] = [];
         }
       });
     }
-    // getSubMajorHeadByMajorHeadId(code: any): void{
-    //     this.loading = true;
-    //     this.commonService.getDDOByTreasuryCode(code).subscribe({
-    //       next: (ddo) => {
-    //         console.log(code);
+    getSubMajorHeadByMajorHeadId(code: any): void{
+      console.log(code);
+      
+        this.loading = true;
+        this.commonService.getSubMajorHeadByMajorHeadId(code).subscribe({
+          next: (item:any) => {
+            console.log(code);
             
-    //         this.ddoList = ddo;
-    //         console.log(this.ddoList);
+            this.items = item;
+            console.log(this.items);
             
-    //         this.loading = false;
-    //       },
-    //       error: (error) => {
-    //         console.error('Error fetching DDO:', error);
-    //         this.loading = false;
-    //         Swal.fire({
-    //           icon: 'error',
-    //           title: 'Error!',
-    //           text: 'Failed to fetch DDO. Please try again.',
-    //         });
-    //       },
-    //     });
-    //   }
+            this.loading = false;
+          },
+          error: (error:any) => {
+            console.error('Error fetching item:', error);
+            this.loading = false;
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Failed to fetch item. Please try again.',
+            });
+          },
+        });
+      }
 }

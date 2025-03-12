@@ -1,15 +1,20 @@
 <h2 class="p-text-bold p-mb-0">Manage Sub-Major-Heads</h2>
-<div class="filterContainer">
-  <!-- <p-dropdown 
+<div class="filterContainer" style="display:flex; gap: 10px;">
+  <p-dropdown 
   id="MajorHeadId"
   [options]="MajorHeadIdOptions"
   [(ngModel)]="item.majorHeadId"
-  placeholder="Select Major-Head-Id"
+  placeholder="Select Major-Head-Code"
   [filter]="true"
   filterPlaceholder="Search Major-Head-Id"
   (onChange)="getSubMajorHeadByMajorHeadId(item.majorHeadId)"
-></p-dropdown> -->
+></p-dropdown>
+<div >
+
 </div>
+<p-button (click)="resetFilters()" >Reset Filters</p-button>
+</div>
+
 <div class="card">
     <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
       <ng-template pTemplate="header">
