@@ -72,11 +72,11 @@ export class MinorHeadComponent {
 
   // Fetch major heads for dropdown
   getMajorHeadIds(): void {
-    this.commonService.getAllMajorHeads().subscribe({
-      next: (majorHeads) => {
-        this.majorHeadOptions = majorHeads.map((major: any) => ({
+    this.commonService.getAllMajorHeads('','',1,100).subscribe({
+      next: (majorHeads:any) => {
+        this.majorHeadOptions = majorHeads.result.items.map((major: any) => ({
           label: major.code,
-          value: major.id // Use major head ID as value
+          value: major.code // Use major head ID as value
         }));
       },
       error: () => {

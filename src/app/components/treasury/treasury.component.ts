@@ -43,7 +43,7 @@ TreasuryCodeOptions:any[]=[];
     { label: 'All', value: '' },
     { label: 'Code', value: 'code' },
     { label: 'Officer Name', value: 'officerName' },
-    { label: 'District Name', value: 'districtName' },
+    { label: 'District Code', value: 'districtCode' },
     { label: 'Treasury Name', value: 'treasuryName' }
   ];
 codes:any[]=[];

@@ -117,8 +117,15 @@ export class CommonService {
       });
     }
 
-  getAllMajorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}MajorHeadsMaster`);
+  getAllMajorHeads(search:string='',filter:string='',pageNumber?:any,pageSize?:any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}MajorHeadsMaster`,{
+      params: {
+        search: search,
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize
+      }
+    });
   }
 
   getAllSubMajorHeads(): Observable<any[]> {
@@ -144,8 +151,15 @@ getMajorHeadByDemandCode(demandCode: any): Observable<any>{
     return this.http.get<any[]>(`${this.apiUrl}SchemeHeadsMaster`);
   }
 
-  getAllDetailHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}DetailHeadsMaster`);
+  getAllDetailHeads(search:string='',filter:string='',pageNumber:any,pageSize:any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}DetailHeadsMaster/detailhead`,{
+      params: {
+        search: search,
+        filter: '',
+        pageNumber,
+        pageSize
+      }
+    });
   }
 
   getAllSubDetailHeads(): Observable<any[]> {

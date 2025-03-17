@@ -42,8 +42,14 @@ export class SaoComponent implements OnInit {
   saoCodes = Object.values(SaoCodes);
   searchQuery: string = '';
   selectedFilter: string = '';
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
+  
+  levels: any[] = [];
   selectedLevel: number | null = null;
-  levels:any[] = [];
+
   
 
   filterOptions: any[] = [
@@ -61,7 +67,15 @@ export class SaoComponent implements OnInit {
     this.fetchSaos();
     this.getSaoLevels();
   }
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
 
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchSaos();
+  }
   fetchSaos(): void {
     this.loading = true;
 
@@ -92,7 +106,7 @@ console.log(data);
         console.log("API Response:", response);
   
         if (response && Array.isArray(response.result?.items)) {
-          this.levels = response.result?.items;
+          this.levels = response.result?.items.filter((saolevel: any) => !saolevel.isdeleted);
           this.levelOptions = this.levels.map((level: any) => ({
 
 
@@ -215,27 +229,38 @@ confirmToggleStatus(sao: any) {
   deleteSao(index: number): void {
     const saoId = this.saos[index].id;
     const deletedSao = this.saos[index]; // Store for rollback
-
-    
-    this.saos.splice(index, 1); // Optimistically update UI
-
-    this.saoService.softDeleteSao(saoId).subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'SAO deleted successfully.',
+  
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this SAO!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.saos.splice(index, 1); // Optimistically update UI
+  
+        this.saoService.softDeleteSao(saoId).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: 'SAO deleted successfully.',
+            });
+          },
+          error: (error) => {
+            console.error('Error deleting SAO:', error);
+            this.saos.splice(index, 0, deletedSao); // Rollback UI change
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Failed to delete SAO. Please try again.',
+            });
+          },
         });
-      },
-      error: (error) => {
-        console.error('Error deleting SAO:', error);
-        this.saos.splice(index, 0, deletedSao); // Rollback UI change
-        Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Failed to delete SAO. Please try again.',
-        });
-      },
+      }
     });
   }
   

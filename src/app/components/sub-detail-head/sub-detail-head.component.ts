@@ -78,12 +78,13 @@ DetailHeadIdOptions: any[]=[];
     });
   }
    getDetailHeadIds(): void {
-          this.commonService.getAllDetailHeads().subscribe({
-            next: (codes) => {
+          this.commonService.getAllDetailHeads("","",1,1000).subscribe({
+            next: (response:any) => {
+     console.log(response);
+     
+ 
       
-      console.log(this.codes);
-      
-              this.DetailHeadIdOptions = codes.map((code: any) => ({
+              this.DetailHeadIdOptions = response.result.items.map((code: any) => ({
                 label: code.code, 
                 value: code.code
               }));

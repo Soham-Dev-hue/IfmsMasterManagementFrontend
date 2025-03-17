@@ -34,7 +34,10 @@ items: any[] = [];
   codes: any[] = []; //
   MajorHeadIdOptions: any[]=[];
   item:any={};
-
+  pageNumber: number = 1;
+  pageSize: number = 100;
+  totalItems: number = 0;
+  totalPages: number = 0;
 
   constructor(private commonService: CommonService,private router:Router) {}
 
@@ -83,12 +86,12 @@ items: any[] = [];
     });
   }
    getMajorHeadIds(): void {
-      this.commonService.getAllMajorHeads().subscribe({
-        next: (codes) => {
+      this.commonService.getAllMajorHeads('','',this.pageNumber,this.pageSize).subscribe({
+        next: (response:any) => {
   
-  console.log(this.codes);
+
   
-          this.MajorHeadIdOptions = codes.map((code: any) => ({
+          this.MajorHeadIdOptions = response.result.items.map((code: any) => ({
             label: code.code, 
             value: code.code
           }));

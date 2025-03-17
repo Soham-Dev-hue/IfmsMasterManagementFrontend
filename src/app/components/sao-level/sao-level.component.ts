@@ -59,7 +59,7 @@ export class SaoLevelComponent implements OnInit {
     const page = event && event.first !== undefined ? event.first / this.rows + 1 : 1;
     const pageSize: any = event && event.rows !== undefined ? event.rows : this.rows;
 
-    this.commonService.getAllSAOLevels(this.searchText, this.selectedfilter, page, pageSize).subscribe({
+    this.commonService.getAllSAOLevels(this.searchText, this.selectedfilter, page, 100).subscribe({
       next: (response: any) => {
         this.items = response.result.items
         .filter((item: any) => !item.isdeleted)
