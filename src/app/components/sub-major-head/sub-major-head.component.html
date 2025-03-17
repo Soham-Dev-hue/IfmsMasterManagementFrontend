@@ -1,13 +1,21 @@
 <h2 class="p-text-bold p-mb-0">Manage Sub-Major-Heads</h2>
 <div class="filterContainer" style="display:flex; gap: 10px;">
+  <input
+    pInputText
+    type="text"
+    placeholder="Search SubMajorHeads..."
+    [(ngModel)]="searchQuery"
+    (keyup.enter)="fetchSubMajorHeads()"
+    (input)="onSearchChange()"
+  />
   <p-dropdown 
   id="MajorHeadId"
-  [options]="MajorHeadIdOptions"
-  [(ngModel)]="item.majorHeadId"
+  [options]="MajorHeadOptions"
+  [(ngModel)]="selectedMajorHead"
   placeholder="Select Major-Head-Code"
   [filter]="true"
   filterPlaceholder="Search Major-Head-Id"
-  (onChange)="getSubMajorHeadByMajorHeadId(item.majorHeadId)"
+  (onChange)="onCodeChange()"
 ></p-dropdown>
 <div >
 

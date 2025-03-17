@@ -45,7 +45,7 @@ export class MinorHeadComponent {
   ngOnInit(): void {
     console.log("Component reloaded successfully");
     this.fetchMinorHeads(); // Fetch all minor heads on init
-    this.getMajorHeadIds(); // Fetch major heads for dropdown
+    // this.getMajorHeadIds(); // Fetch major heads for dropdown
   }
 
   // Fetch all minor heads
@@ -71,19 +71,19 @@ export class MinorHeadComponent {
   }
 
   // Fetch major heads for dropdown
-  getMajorHeadIds(): void {
-    this.commonService.getAllMajorHeads().subscribe({
-      next: (majorHeads) => {
-        this.majorHeadOptions = majorHeads.map((major: any) => ({
-          label: major.code,
-          value: major.id // Use major head ID as value
-        }));
-      },
-      error: () => {
-        Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to fetch Major Heads.' });
-      }
-    });
-  }
+  // getMajorHeadIds(): void {
+  //   this.commonService.getAllMajorHeads().subscribe({
+  //     next: (majorHeads) => {
+  //       this.majorHeadOptions = majorHeads.map((major: any) => ({
+  //         label: major.code,
+  //         value: major.id // Use major head ID as value
+  //       }));
+  //     },
+  //     error: () => {
+  //       Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to fetch Major Heads.' });
+  //     }
+  //   });
+  // }
 
   // When a major head is selected, fetch corresponding sub-major heads
   onMajorHeadChange(): void {

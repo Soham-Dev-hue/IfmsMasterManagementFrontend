@@ -18,25 +18,31 @@
           (onChange)="onFilterChange()"
         ></p-dropdown>
       
-      </div>
-      <p-dropdown 
-      id="treasuryCode"
-      [options]="TreasuryCodeOptions"
-      [(ngModel)]="ddo.treasuryCode"
-      placeholder="Select Treasury Code"
-      [filter]="true"
-      filterPlaceholder="Search Treasury Code"
-      (onChange)="getDdoByTreasuryCode(ddo.treasuryCode)"
-    ></p-dropdown>
-    
-      <button
+        <p-dropdown 
+        id="treasuryCode"
+        [options]="TreasuryCodeOptions"
+        [(ngModel)]="selectedCode"
+        placeholder="Select Treasury Code"
+        [filter]="true"
+        filterPlaceholder="Search Treasury Code"
+        (onChange)="onCodeChange()"
+        ></p-dropdown>
+        <button
+        pButton
+        label=""
+        icon="pi pi-refresh"
+        (click)="resetFilters()"
+        ></button>
+        
+        <button
         pButton
         type="button"
         label="Create DDO"
         icon="pi pi-plus"
         class="p-button-success p-button-lg"
         (click)="openDialog()"
-      ></button>
+        ></button>
+      </div>
     </div>
   
     <!-- Table with Pagination -->

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonService } from '../../service/common.service';
 import Swal from 'sweetalert2';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -17,6 +17,10 @@ import { HttpClientModule } from '@angular/common/http';
 export class MajorHeadComponent {
  items: any[] = [];
   loading: boolean = false;
+  searchText: string = '';
+  selectedfilter: string = '';
+  pageNumber?: number;
+  pageSize?: number;
 
   constructor(private commonService: CommonService) {}
 
@@ -24,11 +28,35 @@ export class MajorHeadComponent {
     this.fetchMajorHeads();
   }
 
-  fetchMajorHeads(): void {
+  fetchMajorHeads(event?: TableLazyLoadEvent): void {
     this.loading = true;
 
-    this.commonService.getAllMajorHeads().subscribe({
-      next: (data) => {
+    const pageNumber =
+      event?.first !== undefined &&
+      typeof event.rows === 'number' &&
+      event.rows > 0
+        ? Math.floor(event.first / event.rows)+1
+        : undefined;
+
+    const pageSize =
+      typeof event?.rows === 'number' && event.rows > 0
+        ? event.rows
+        : undefined;
+
+    this.commonService.getAllMajorHeads(this.searchText,
+        this.selectedfilter,
+        pageNumber,
+        pageSize).subscribe({
+      next: (response:any) => {
+        const data = Array.isArray(response)
+            ? response
+            : response?.result.items || [];
+          if (!Array.isArray(data)) {
+            console.error('Unexpected response format:', response);
+            this.items = [];
+            this.loading = false;
+            return;
+          }
         this.items = data
           .filter((item: any) => !item.isDeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
@@ -47,3 +75,5 @@ export class MajorHeadComponent {
     });
   }
 }
+
+

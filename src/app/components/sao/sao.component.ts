@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SaoCodes } from './sao-codes.enum';
 import { CommonService } from '../../service/common.service';
+import { LazyLoadEvent } from 'primeng/api';
 
 @Component({
   selector: 'app-sao',
@@ -29,7 +30,7 @@ import { CommonService } from '../../service/common.service';
     TableModule,
     TagModule
   ],
-  providers: [SaoService,CommonService],
+  providers: [SaoService, CommonService],
   templateUrl: './sao.component.html',
   styleUrls: ['./sao.component.scss'],
 })
@@ -42,9 +43,13 @@ export class SaoComponent implements OnInit {
   saoCodes = Object.values(SaoCodes);
   searchQuery: string = '';
   selectedFilter: string = '';
-  selectedLevel: number | null = null;
-  levels:any[] = [];
-  
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
+  selectedLevel: string | undefined = undefined;
+  levels: any[] = [];
+
 
   filterOptions: any[] = [
     { label: 'All', value: '' },
@@ -53,24 +58,55 @@ export class SaoComponent implements OnInit {
     { label: 'Next Level Code', value: 'nextLevelCode' },
   ];
 
-  levelOptions:any[] = [];
+  levelOptions: any[] = [];
 
-  constructor(private saoService: SaoService,private commonService:CommonService) {}
+  constructor(private saoService: SaoService, private commonService: CommonService) { }
 
   ngOnInit(): void {
     this.fetchSaos();
     this.getSaoLevels();
   }
 
+  // Getter: Calculate the first index based on pageNumber and pageSize
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
+
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchSaos();
+  }
+
+
+
   fetchSaos(): void {
     this.loading = true;
 
-    this.saoService.getAllany(this.searchQuery, this.selectedFilter).subscribe({
-      next: (data) => {
+    this.saoService.getAllany(this.searchQuery,
+      this.selectedFilter,
+      this.pageNumber,
+      this.pageSize,
+      this.selectedLevel).subscribe({
+      next: (response: any) => {
+
+        const data = Array.isArray(response) ? response : response?.result.items || [];
+
+        // Check if `data` is an array
+        if (!Array.isArray(data)) {
+          console.error("Unexpected response format:", response);
+          this.saos = [];
+          this.loading = false;
+          return;
+        }
+        this.totalItems = response?.result?.totalRecords || 0;
+        console.log("totalItems", this.totalItems);
+        this.totalPages = response?.result?.totalPages || 0;
+        console.log("totalpages", this.totalPages);
         this.saos = data
           .filter((sao: any) => !sao.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
-console.log(data);
+        console.log(data);
 
         this.loading = false;
       },
@@ -85,25 +121,33 @@ console.log(data);
       },
     });
   }
-  
+
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
+    this.fetchSaos();  // Fetch the data for the updated page
+  }
+
+
+
+
+
   getSaoLevels(): void {
-    this.commonService.getAllSAOLevels('','',1,10).subscribe({
-      next: (response:any) => {
-        console.log("API Response:", response);
-  
+    this.commonService.getAllSAOLevels(this.searchQuery,this.selectedFilter).subscribe({
+      next: (response: any) => {
+        console.log('API Response:', response);
+
         if (response && Array.isArray(response.result?.items)) {
-          this.levels = response.result?.items;
+          this.levels = response.result?.items.filter((soalevel:any)=>!soalevel.isdeleted);
+
           this.levelOptions = this.levels.map((level: any) => ({
+            label: level.name === 'Department' ? 'ALL' : level.name, // Use 'Department' instead of 'Department Level' for better UX
 
-
-
-            label: level.name === 'Department'? 'ALL' : level.name, // Use 'Department' instead of 'Department Level' for better UX
-           
-         
-            value: level.code, // Value should remain as 'code'
+            value: level.code.toString().padStart(2, '0').slice(-2), // Value should remain as 'code'
           }));
         } else {
-          console.error("Invalid API Response format:", response);
+          console.error('Invalid API Response format:', response);
           this.levels = [];
           this.levelOptions = [];
         }
@@ -113,83 +157,91 @@ console.log(data);
         Swal.fire({
           icon: 'error',
           title: 'Error!',
-          text: 'Failed to fetch SAO Levels. Please try again.',  
+          text: 'Failed to fetch SAO Levels. Please try again.',
         });
-      }
+      },
     });
   }
-  
-  
-    onSearchChange(): void {
+
+  onLevelChange(): void {
+    this.fetchSaos();
+  }
+
+  onSearchChange(): void {
     this.fetchSaos();
   }
 
   onFilterChange(): void {
+    if (this.selectedLevel) {
+      this.selectedLevel =
+        this.selectedLevel.toString().length === 1
+          ? '0' + this.selectedLevel
+          : this.selectedLevel.toString();
+    }
     this.fetchSaos();
   }
-  onLevelChange(event: any): void {
-    this.loading = true;
-    if(event?.value===1)
-    {
-      this.ngOnInit();
-    }
-    const selectedCode:number = event?.value; // Extract selected code
-    console.log(event);
-    console.log(typeof selectedCode);
-    
-    console.log("Selected Level Code:", selectedCode);
-    
-    if (!selectedCode) {
-      console.warn("No valid selection made.");
-      this.loading = false;
-      return;
-    }
-  
-    this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
-      next: (sao: any) => {
-        this.saos = Array.isArray(sao.result) ? sao.result : [];
-        console.log("SAO List:", this.saos);
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error("Error fetching SAO:", error);
-        this.loading = false;
+  // onLevelChange(event: any): void {
+  //   this.loading = true;
+  //   if (event?.value === 1) {
+  //     this.ngOnInit();
+  //   }
+  //   const selectedCode: number = event?.value; // Extract selected code
+  //   console.log(event);
+  //   console.log(typeof selectedCode);
+
+  //   console.log("Selected Level Code:", selectedCode);
+
+  //   if (!selectedCode) {
+  //     console.warn("No valid selection made.");
+  //     this.loading = false;
+  //     return;
+  //   }
+
+  //   this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
+  //     next: (sao: any) => {
+  //       this.saos = Array.isArray(sao.result) ? sao.result : [];
+  //       console.log("SAO List:", this.saos);
+  //       this.loading = false;
+  //     },
+  //     error: (error: any) => {
+  //       console.error("Error fetching SAO:", error);
+  //       this.loading = false;
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Error!",
+  //         text: "Failed to fetch SAO. Please try again.",
+  //       });
+  //     },
+  //   });
+  // }
+
+
+
+
+  confirmToggleStatus(sao: any) {
+    Swal.fire({
+      title: `Are you sure?`,
+      text: `You are about to mark this SAO as ${sao.isactive ? 'Inactive' : 'Active'}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: sao.isactive ? '#d33' : '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: sao.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Toggle status
+        sao.isactive = !sao.isactive;
+
+        // Show success message
         Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: "Failed to fetch SAO. Please try again.",
+          title: 'Updated!',
+          text: `The SAO has been marked as ${sao.isactive ? 'Active' : 'Inactive'}.`,
+          icon: 'success',
+          timer: 1500
         });
-      },
+      }
     });
   }
-  
-  
-
-
-confirmToggleStatus(sao: any) {
-  Swal.fire({
-    title: `Are you sure?`,
-    text: `You are about to mark this SAO as ${sao.isactive ? 'Inactive' : 'Active'}.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: sao.isactive ? '#d33' : '#28a745',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: sao.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Toggle status
-      sao.isactive = !sao.isactive;
-
-      // Show success message
-      Swal.fire({
-        title: 'Updated!',
-        text: `The SAO has been marked as ${sao.isactive ? 'Active' : 'Inactive'}.`,
-        icon: 'success',
-        timer: 1500
-      });
-    }
-  });
-}
 
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;
@@ -216,7 +268,7 @@ confirmToggleStatus(sao: any) {
     const saoId = this.saos[index].id;
     const deletedSao = this.saos[index]; // Store for rollback
 
-    
+
     this.saos.splice(index, 1); // Optimistically update UI
 
     this.saoService.softDeleteSao(saoId).subscribe({
@@ -238,7 +290,7 @@ confirmToggleStatus(sao: any) {
       },
     });
   }
-  
+
 
   saveSao(): void {
     if (this.isEditMode) {

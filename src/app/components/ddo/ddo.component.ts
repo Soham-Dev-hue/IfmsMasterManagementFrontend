@@ -39,14 +39,15 @@ export class DdoComponent implements OnInit {
   loading: boolean = false; // Loading state
   searchQuery: string = '';
   selectedFilter: string = '';
-  filterOptions: any[] = [
-    { label: 'All', value: '' },
-    { label: 'TreasuryCode', value: 'treasurycode' },
-    { label: 'Designation', value: 'designation' },
-  ];
-  selectedCode: string ='';
+  filterOptions: any[] = [];
+  selectedCode:string | undefined = undefined;
   codes: any[] = []; //
   TreasuryCodeOptions: any[]=[];
+
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalRecords: number = 0;
+  allowedFields = ['treasuryCode', 'ddoCode','designation','address'];
 
   constructor(private ddoService: DdoService, private commonService: CommonService) {}
 
@@ -56,17 +57,37 @@ export class DdoComponent implements OnInit {
     this.getTreasuryCodes();
   }
 
-  // Fetch DDOs from the backend
-  fetchDDOs(): void {
-    this.loading = true;
-    this.ddoService.getAllDDOs(this.searchQuery,this.selectedFilter).subscribe({
-      next: (data) => {
+ // Fetch DDOs from the backend
+ fetchDDOs(): void {
+  this.loading = true;
+  console.log("Fetching DDOs with Treasury Code:", this.selectedCode);
+  this.ddoService
+    .getAllDDOs(
+      this.searchQuery,
+      this.selectedFilter,
+      this.pageNumber,
+      this.pageSize,
+      this.selectedCode
+    )
+    .subscribe({
+      next: (response: any) => {
+        console.log("DDO API Response:", response);
+        const data = Array.isArray(response)
+          ? response
+          : response?.result.items || [];
+        if (!Array.isArray(data)) {
+          console.error('Unexpected response format:', response);
+          this.ddoList = [];
+          this.loading = false;
+          return;
+        }
+
         this.ddoList = data
-        .filter((ddo: any) => !ddo.isdeleted)
-        .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
-      
-        
-        this.loading = false;
+          .filter((ddo: any) => !ddo.isdeleted)
+          .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+          this.totalRecords = response?.result?.totalRecords || this.ddoList.length;
+          this.generateFilterFields(data);
+          this.loading = false;
       },
       error: (error) => {
         console.error('Error fetching DDOs:', error);
@@ -78,50 +99,80 @@ export class DdoComponent implements OnInit {
         });
       },
     });
-  }
-  getTreasuryCodes(): void {
-    this.commonService.getAllTreasuries().subscribe({
-      next: (codes) => {
+}
 
-console.log(this.codes);
+getTreasuryCodes(): void {
+  this.commonService.getAllTreasuries().subscribe({
+    next: (codes) => {
+      console.log(this.codes);
+      const data=codes.filter((treasury:any)=>!treasury.isdeleted)
+      this.TreasuryCodeOptions = data.map((code: any) => ({
+        label: code.code,
+        value: code.code,
+      }));
+    },
+    error: (error) => {
+      console.error('Error fetching Treasury Codes:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to fetch Treasury Codes. Please try again.',
+      });
+    },
+  });
+}
 
-        this.TreasuryCodeOptions = codes.map((code: any) => ({
-          label: code.code, 
-          value: code.code
-        }));
-      },
-      error: (error) => {
-        console.error('Error fetching Treasury Codes:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Failed to fetch Treasury Codes. Please try again.',
-        });
-      }
-    });
-  }
-  getDdoByTreasuryCode(code: any): void{
-    this.loading = true;
-    this.ddoService.getDDOByTreasuryCode(code).subscribe({
-      next: (ddo) => {
-        console.log(code);
+generateFilterFields(ddos: any[]): void {
+  if (ddos.length === 0) return;
+
+  const firstDDO = ddos[0];
+  this.filterOptions = Object.keys(firstDDO)
+    .filter((field) => this.allowedFields.includes(field))
+    .map((field) => ({
+      label: field.replace(/([A-Z])/g, ' $1').trim(),
+      value: field,
+    }));
+
+  // Add a default "All" option
+  this.filterOptions.unshift({ label: 'All', value: '' });
+}
+
+resetFilters(): void {
+  this.searchQuery = '';
+  this.selectedFilter = '';
+  this.selectedCode = undefined;
+  this.pageNumber = 1;
+  this.fetchDDOs();
+}
+onCodeChange(): void {
+  console.log("Treasury Code Changed:", this.selectedCode);
+  this.fetchDDOs();
+}
+
+  // getDdoByTreasuryCode(code: any): void{
+  //   this.loading = true;
+  //   this.ddoService.getDDOByTreasuryCode(code).subscribe({
+  //     next: (ddo) => {
+  //       console.log(code);
         
-        this.ddoList = ddo;
-        console.log(this.ddoList);
+  //       this.ddoList = ddo;
+  //       console.log(this.ddoList);
         
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('Error fetching DDO:', error);
-        this.loading = false;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Failed to fetch DDO. Please try again.',
-        });
-      },
-    });
-  }
+  //       this.loading = false;
+  //     },
+  //     error: (error) => {
+  //       console.error('Error fetching DDO:', error);
+  //       this.loading = false;
+  //       Swal.fire({
+  //         icon: 'error',
+  //         title: 'Error!',
+  //         text: 'Failed to fetch DDO. Please try again.',
+  //       });
+  //     },
+  //   });
+  // }
+
+
   onSearchChange(): void {
     this.fetchDDOs();
   }

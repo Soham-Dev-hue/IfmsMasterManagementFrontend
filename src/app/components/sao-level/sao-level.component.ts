@@ -39,7 +39,8 @@ export class SaoLevelComponent implements OnInit {
   rows: number = 10;
   searchText: string = '';
   selectedfilter: string = '';
-
+  pageNumber?: number;
+  pageSize?: number;
   // Dialog state
   displayDialog: boolean = false;
   isEditMode: boolean = false;
@@ -56,35 +57,56 @@ export class SaoLevelComponent implements OnInit {
 
   fetchSaoLevels(event?: TableLazyLoadEvent): void {
     this.loading = true;
-    const page = event && event.first !== undefined ? event.first / this.rows + 1 : 1;
-    const pageSize: any = event && event.rows !== undefined ? event.rows : this.rows;
 
-    this.commonService.getAllSAOLevels(this.searchText, this.selectedfilter, page, pageSize).subscribe({
-      next: (response: any) => {
-        this.items = response.result.items
-        .filter((item: any) => !item.isdeleted)
-        .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+    const pageNumber =
+      event?.first !== undefined &&
+      typeof event.rows === 'number' &&
+      event.rows > 0
+        ? Math.floor(event.first / event.rows)+1
+        : undefined;
 
-        this.totalRecords = response.result.totalRecords;
-        this.loading = false;
-      },
-      error: (error) => {
-        console.error('There was an error!', error);
-        this.loading = false;
-        Swal.fire({
-          icon: 'error',
-          title: 'Error!',
-          text: 'Failed to fetch SAO levels. Please try again.',
-        });
-      },
-    });
+    const pageSize =
+      typeof event?.rows === 'number' && event.rows > 0
+        ? event.rows
+        : undefined;
+
+    this.commonService
+      .getAllSAOLevels(
+        this.searchText,
+        this.selectedfilter,
+        pageNumber,
+        pageSize
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.items = response.result.items
+            .filter((item: any) => !item.isdeleted)
+            .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+
+          this.totalRecords = pageNumber
+            ? response.result.totalRecords
+            : this.items.length;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('There was an error!', error);
+          this.loading = false;
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to fetch SAO levels. Please try again.',
+          });
+        },
+      });
   }
 
   onSearch(): void {
     this.first = 0;
     this.fetchSaoLevels();
   }
-
+  onFilterChange(): void {
+    this.fetchSaoLevels();
+  }
   // Open dialog for adding a new SAO level
   addSaoLevel(): void {
     this.isEditMode = false;

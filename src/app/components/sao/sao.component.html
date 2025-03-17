@@ -33,7 +33,7 @@
     placeholder="Select Levels"
     [filter]="true"
     filterPlaceholder="Search Sao Levels..."
-    (onChange)="onLevelChange($event)"
+    (onChange)="onLevelChange()"
   ></p-dropdown>
   
     <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>
@@ -43,11 +43,29 @@
   <p-table
     [value]="saos"
     class="p-mt-3"
+    [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
+    responsiveLayout="scroll"
     [paginator]="true"
-    [rows]="10"
+    [rows]="pageSize"
+    [lazy]="true" 
+    (onLazyLoad)="onPageChange($event)"
+    [totalRecords]="totalItems" 
     [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [showCurrentPageReport]="true" 
     [loading]="loading"
   >
+
+<!-- <p-table #dt [value]="saos" dataKey="refNo" styleClass="p-datatable-gridlines"
+			[currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
+			responsiveLayout="scroll" [paginator]="true" [rows]="5" [lazy]="true" (onLazyLoad)="onPageChange($event)"
+			[totalRecords]="totalItems" [rowsPerPageOptions]="[5, 10, 25]" [showCurrentPageReport]="true"
+			selectionMode="multiple"> -->
+
+  
+
+
+
+
     <!-- Table Header -->
     <ng-template pTemplate="header">
       <tr>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { FormGroup } from '@angular/forms';
@@ -117,13 +117,38 @@ export class CommonService {
       });
     }
 
-  getAllMajorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}MajorHeadsMaster`);
+    getAllMajorHeads(search: string,
+      filter: string,
+      pageNumber?: number,
+      pageSize?: number): Observable<any[]> {
+        let params = new HttpParams().set('search', search).set('filter', filter);
+  
+        // Add pagination parameters only if they are provided
+        if (pageNumber !== undefined && pageSize !== undefined) {
+          params = params
+            .set('pageNumber', pageNumber.toString())
+            .set('pageSize', pageSize.toString());
+        }
+      return this.http.get<any[]>(`${this.apiUrl}MajorHeadsMaster`,{params});
+    }
+
+  getAllSubMajorHeads(search: string,
+    filter: string,
+    pageNumber: number,
+    pageSize: number,
+    majorHeadCode?: string): Observable<any[]> {
+      let params: any = {
+        search: search,
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      };
+      if (majorHeadCode) {
+        params.majorHeadCode = majorHeadCode;
+      }
+    return this.http.get<any[]>(`${this.apiUrl}SubMajorHeadsMaster`,{params});
   }
 
-  getAllSubMajorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SubMajorHeadsMaster`);
-  }
   getSubMajorHeadByMajorHeadId(id: any): Observable<any>{
     return this.http.get<any>(`${this.apiUrl}SubMajorHeadsMaster/SubMajorHeadByMajorHeadId/${id}`);
   }
@@ -203,16 +228,23 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
     });
   }
 
-  getAllSAOLevels(search:string='',filter:string='',pageNumber:any,pageSize:any): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SaoLevelMaster`,{
-      params:{
-        search:search,
-        filter:filter,
-        pageNumber:pageNumber,
-        pageSize:pageSize
+  getAllSAOLevels(
+    search: string,
+    filter: string,
+    pageNumber?: number,
+    pageSize?: number
+  ): Observable<any[]> {
+    // Create an object to store query parameters dynamically
+    let params = new HttpParams().set('search', search).set('filter', filter);
 
-      }
-    });
+    // Add pagination parameters only if they are provided
+    if (pageNumber !== undefined && pageSize !== undefined) {
+      params = params
+        .set('pageNumber', pageNumber.toString())
+        .set('pageSize', pageSize.toString());
+    }
+
+    return this.http.get<any[]>(`${this.apiUrl}SaoLevelMaster`, { params });
   }
 
   createSaoLevel(data: any): Observable<any> {
