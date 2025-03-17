@@ -130,8 +130,8 @@ export class CommonService {
 getMinorHeadBySubMajorId(id: any): Observable<any>{
   return this.http.get<any>(`${this.apiUrl}MinorHeadMaster/MinorHeadBySubMajorHead/${id}`);
 }
-getSchemeHeadByMinorHeadId(id: any,demandCode:any): Observable<any>{
-  return this.http.get<any>(`${this.apiUrl}SchemeHeadsMaster/SchemeHeadByMinorHeadId/${id}/${demandCode}`);
+getSchemeHeadByMinorHeadId(id: any): Observable<any>{
+  return this.http.get<any>(`${this.apiUrl}SchemeHeadsMaster/SchemeHeadByMinorHeadId/${id}`);
 }
 getMajorHeadByDemandCode(demandCode: any): Observable<any>{
   return this.http.get<any>(`${this.apiUrl}MajorHeadsMaster/GeMajorByDemand/${demandCode}`);

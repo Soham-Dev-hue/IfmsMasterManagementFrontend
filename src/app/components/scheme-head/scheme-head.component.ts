@@ -31,7 +31,7 @@ import { Router } from '@angular/router';
   styleUrl: './scheme-head.component.scss',
 })
 export class SchemeHeadComponent implements OnInit {
-  items: any[] = [];
+  items: any[] = []; // Data to display in the table
   loading: boolean = false;
   DemandCodeOptions: any[] = [];
   selectedDemandCode: any;
@@ -43,6 +43,7 @@ export class SchemeHeadComponent implements OnInit {
   selectedMinorHeadCode: any;
   schemeHeadOptions: any[] = [];
   selectedSchemeHeadCode: any;
+  originalItems: any[] = []; // Store the original data for resetting
 
   constructor(private commonService: CommonService, private router: Router) {}
 
@@ -65,6 +66,7 @@ export class SchemeHeadComponent implements OnInit {
         this.items = data
           .filter((item: any) => !item.isDeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+        this.originalItems = [...this.items]; // Store the original data
         this.loading = false;
       },
       error: (error) => {
@@ -98,8 +100,8 @@ export class SchemeHeadComponent implements OnInit {
       this.loading = true;
       this.commonService.getMajorHeadByDemandCode(this.selectedDemandCode).subscribe({
         next: (MajorHeads) => {
-          this.items = MajorHeads
-          console.log("majorheads:",this.items);
+          console.log(MajorHeads);
+          this.items = MajorHeads; // Update items with MajorHeads
           this.MajorHeadOptions = MajorHeads.map((m: any) => ({
             label: m.code,
             value: m.id,
@@ -112,6 +114,7 @@ export class SchemeHeadComponent implements OnInit {
         },
       });
     } else {
+      this.items = [...this.originalItems]; // Reset to original data
       this.MajorHeadOptions = [];
     }
     this.selectedMajorHeadId = null;
@@ -128,8 +131,8 @@ export class SchemeHeadComponent implements OnInit {
       this.loading = true;
       this.commonService.getSubMajorHeadByMajorHeadId(this.selectedMajorHeadId).subscribe({
         next: (SubMajorHeads) => {
-          this.items = SubMajorHeads
-          console.log('SubMajorHeads',this.items);
+          console.log(SubMajorHeads);
+          this.items = SubMajorHeads; // Update items with SubMajorHeads
           this.subMajorHeadOptions = SubMajorHeads.map((sm: any) => ({
             label: sm.code,
             value: sm.id,
@@ -142,6 +145,7 @@ export class SchemeHeadComponent implements OnInit {
         },
       });
     } else {
+      this.items = []; // Clear items if no SubMajorHead is selected
       this.subMajorHeadOptions = [];
     }
     this.selectedSubMajorHeadId = null;
@@ -156,12 +160,11 @@ export class SchemeHeadComponent implements OnInit {
       this.loading = true;
       this.commonService.getMinorHeadBySubMajorId(this.selectedSubMajorHeadId).subscribe({
         next: (MinorHeads) => {
-          this.items = MinorHeads;
-          console.log('MinorHeads',this.items);
-          
+          console.log(MinorHeads);
+          this.items = MinorHeads; // Update items with MinorHeads
           this.minorHeadOptions = MinorHeads.map((mh: any) => ({
             label: mh.code,
-            value: mh.code,
+            value: mh.id,
           }));
           this.loading = false;
         },
@@ -171,6 +174,7 @@ export class SchemeHeadComponent implements OnInit {
         },
       });
     } else {
+      this.items = []; // Clear items if no MinorHead is selected
       this.minorHeadOptions = [];
     }
     this.selectedMinorHeadCode = null;
@@ -179,39 +183,45 @@ export class SchemeHeadComponent implements OnInit {
   }
 
   onMinorHeadCodeChange(): void {
-    if (this.selectedMinorHeadCode && this.selectedDemandCode) {
+    if (this.selectedMinorHeadCode) {
       this.loading = true;
-      this.commonService
-        .getSchemeHeadByMinorHeadId(this.selectedMinorHeadCode, this.selectedDemandCode)
-        .subscribe({
-          next: (SchemeHeads) => {
-            this.items = SchemeHeads;
-            console.log('SchemeHeads',this.items);
-            this.schemeHeadOptions = SchemeHeads.map((sh: any) => ({
-              label: sh.code,
-              value: sh.id,
-            }));
-            this.loading = false;
-          },
-          error: () => {
-            this.loading = false;
-            Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to fetch Scheme Heads.' });
-          },
-        });
+      this.commonService.getSchemeHeadByMinorHeadId(this.selectedMinorHeadCode).subscribe({
+        next: (SchemeHeads) => {
+          console.log(SchemeHeads);
+          
+          this.items = SchemeHeads; // Update items with SchemeHeads
+          this.schemeHeadOptions = SchemeHeads.map((sh: any) => ({
+            label: sh.code,
+            value: sh.id,
+          }));
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to fetch Scheme Heads.' });
+        },
+      });
     } else {
+      this.items = []; // Clear items if no SchemeHead is selected
       this.schemeHeadOptions = [];
     }
     this.selectedSchemeHeadCode = null;
   }
 
   onSchemeHeadCodeChange(): void {
-    // Add logic here to handle the selection of Scheme Head Code
-    console.log('Selected Scheme Head Code:', this.selectedSchemeHeadCode);
+    if (this.selectedSchemeHeadCode) {
+      this.items = this.items.filter((item) => item.id === this.selectedSchemeHeadCode); // Filter items
+    } else {
+      this.items = [...this.originalItems]; // Reset to original data
+    }
   }
 
   resetFilters(): void {
-    this.router.navigateByUrl('/master/scheme-head').then(() => {
-      window.location.reload();
-    });
+    this.selectedDemandCode = null;
+    this.selectedMajorHeadId = null;
+    this.selectedSubMajorHeadId = null;
+    this.selectedMinorHeadCode = null;
+    this.selectedSchemeHeadCode = null;
+    this.items = [...this.originalItems]; // Reset to original data
   }
 }

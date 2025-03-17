@@ -75,4 +75,46 @@
       text-align: left;
     }
   }
+  .dropdown-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .dropdown-label {
+    font-size: 16px;
+    font-weight: bold;
+    color:darkslategrey; /* Sandybrown */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Poppins', sans-serif; /* Modern, clean font */
+  }
+  
+  p-dropdown {
+    width: 220px;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  ::ng-deep .p-dropdown {
+    background-color: #ffffff;
+    border: 2px solid darkslategrey;
+    
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.3s ease-in-out;
+  }
+  
+  ::ng-deep .p-dropdown:hover {
+    border-color: #e67e22; /* Darker orange */
+  }
+  
+  ::ng-deep .p-dropdown .p-dropdown-label {
+    color: #333;
+    font-weight: 500;
+  }
+  
+  ::ng-deep .p-dropdown .p-dropdown-trigger {
+    color: #ff8c00;
+  }
   
