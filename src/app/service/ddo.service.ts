@@ -24,13 +24,13 @@ export class DdoService {
 
   // Create a new DDO
   createDDO(ddo: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl+"DdoMaster", ddo);
+    return this.http.post<any>(this.apiUrl+"DdoMaster/create", ddo);
   }
 
   // Update an existing DDO
-  public UpdateDdo( formData: FormGroup): Observable<any> {
+  public UpdateDdo( formData: FormGroup,id:any): Observable<any> {
        // Use id directly to update the URL dynamically
-       return this.http.put<any>(`${this.apiUrl}DdoMaster`, formData);
+       return this.http.put<any>(`${this.apiUrl}DdoMaster/update/${id}`, formData);
      }
 public getDDOByTreasuryCode(code: string): Observable<any> {
     return this.http.get<any>(this.apiUrl+"DdoMaster/DdoByTreasury/"+ code);

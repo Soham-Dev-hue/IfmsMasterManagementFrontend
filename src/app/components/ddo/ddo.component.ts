@@ -217,7 +217,7 @@ confirmToggleStatus(ddo: any) {
   // Save DDO (create or update)
  saveDDO(): void {
      if (this.isEditMode) {
-       this.ddoService.UpdateDdo(this.ddo).subscribe({
+       this.ddoService.UpdateDdo(this.ddo,this.ddo.id).subscribe({
          next: (updatedddo) => {
            const index = this.ddoList.findIndex((s) => s.id === updatedddo.id);
  

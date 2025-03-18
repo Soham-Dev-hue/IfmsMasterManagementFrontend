@@ -20,7 +20,7 @@ import { FormGroup } from "@angular/forms";
 
     // In your user-service.service.ts
     getAllany(search: string = '', filter: string = ''): Observable<any> {
-      return this.http.get<any>(`${this.url}SaoMaster`, {
+      return this.http.get<any>(`${this.url}SaoMaster/soas`, {
         params: {
           search: search,
           filter: filter,
