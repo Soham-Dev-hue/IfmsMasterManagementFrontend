@@ -35,9 +35,10 @@ items: any[] = [];
   MajorHeadIdOptions: any[]=[];
   item:any={};
   pageNumber: number = 1;
-  pageSize: number = 100;
+  pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 0;
+  
 
   constructor(private commonService: CommonService,private router:Router) {}
 
@@ -54,10 +55,10 @@ items: any[] = [];
   fetchSubMajorHeads(): void {
     this.loading = true;
   
-    this.commonService.getAllSubMajorHeads().subscribe({
+    this.commonService.getAllSubMajorHeads('','',this.pageNumber,this.pageSize).subscribe({
       next: (response: any) => {
         // Extract the `result` array from the response
-        const data = Array.isArray(response) ? response : response?.data || [];
+        const data = Array.isArray(response) ? response : response?.result.items|| [];
   
         // Check if `data` is an array
         if (!Array.isArray(data)) {
@@ -66,7 +67,10 @@ items: any[] = [];
           this.loading = false;
           return;
         }
-  
+        this.totalItems = response?.result?.totalRecords || 0;
+        console.log("totalItems", this.totalItems);
+        this.totalPages = response?.result?.totalPages || 0;
+        console.log("totalpages", this.totalPages);
         // Process the valid array
         this.items = data
           .filter((item: any) => !item.isdeleted)
@@ -114,7 +118,7 @@ items: any[] = [];
           next: (item:any) => {
             console.log(code);
             
-            this.items = item;
+            this.items = item.result;
             console.log(this.items);
             
             this.loading = false;

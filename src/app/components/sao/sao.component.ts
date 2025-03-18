@@ -8,6 +8,7 @@ import { DropdownModule } from 'primeng/dropdown';
 import { SaoService } from '../../service/sao.service';
 import { HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
 import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -61,7 +62,7 @@ export class SaoComponent implements OnInit {
 
   levelOptions:any[] = [];
 
-  constructor(private saoService: SaoService,private commonService:CommonService) {}
+  constructor(private saoService: SaoService,private commonService:CommonService,private router:Router) {}
 
   ngOnInit(): void {
     this.fetchSaos();
@@ -99,7 +100,11 @@ console.log(data);
       },
     });
   }
-  
+  resetFilters(): void {
+    this.router.navigateByUrl("/master/sao").then(() => {
+      window.location.reload();
+    });
+  }
   getSaoLevels(): void {
     this.commonService.getAllSAOLevels('','',1,10).subscribe({
       next: (response:any) => {

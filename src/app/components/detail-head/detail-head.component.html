@@ -7,6 +7,13 @@
     [(ngModel)]="searchQuery"
     (input)="onSearchChange()"
   />
+  <p-dropdown
+  [options]="filterOptions"
+  [(ngModel)]="selectedFilter"
+  placeholder="Filter by..."
+  (onChange)="onFilterChange()"
+></p-dropdown>
+
   </div>
 <div class="card">
     <p-table   [value]="items"

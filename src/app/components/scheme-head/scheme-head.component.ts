@@ -44,6 +44,13 @@ export class SchemeHeadComponent implements OnInit {
   schemeHeadOptions: any[] = [];
   selectedSchemeHeadCode: any;
   originalItems: any[] = []; // Store the original data for resetting
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
+  selectedFilter: string ='';
+  searchQuery: string ='';
+
 
   constructor(private commonService: CommonService, private router: Router) {}
 
@@ -63,6 +70,16 @@ export class SchemeHeadComponent implements OnInit {
           this.loading = false;
           return;
         }
+
+
+        this.totalItems = response?.result?.totalRecords || 0;
+        console.log("totalItems", this.totalItems);
+        this.totalPages = response?.result?.totalPages || 0;
+        console.log("totalpages", this.totalPages);
+
+
+
+
         this.items = data
           .filter((item: any) => !item.isDeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
@@ -80,7 +97,15 @@ export class SchemeHeadComponent implements OnInit {
       },
     });
   }
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
 
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchSchemeHeads();
+  }
   getDemandCodes(): void {
     this.commonService.getAllDepartments('', '', 0, 100).subscribe({
       next: (departments) => {
@@ -94,10 +119,17 @@ export class SchemeHeadComponent implements OnInit {
       },
     });
   }
-
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
+    this.fetchSchemeHeads();  // Fetch the data for the updated page
+  }
   OnChangeDemandCode(): void {
     if (this.selectedDemandCode) {
       this.loading = true;
+      console.log(this.selectedDemandCode);
+      
       this.commonService.getMajorHeadByDemandCode(this.selectedDemandCode).subscribe({
         next: (MajorHeads) => {
           console.log(MajorHeads);
@@ -132,8 +164,8 @@ export class SchemeHeadComponent implements OnInit {
       this.commonService.getSubMajorHeadByMajorHeadId(this.selectedMajorHeadId).subscribe({
         next: (SubMajorHeads) => {
           console.log(SubMajorHeads);
-          this.items = SubMajorHeads; // Update items with SubMajorHeads
-          this.subMajorHeadOptions = SubMajorHeads.map((sm: any) => ({
+          this.items = SubMajorHeads.result; // Update items with SubMajorHeads
+          this.subMajorHeadOptions = SubMajorHeads.result.map((sm: any) => ({
             label: sm.code,
             value: sm.id,
           }));
@@ -161,8 +193,8 @@ export class SchemeHeadComponent implements OnInit {
       this.commonService.getMinorHeadBySubMajorId(this.selectedSubMajorHeadId).subscribe({
         next: (MinorHeads) => {
           console.log(MinorHeads);
-          this.items = MinorHeads; // Update items with MinorHeads
-          this.minorHeadOptions = MinorHeads.map((mh: any) => ({
+          this.items = MinorHeads.result; // Update items with MinorHeads
+          this.minorHeadOptions = MinorHeads.result.map((mh: any) => ({
             label: mh.code,
             value: mh.id,
           }));

@@ -128,36 +128,57 @@ export class CommonService {
     });
   }
 
-  getAllSubMajorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SubMajorHeadsMaster`);
+  getAllSubMajorHeads(search:string='',filter:string='',pageNumber?:any,pageSize?:any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}SubMajorHeadsMaster`,{
+      params: {
+        search: search,
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize
+      }
+    });
   }
   getSubMajorHeadByMajorHeadId(id: any): Observable<any>{
     return this.http.get<any>(`${this.apiUrl}SubMajorHeadsMaster/SubMajorHeadByMajorHeadId/${id}`);
   }
 getMinorHeadBySubMajorId(id: any): Observable<any>{
-  return this.http.get<any>(`${this.apiUrl}MinorHeadMaster/MinorHeadBySubMajorHead/${id}`);
+  return this.http.get<any>(`${this.apiUrl}MinorHeadMaster/MinorHeadBySubMajorHeadId/${id}`);
 }
 getSchemeHeadByMinorHeadId(id: any): Observable<any>{
   return this.http.get<any>(`${this.apiUrl}SchemeHeadsMaster/SchemeHeadByMinorHeadId/${id}`);
 }
 getMajorHeadByDemandCode(demandCode: any): Observable<any>{
-  return this.http.get<any>(`${this.apiUrl}MajorHeadsMaster/GeMajorByDemand/${demandCode}`);
+  return this.http.get<any>(`${this.apiUrl}MajorHeadsMaster/GetMajorByDemand/${demandCode}`);
 }
-  getAllMinorHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}MinorHeadMaster`);
+  getAllMinorHeads(search:string='',filter:string='',pageNumber?:any,pageSize?:any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}MinorHeadMaster/minorhead`,{
+      params: {
+        search: search,
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize
+      }
+    });
   }
 
-  getAllSchemeHeads(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}SchemeHeadsMaster`);
+  getAllSchemeHeads(search:string='',filter:string='',pageNumber?:any,pageSize?:any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}SchemeHeadsMaster`,{
+      params: {
+        search: search,
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize
+      }
+    });
   }
 
-  getAllDetailHeads(search:string='',filter:string='',pageNumber:any,pageSize:any): Observable<any[]> {
+  getAllDetailHeads(search:string='',filter:string='',pageNumber?:any,pageSize?:any): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}DetailHeadsMaster/detailhead`,{
       params: {
         search: search,
-        filter: '',
-        pageNumber,
-        pageSize
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize
       }
     });
   }
@@ -204,10 +225,14 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
     });
   }
   createSubSchemeType(data: any): Observable<any> {
+    data.isactive=true;
+    data.isdelete=false;
     return this.http.post(`${this.apiUrl}SubSchemeType/create`, data);
   }
   
   updateSubSchemeType(id: number, data: any): Observable<any> {
+    data.isactive=true;
+    data.isdelete=false;
     return this.http.put(`${this.apiUrl}SubSchemeType/update/${id}`, data);
   }
   

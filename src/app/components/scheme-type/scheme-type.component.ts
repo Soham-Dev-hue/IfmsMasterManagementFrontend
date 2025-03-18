@@ -9,10 +9,21 @@ import { TagModule } from 'primeng/tag';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 @Component({
   selector: 'app-scheme-type',
   standalone: true,
-  imports: [TableModule, ProgressSpinnerModule, CommonModule, HttpClientModule,TagModule,ButtonModule,FormsModule,DialogModule],
+   imports: [
+     CommonModule,
+     TableModule,
+     ButtonModule,
+     DialogModule,
+     FormsModule,
+     HttpClientModule,
+     ProgressSpinnerModule,
+     DropdownModule,
+     TagModule,
+   ],
   providers: [CommonService],
   templateUrl: './scheme-type.component.html',
   styleUrl: './scheme-type.component.scss'
@@ -24,7 +35,17 @@ isEditMode: boolean = false;
 item:any={};
   displayDialog: boolean = false;
 saving: boolean = false;
-
+pageNumber: number = 1;
+pageSize: number = 10;
+totalItems: number = 0;
+totalPages: number = 0;
+filterOptions: any[] = [
+  { label: 'All', value: '' },
+  { label: 'SchemeType', value: 'type' },
+  { label: 'Description', value: 'description' },
+];
+searchQuery: string ='';
+selectedFilter:string = '';
   constructor(private commonService: CommonService) {}
 
   ngOnInit(): void {
@@ -34,7 +55,7 @@ saving: boolean = false;
   fetchSchemeTypes(): void {
     this.loading = true;
   
-    this.commonService.getAllSchemeTypes('','',1,100).subscribe({
+    this.commonService.getAllSchemeTypes(this.searchQuery,this.selectedFilter,this.pageNumber,this.pageSize).subscribe({
       next: (response: any) => {
         // Extract the `result` array from the response
         const data = Array.isArray(response) ? response : response?.result.items || [];
@@ -47,9 +68,14 @@ saving: boolean = false;
           return;
         }
   
+        this.totalItems = response?.result?.totalRecords || 0;
+        console.log("totalItems", this.totalItems);
+        this.totalPages = response?.result?.totalPages || 0;
+        console.log("totalpages", this.totalPages);
+
         // Process the valid array
         this.items = data
-          .filter((item: any) => !item.isdeleted)
+          .filter((item: any) => !item.isDeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
   
         this.loading = false;
@@ -64,6 +90,23 @@ saving: boolean = false;
         });
       },
     });
+  }
+
+
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
+
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchSchemeTypes();
+  }
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
+    this.fetchSchemeTypes();  // Fetch the data for the updated page
   }
    openDialog(isEdit: boolean = false, index?: number): void {
       this.isEditMode = isEdit;
@@ -81,21 +124,21 @@ saving: boolean = false;
       confirmToggleStatus(item: any) {
         Swal.fire({
           title: `Are you sure?`,
-          text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
+          text: `You are about to mark this item as ${item.isActive ? 'Inactive' : 'Active'}.`,
           icon: 'warning',
           showCancelButton: true,
-          confirmButtonColor: item.isactive ? '#d33' : '#28a745',
+          confirmButtonColor: item.isActive ? '#d33' : '#28a745',
           cancelButtonColor: '#6c757d',
-          confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+          confirmButtonText: item.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
         }).then((result) => {
           if (result.isConfirmed) {
             // Toggle status
-            item.isactive = !item.isactive;
+            item.isActive = !item.isActive;
       
             // Show success message
             Swal.fire({
               title: 'Updated!',
-              text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
+              text: `The item has been marked as ${item.isActive ? 'Active' : 'Inactive'}.`,
               icon: 'success',
               timer: 1500
             });
@@ -170,4 +213,10 @@ saving: boolean = false;
           }
         });
      }
+     onFilterChange(): void {
+      this.fetchSchemeTypes();
+    }
+    onSearchChange(): void {
+      this.fetchSchemeTypes();
+    }
 }

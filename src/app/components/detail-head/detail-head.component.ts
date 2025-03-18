@@ -39,6 +39,12 @@ items: any[] = [];
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 0;
+  filterOptions: any[] = [
+    { label: 'All', value: '' },
+    { label: 'Code', value: 'code' },
+    { label: 'Name', value: 'name' },
+  ];
+  selectedFilter:string = '';
 
   constructor(private commonService: CommonService) {}
 
@@ -57,7 +63,7 @@ items: any[] = [];
   fetchDetailHeads(): void {
     this.loading = true;
   
-    this.commonService.getAllDetailHeads(this.searchQuery,"",this.pageNumber,this.pageSize).subscribe({
+    this.commonService.getAllDetailHeads(this.searchQuery,this.selectedFilter,this.pageNumber,this.pageSize).subscribe({
       next: (response: any) => {
         // Extract the `result` array from the response
         const data = Array.isArray(response) ? response : response?.result.items || [];
@@ -97,6 +103,9 @@ items: any[] = [];
     this.pageSize = event.rows;
     console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
     this.fetchDetailHeads();  // Fetch the data for the updated page
+  }
+  onFilterChange(): void {
+    this.fetchDetailHeads();
   }
   onSearchChange(): void {
     this.fetchDetailHeads();
