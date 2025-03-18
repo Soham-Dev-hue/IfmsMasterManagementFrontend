@@ -206,44 +206,62 @@ actualIndex: number = 0;
     });
   }
   
-      deleteSubSchemeType(index: number): void {
-        // Calculate the correct index considering pagination
-        const correctedIndex = (this.pageNumber - 1) * this.pageSize + index;
-        const itemId = this.items[correctedIndex].id;
-        const deletedItem = this.items[correctedIndex]; // Store for rollback
+  deleteSubSchemeType(index: number): void {
+    console.log(this.items);
+    const actualIndex=index-((this.pageNumber-1)*this.pageSize);
+    console.log(actualIndex);
     
+    // Check if the item at the specified index exists
+    if (!this.items[actualIndex]) {
+        console.error('Item not found at index:', actualIndex);
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'You won\'t be able to revert this!',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                this.items.splice(correctedIndex, 1); // Optimistically update UI
-    
-                this.commonService.deleteSubSchemeType(itemId).subscribe({
-                    next: () => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: 'Item deleted successfully.',
-                        });
-                        this.fetchSubSchemeTypes(); // Refresh the list
-                    },
-                    error: (error) => {
-                        console.error('Error deleting item:', error);
-                        this.items.splice(correctedIndex, 0, deletedItem); // Rollback UI change
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: 'Failed to delete item. Please try again.',
-                        });
-                    },
-                });
-            }
+            icon: 'error',
+            title: 'Error!',
+            text: 'Item not found. Please try again.',
         });
+        return;
     }
+
+    // Get the item ID directly from the items array
+    const itemId = this.items[actualIndex].id;
+    const deletedItem = this.items[actualIndex]; // Store for rollback
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Optimistically remove the item from the UI
+            this.items.splice(actualIndex, 1);
+
+            // Call the API to delete the item
+            this.commonService.deleteSubSchemeType(itemId).subscribe({
+                next: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Item deleted successfully.',
+                    });
+                    // Refresh the list to reflect the changes
+                    this.fetchSubSchemeTypes();
+                },
+                error: (error) => {
+                    console.error('Error deleting item:', error);
+                    // Rollback the UI change if the API call fails
+                    this.items.splice(index, 0, deletedItem);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to delete item. Please try again.',
+                    });
+                },
+            });
+        }
+    });
+}
 }
