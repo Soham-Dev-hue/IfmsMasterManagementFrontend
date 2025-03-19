@@ -1,5 +1,22 @@
 <h2 class="p-text-bold p-mb-0">Manage Sub-Major-Heads</h2>
-<div class="filterContainer" style="display:flex; gap: 10px;">
+
+<div class="filterContainer" style="display:flex; gap: 30px;">
+  <div class="top-bar"  style="display: flex;">
+    <input
+        pInputText
+        type="text"
+        placeholder="Search SAOs..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()"
+      />
+      <p-dropdown
+        [options]="filterOptions"
+        [(ngModel)]="selectedFilter"
+        placeholder="Filter by..."
+        (onChange)="onFilterChange()"
+      ></p-dropdown>
+  
+  </div>
   <p-dropdown 
   id="MajorHeadId"
   [options]="MajorHeadIdOptions"
@@ -16,7 +33,18 @@
 </div>
 
 <div class="card">
-    <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
+    <p-table   [value]="items"
+    class="p-mt-3"
+    [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
+    responsiveLayout="scroll"
+    [paginator]="true"
+    [rows]="pageSize"
+    [lazy]="true" 
+    (onLazyLoad)="onPageChange($event)"
+    [totalRecords]="totalItems" 
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [showCurrentPageReport]="true" 
+    [loading]="loading">
       <ng-template pTemplate="header">
         <tr>
             <th>Code</th>

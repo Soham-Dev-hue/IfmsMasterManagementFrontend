@@ -13,12 +13,24 @@ export class DdoService {
   constructor(private http: HttpClient) {}
 
   // Fetch all DDOs
-  getAllDDOs(search:string='',filter:string=''): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+"DdoMaster",{
-      params: {
-        search: search,
-        filter: filter
-      }
+  getAllDDOs(
+    search: string,
+    filter: string,
+    pageNumber: number,
+    pageSize: number,
+    treasurycode?: string
+  ): Observable<any[]> {
+    let params: any = {
+      search: search,
+      filter: filter,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+    };
+    if (treasurycode) {
+      params.treasurycode = treasurycode;
+    }
+    return this.http.get<any[]>(this.apiUrl + 'DdoMaster', {
+      params,
     });
   }
 
@@ -28,9 +40,9 @@ export class DdoService {
   }
 
   // Update an existing DDO
-  public UpdateDdo( formData: FormGroup,id:any): Observable<any> {
+  public UpdateDdo( formData: FormGroup): Observable<any> {
        // Use id directly to update the URL dynamically
-       return this.http.put<any>(`${this.apiUrl}DdoMaster/update/${id}`, formData);
+       return this.http.put<any>(`${this.apiUrl}DdoMaster`, formData);
      }
 public getDDOByTreasuryCode(code: string): Observable<any> {
     return this.http.get<any>(this.apiUrl+"DdoMaster/DdoByTreasury/"+ code);

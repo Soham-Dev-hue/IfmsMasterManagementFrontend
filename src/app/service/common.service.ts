@@ -12,8 +12,15 @@ export class CommonService {
 
   constructor(private http: HttpClient) {}
 
-  getAllFinancialYears(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}FinancialYearMST/getFinancialYear`);
+  getAllFinancialYears(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}FinancialYearMST/FinancialYear`, {
+      params: {
+        search,
+        filter,
+        pageNumber,
+        pageSize
+      }
+    });
   }
   createFinancialYear(treasury: any): Observable<any> {
     return this.http.post<any>(this.apiUrl+"FinancialYearMST", treasury);
@@ -93,11 +100,13 @@ export class CommonService {
     }
     
 
-  getAllDesignations(search:string='',filter:string=''): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}DesignationMaster`,{
+  getAllDesignations(search:string='',filter:string='',pageNumber?:any,pageSize?:any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}DesignationMaster/designations`,{
       params: {
         search: search,
-        filter: filter
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize
       }
     });
   }

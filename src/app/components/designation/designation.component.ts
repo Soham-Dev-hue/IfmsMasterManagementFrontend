@@ -31,7 +31,10 @@ items: any[] = [];
   displayDialog: boolean = false;
   item: any = {};
   saving: boolean = false;
-
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
   constructor(private commonService: CommonService) {}
 
   ngOnInit(): void {
@@ -41,10 +44,10 @@ items: any[] = [];
   fetchDesignations(): void {
     this.loading = true;
   
-    this.commonService.getAllDesignations(this.searchQuery,this.selectedFilter).subscribe({
+    this.commonService.getAllDesignations(this.searchQuery,this.selectedFilter,this.pageNumber,this.pageSize).subscribe({
       next: (response: any) => {
         // Extract the `result` array from the response
-        const data = Array.isArray(response) ? response : response?.data || [];
+        const data = Array.isArray(response) ? response : response?.result.items || [];
   
         // Check if `data` is an array
         if (!Array.isArray(data)) {
@@ -53,10 +56,13 @@ items: any[] = [];
           this.loading = false;
           return;
         }
-  
+        this.totalItems = response?.result?.totalRecords || 0;
+        console.log("totalItems", this.totalItems);
+        this.totalPages = response?.result?.totalPages || 0;
+        console.log("totalpages", this.totalPages);
         // Process the valid array
         this.items = data
-          .filter((item: any) => !item.isdeleted)
+          .filter((item: any) => !item.isDeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
   
         this.loading = false;
@@ -72,24 +78,39 @@ items: any[] = [];
       },
     });
   }
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
+
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchDesignations();
+  }
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
+    this.fetchDesignations();  // Fetch the data for the updated page
+  }
   confirmToggleStatus(item: any) {
     Swal.fire({
       title: `Are you sure?`,
-      text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
+      text: `You are about to mark this item as ${item.isActive ? 'InActive' : 'Active'}.`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: item.isactive ? '#d33' : '#28a745',
+      confirmButtonColor: item.isActive ? '#d33' : '#28a745',
       cancelButtonColor: '#6c757d',
-      confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+      confirmButtonText: item.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
     }).then((result) => {
       if (result.isConfirmed) {
         // Toggle status
-        item.isactive = !item.isactive;
+        item.isActive = !item.isActive;
   
         // Show success message
         Swal.fire({
           title: 'Updated!',
-          text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
+          text: `The item has been marked as ${item.isActive ? 'Active' : 'InActive'}.`,
           icon: 'success',
           timer: 1500
         });
@@ -107,14 +128,22 @@ items: any[] = [];
     this.isEditMode = isEdit;
     this.displayDialog = true;
 
-    if (isEdit && index !== undefined && this.items[index]) {
-      this.item = { ...this.items[index] };
+    if (isEdit && index !== undefined) {
+      const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+      console.log("Actual Index:", actualIndex);
+
+      if (this.items[actualIndex]) {
+        this.item = { ...this.items[actualIndex] };
+      } else {
+        console.error("Invalid index for editing");
+      }
     } else {
       this.item = {
         name: '',
       };
     }
-  }
+}
+
 saveDesignation(): void {
     if (this.saving) return; // Prevent duplicate clicks
     this.saving = true;
@@ -146,11 +175,19 @@ saveDesignation(): void {
       }
     });
   }
-   deleteDesignation(index: number): void {
-      const itemId = this.items[index].id;
-      const deleteditem = this.items[index]; // Store for rollback
-    
-      Swal.fire({
+  deleteDesignation(index: number): void {
+    const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+    console.log("Actual Index for Deletion:", actualIndex);
+
+    if (actualIndex < 0 || actualIndex >= this.items.length) {
+        console.error("Invalid index for deletion");
+        return;
+    }
+
+    const itemId = this.items[actualIndex].id;
+    const deleteditem = this.items[actualIndex]; // Store for rollback
+
+    Swal.fire({
         title: 'Are you sure?',
         text: 'You won\'t be able to revert this!',
         icon: 'warning',
@@ -158,30 +195,31 @@ saveDesignation(): void {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, delete it!'
-      }).then((result) => {
+    }).then((result) => {
         if (result.isConfirmed) {
-          this.items.splice(index, 1); // Optimistically update UI
-    
-          this.commonService.SoftDeleteDesignation(itemId).subscribe({
-            next: () => {
-              Swal.fire({
-                icon: 'success',
-                title: 'Deleted!',
-                text: 'item deleted successfully.',
-              });
-            },
-            error: (error) => {
-              console.error('Error deleting item:', error);
-              this.items.splice(index, 0, deleteditem); // Rollback UI change
-              Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Failed to delete item. Please try again.',
-              });
-            },
-          });
+            this.items.splice(actualIndex, 1); // Optimistically update UI
+
+            this.commonService.SoftDeleteDesignation(itemId).subscribe({
+                next: () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Item deleted successfully.',
+                    });
+                },
+                error: (error) => {
+                    console.error('Error deleting item:', error);
+                    this.items.splice(actualIndex, 0, deleteditem); // Rollback UI change
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Failed to delete item. Please try again.',
+                    });
+                },
+            });
         }
-      });
-   }
+    });
+}
+
 }
 

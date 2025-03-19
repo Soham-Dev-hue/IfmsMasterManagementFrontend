@@ -3,20 +3,22 @@
 
   <!-- Search & Filter Section -->
   <div class="search-container">
-    <input
-      pInputText
-      type="text"
-      placeholder="Search treasurys..."
-      [(ngModel)]="searchQuery"
-      (input)="onSearchChange()"
-    />
-    <p-dropdown
-      [options]="filterOptions"
-      [(ngModel)]="selectedFilter"
-      placeholder="Filter by..."
-      (onChange)="onFilterChange()"
-    ></p-dropdown>
-
+    <div class="search-filter">
+      <input
+        pInputText
+        type="text"
+        placeholder="Search treasurys..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()"
+      />
+      <p-dropdown
+        [options]="filterOptions"
+        [(ngModel)]="selectedFilter"
+        placeholder="Filter by..."
+        (onChange)="onFilterChange()"
+      ></p-dropdown>
+    </div>
+  
     <button
       pButton
       type="button"
@@ -26,6 +28,7 @@
       (click)="openDialog()"
     ></button>
   </div>
+  
 
   <!-- Loading Spinner -->
   <p-progressSpinner *ngIf="loading" class="spinner"></p-progressSpinner>

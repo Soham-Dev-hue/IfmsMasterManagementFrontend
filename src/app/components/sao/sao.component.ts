@@ -68,21 +68,21 @@ export class SaoComponent implements OnInit {
     this.fetchSaos();
     this.getSaoLevels();
   }
-  get first(): number {
-    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
-  }
-
-  // Setter: Update the pageNumber based on the first index value
-  set first(value: number) {
-    this.pageNumber = Math.floor(value / this.pageSize) + 1;
-    this.fetchSaos();
-  }
+ 
   fetchSaos(): void {
     this.loading = true;
 
-    this.saoService.getAllany(this.searchQuery, this.selectedFilter).subscribe({
+    this.saoService.getAllany(this.searchQuery, this.selectedFilter,this.selectedLevel,this.pageNumber,this.pageSize).subscribe({
       next: (data) => {
-        this.saos = data
+
+        this.totalItems = data?.result?.totalRecords || 0;
+        console.log("totalItems", this.totalItems);
+        this.totalPages = data?.result?.totalPages || 0;
+        console.log("totalpages", this.totalPages);
+
+
+
+        this.saos = data.result.items
           .filter((sao: any) => !sao.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
 console.log(data);
@@ -99,6 +99,21 @@ console.log(data);
         });
       },
     });
+  }
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
+
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchSaos();
+  }
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
+    this.fetchSaos();  // Fetch the data for the updated page
   }
   resetFilters(): void {
     this.router.navigateByUrl("/master/sao").then(() => {
@@ -146,43 +161,45 @@ console.log(data);
   onFilterChange(): void {
     this.fetchSaos();
   }
-  onLevelChange(event: any): void {
-    this.loading = true;
-    if(event?.value===1)
-    {
-      this.ngOnInit();
-    }
-    const selectedCode:number = event?.value; // Extract selected code
-    console.log(event);
-    console.log(typeof selectedCode);
+  // onLevelChange(event: any): void {
+  //   this.loading = true;
+  //   if(event?.value===1)
+  //   {
+  //     this.ngOnInit();
+  //   }
+  //   const selectedCode:number = event?.value; // Extract selected code
+  //   console.log(event);
+  //   console.log(typeof selectedCode);
     
-    console.log("Selected Level Code:", selectedCode);
+  //   console.log("Selected Level Code:", selectedCode);
     
-    if (!selectedCode) {
-      console.warn("No valid selection made.");
-      this.loading = false;
-      return;
-    }
+  //   if (!selectedCode) {
+  //     console.warn("No valid selection made.");
+  //     this.loading = false;
+  //     return;
+  //   }
   
-    this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
-      next: (sao: any) => {
-        this.saos = Array.isArray(sao.result) ? sao.result : [];
-        console.log("SAO List:", this.saos);
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error("Error fetching SAO:", error);
-        this.loading = false;
-        Swal.fire({
-          icon: "error",
-          title: "Error!",
-          text: "Failed to fetch SAO. Please try again.",
-        });
-      },
-    });
+  //   this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
+  //     next: (sao: any) => {
+  //       this.saos = Array.isArray(sao.result) ? sao.result : [];
+  //       console.log("SAO List:", this.saos);
+  //       this.loading = false;
+  //     },
+  //     error: (error: any) => {
+  //       console.error("Error fetching SAO:", error);
+  //       this.loading = false;
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Error!",
+  //         text: "Failed to fetch SAO. Please try again.",
+  //       });
+  //     },
+  //   });
+  // }
+  
+  onLevelChange(): void {
+    this.fetchSaos();
   }
-  
-  
 
 
 confirmToggleStatus(sao: any) {
