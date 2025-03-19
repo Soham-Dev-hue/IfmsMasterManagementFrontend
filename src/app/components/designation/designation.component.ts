@@ -93,10 +93,12 @@ items: any[] = [];
     console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
     this.fetchDesignations();  // Fetch the data for the updated page
   }
-  confirmToggleStatus(item: any) {
+  confirmToggleStatus(item: any): void {
+    console.log(item.isActive);
+  
     Swal.fire({
       title: `Are you sure?`,
-      text: `You are about to mark this item as ${item.isActive ? 'InActive' : 'Active'}.`,
+      text: `You are about to mark this item as ${item.isActive ? 'Inactive' : 'Active'}.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: item.isActive ? '#d33' : '#28a745',
@@ -104,15 +106,35 @@ items: any[] = [];
       confirmButtonText: item.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
     }).then((result) => {
       if (result.isConfirmed) {
-        // Toggle status
-        item.isActive = !item.isActive;
-  
-        // Show success message
-        Swal.fire({
-          title: 'Updated!',
-          text: `The item has been marked as ${item.isActive ? 'Active' : 'InActive'}.`,
-          icon: 'success',
-          timer: 1500
+        this.commonService.updateActiveStatusDesignation(item).subscribe({
+          next: (response: any) => {
+            console.log('Response:', response); // Debugging
+          
+            if (response && response.result && response.result.isActive !== undefined) {
+              item.isActive = response.result.isActive; // ✅ Extracting the correct data
+              Swal.fire({
+                title: 'Updated!',
+                text: `The item has been marked as ${item.isActive ? 'Active' : 'Inactive'}.`,
+                icon: 'success',
+                timer: 1500
+              });
+            } else {
+              console.error('Unexpected API response:', response);
+              Swal.fire({
+                title: 'Error!',
+                text: 'Invalid response format from server.',
+                icon: 'error',
+              });
+            }
+          },
+          error: (error: any) => {
+            console.error('Error updating item status:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'Failed to update item status. Please try again.',
+              icon: 'error',
+            });
+          }
         });
       }
     });

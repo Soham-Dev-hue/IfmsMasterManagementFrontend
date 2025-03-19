@@ -117,9 +117,15 @@ export class CommonService {
   // Update an existing DDO
   public UpdateDesignation( formData: FormGroup): Observable<any> {
        // Use id directly to update the URL dynamically
+   
        return this.http.put<any>(`${this.apiUrl}DesignationMaster`, formData);
      }
-
+     updateActiveStatusDesignation( data: any): Observable<any> {
+      const updatedData = { ...data, isActive: !data.isActive };
+      console.log(updatedData);
+      // Use id directly to update the URL dynamically
+      return this.http.put<any>(`${this.apiUrl}DesignationMaster`, updatedData);
+    }
      SoftDeleteDesignation(id: number): Observable<any> {
       return this.http.patch<any>(`${this.apiUrl}DesignationMaster/${id}`, {
         isdeleted: true
@@ -282,7 +288,13 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
   updateSaoLevel(id: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}SaoLevelMaster/update/${id}`, data);
   }
+  updateActiveStatusSaoLevel(id: number, data: any): Observable<any> {
+    // Toggle `isactive` before sending the request
+    const updatedData = { ...data, isactive: !data.isactive };
+  console.log(updatedData);
   
+    return this.http.put(`${this.apiUrl}SaoLevelMaster/update/${id}`, updatedData);
+  }
   deleteSaoLevel(id: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}SaoLevelMaster/isdeleted/${id}`,{
       isdeleted: true
