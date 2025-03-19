@@ -29,7 +29,7 @@ export class DdoService {
     if (treasurycode) {
       params.treasurycode = treasurycode;
     }
-    return this.http.get<any[]>(this.apiUrl + 'DdoMaster', {
+    return this.http.get<any[]>(this.apiUrl + 'Ddo', {
       params,
     });
   }
@@ -45,7 +45,7 @@ export class DdoService {
        return this.http.put<any>(`${this.apiUrl}DdoMaster`, formData);
      }
 public getDDOByTreasuryCode(code: string): Observable<any> {
-    return this.http.get<any>(this.apiUrl+"DdoMaster/DdoByTreasury/"+ code);
+    return this.http.get<any>(this.apiUrl+"Ddo/DdoByTreasury/"+ code);
 
   
  

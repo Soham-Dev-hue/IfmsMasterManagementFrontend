@@ -35,11 +35,13 @@ export class SaoLevelComponent implements OnInit {
   items: any[] = [];
   loading: boolean = false;
   totalRecords: number = 0;
-  first: number = 0;
-  rows: number = 10;
+ 
   searchText: string = '';
   selectedfilter: string = '';
-
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
   // Dialog state
   displayDialog: boolean = false;
   isEditMode: boolean = false;
@@ -56,11 +58,21 @@ export class SaoLevelComponent implements OnInit {
 
   fetchSaoLevels(event?: TableLazyLoadEvent): void {
     this.loading = true;
-    const page = event && event.first !== undefined ? event.first / this.rows + 1 : 1;
-    const pageSize: any = event && event.rows !== undefined ? event.rows : this.rows;
 
-    this.commonService.getAllSAOLevels(this.searchText, this.selectedfilter, page, 100).subscribe({
+
+    this.commonService.getAllSAOLevels(this.searchText, this.selectedfilter, this.pageNumber, this.pageNumber).subscribe({
       next: (response: any) => {
+
+
+
+
+        this.totalItems = response?.result?.totalRecords || 0;
+        console.log("totalItems", this.totalItems);
+        this.totalPages = response?.result?.totalPages || 0;
+        console.log("totalpages", this.totalPages);
+
+
+
         this.items = response.result.items
         .filter((item: any) => !item.isdeleted)
         .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
@@ -79,7 +91,21 @@ export class SaoLevelComponent implements OnInit {
       },
     });
   }
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
 
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchSaoLevels();
+  }
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
+    this.fetchSaoLevels();  // Fetch the data for the updated page
+  }
   onSearch(): void {
     this.first = 0;
     this.fetchSaoLevels();
@@ -91,66 +117,72 @@ export class SaoLevelComponent implements OnInit {
     this.currentSaoLevel = { code: '', name: '' };
     this.displayDialog = true;
   }
-
-  // Open dialog for editing an existing SAO level
-  editSaoLevel(item: any): void {
+  
+  // Open dialog for editing an existing SAO level with pagination-aware index
+  editSaoLevel(index: number): void {
     this.isEditMode = true;
-    this.currentSaoLevel = { ...item };
-    this.displayDialog = true;
+    const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+    console.log("Actual Index:", actualIndex);
+  
+    if (this.items[actualIndex]) {
+      this.currentSaoLevel = { ...this.items[actualIndex] };
+      this.displayDialog = true;
+    } else {
+      console.error("Invalid index for editing.");
+    }
   }
-
+  
   // Save or update SAO level with SweetAlert2 notifications
   saveSaoLevel(): void {
-    if (this.isEditMode) {
-      // Update existing SAO level
-      this.commonService.updateSaoLevel(this.currentSaoLevel.id, this.currentSaoLevel).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: 'SAO level updated successfully',
-            timer: 2000,
-            showConfirmButton: false
-          });
-          this.fetchSaoLevels();
-        },
-        error: (error) => {
-          console.error('There was an error!', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to update SAO level',
-          });
-        },
+    if (!this.currentSaoLevel.code || !this.currentSaoLevel.name) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Both Code and Name are required!',
       });
-    } else {
-      // Create new SAO level
-      this.commonService.createSaoLevel(this.currentSaoLevel).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: 'SAO level created successfully',
-            timer: 2000,
-            showConfirmButton: false
-          });
-          this.fetchSaoLevels();
-        },
-        error: (error) => {
-          console.error('There was an error!', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to create SAO level',
-          });
-        },
-      });
+      return;
     }
-    this.displayDialog = false;
+  
+    const request = this.isEditMode
+      ? this.commonService.updateSaoLevel(this.currentSaoLevel.id, this.currentSaoLevel)
+      : this.commonService.createSaoLevel(this.currentSaoLevel);
+  
+    request.subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success!',
+          text: this.isEditMode ? 'SAO level updated successfully' : 'SAO level created successfully',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        this.fetchSaoLevels();
+        this.displayDialog = false;
+      },
+      error: (error) => {
+        console.error('There was an error!', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: this.isEditMode ? 'Failed to update SAO level' : 'Failed to create SAO level',
+        });
+      },
+    });
   }
-
-  // Delete SAO level with confirmation dialog using SweetAlert2
-  deleteSaoLevel(id: number): void {
+  
+  // Delete SAO level with confirmation and pagination-aware index
+  deleteSaoLevel(index: number): void {
+    const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+    console.log("Actual Index:", actualIndex);
+  
+    if (actualIndex < 0 || actualIndex >= this.items.length) {
+      console.error("Invalid index for deletion.");
+      return;
+    }
+  
+    const itemId = this.items[actualIndex].id;
+    const deletedItem = this.items[actualIndex]; // Store for rollback
+  
     Swal.fire({
       title: 'Are you sure?',
       text: 'This action cannot be undone!',
@@ -161,7 +193,9 @@ export class SaoLevelComponent implements OnInit {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.commonService.deleteSaoLevel(id).subscribe({
+        this.items.splice(actualIndex, 1); // Optimistically update UI
+  
+        this.commonService.deleteSaoLevel(itemId).subscribe({
           next: () => {
             Swal.fire({
               icon: 'success',
@@ -174,6 +208,7 @@ export class SaoLevelComponent implements OnInit {
           },
           error: (error) => {
             console.error('There was an error!', error);
+            this.items.splice(actualIndex, 0, deletedItem); // Rollback UI change
             Swal.fire({
               icon: 'error',
               title: 'Error!',
@@ -184,6 +219,7 @@ export class SaoLevelComponent implements OnInit {
       }
     });
   }
+  
   confirmToggleStatus(item: any) {
     Swal.fire({
       title: `Are you sure?`,
