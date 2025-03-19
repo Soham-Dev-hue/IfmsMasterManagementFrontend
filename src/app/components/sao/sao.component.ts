@@ -121,7 +121,7 @@ console.log(data);
     });
   }
   getSaoLevels(): void {
-    this.commonService.getAllSAOLevels('','',1,10).subscribe({
+    this.commonService.getAllSAOLevels('','',1,100).subscribe({
       next: (response:any) => {
         console.log("API Response:", response);
   

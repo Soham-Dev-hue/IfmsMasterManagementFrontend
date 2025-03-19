@@ -60,7 +60,7 @@ export class SaoLevelComponent implements OnInit {
     this.loading = true;
 
 
-    this.commonService.getAllSAOLevels(this.searchText, this.selectedfilter, this.pageNumber, this.pageNumber).subscribe({
+    this.commonService.getAllSAOLevels(this.searchText, this.selectedfilter, this.pageNumber, this.pageSize).subscribe({
       next: (response: any) => {
 
 

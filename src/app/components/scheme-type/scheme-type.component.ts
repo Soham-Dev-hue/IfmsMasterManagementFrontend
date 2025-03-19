@@ -126,30 +126,40 @@ selectedFilter:string = '';
       };
     }
   }
-      confirmToggleStatus(item: any) {
-        Swal.fire({
-          title: `Are you sure?`,
-          text: `You are about to mark this item as ${item.isActive ? 'Inactive' : 'Active'}.`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: item.isActive ? '#d33' : '#28a745',
-          cancelButtonColor: '#6c757d',
-          confirmButtonText: item.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // Toggle status
-            item.isActive = !item.isActive;
-      
-            // Show success message
-            Swal.fire({
-              title: 'Updated!',
-              text: `The item has been marked as ${item.isActive ? 'Active' : 'Inactive'}.`,
-              icon: 'success',
-              timer: 1500
-            });
-          }
-        });
-      }
+      confirmToggleStatus(item: any): void {
+         Swal.fire({
+           title: `Are you sure?`,
+           text: `You are about to mark this item as ${item.isActive ? 'Inactive' : 'Active'}.`,
+           icon: 'warning',
+           showCancelButton: true,
+           confirmButtonColor: item.isActive ? '#d33' : '#28a745',
+           cancelButtonColor: '#6c757d',
+           confirmButtonText: item.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+         }).then((result) => {
+           if (result.isConfirmed) {
+             this.commonService.updateActiveStatusSchemeType(item.id, item).subscribe({
+               next: (response:any) => {
+                 console.log('Response:', response); // Debugging
+                 item.isActive = !item.isActive; // Update UI after successful API response
+                 Swal.fire({
+                   title: 'Updated!',
+                   text: `The item has been marked as ${item.isActive ? 'Active' : 'Inactive'}.`,
+                   icon: 'success',
+                   timer: 1500
+                 });
+               },
+               error: (error:any) => {
+                 console.error('Error updating item status:', error);
+                 Swal.fire({
+                   title: 'Error!',
+                   text: 'Failed to update item status. Please try again.',
+                   icon: 'error',
+                 });
+               }
+             });
+           }
+         });
+       }
   saveSchemeType(): void {
       if (this.saving) return; // Prevent duplicate clicks
       this.saving = true;

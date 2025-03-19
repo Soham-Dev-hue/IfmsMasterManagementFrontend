@@ -215,6 +215,13 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
   updateSchemeType(id: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}SchemeType/update/${id}`, data);
   }
+  updateActiveStatusSchemeType(id: number, data: any): Observable<any> {
+    // Toggle `isactive` before sending the request
+    const updatedData = { ...data, isActive: !data.isActive };
+  console.log(updatedData);
+  
+    return this.http.put(`${this.apiUrl}SchemeType/update/${id}`, updatedData);
+  }
   
   deleteSchemeType(id: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}SchemeType/isdeleted/${id}`,{
@@ -240,9 +247,14 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
   }
   
   updateSubSchemeType(id: number, data: any): Observable<any> {
-    data.isactive=true;
-    data.isdelete=false;
     return this.http.put(`${this.apiUrl}SubSchemeType/update/${id}`, data);
+  }
+  updateActiveStatusSubSchemeType(id: number, data: any): Observable<any> {
+    // Toggle `isactive` before sending the request
+    const updatedData = { ...data, isactive: !data.isactive };
+  console.log(updatedData);
+  
+    return this.http.put(`${this.apiUrl}SubSchemeType/update/${id}`, updatedData);
   }
   
   deleteSubSchemeType(id: number): Observable<any> {
