@@ -213,30 +213,45 @@ export class DdoComponent implements OnInit {
     });
   }
 
-  confirmToggleStatus(ddo: any) {
-    Swal.fire({
-      title: `Are you sure?`,
-      text: `You are about to mark this ddo as ${ddo.isactive ? 'Inactive' : 'Active'}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: ddo.isactive ? '#d33' : '#28a745',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: ddo.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Toggle status
-        ddo.isactive = !ddo.isactive;
-
-        // Show success message
-        Swal.fire({
-          title: 'Updated!',
-          text: `The ddo has been marked as ${ddo.isactive ? 'Active' : 'Inactive'}.`,
-          icon: 'success',
-          timer: 1500
-        });
-      }
-    });
-  }
+    confirmToggleStatus(ddo: any) {
+      Swal.fire({
+        title: `Are you sure?`,
+        text: `You are about to mark this ddo as ${ddo.isActive ? 'Inactive' : 'Active'}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: ddo.isActive ? '#d33' : '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: ddo.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Call the service to update status in the backend
+          this.ddoService.UpdateDdoStatus(ddo,ddo.id).subscribe(
+            (response) => {
+              // Update the local object with the response from backend
+              // or toggle the status if backend doesn't return updated object
+              ddo.isActive = !ddo.isActive;
+              
+              // Show success message
+              Swal.fire({
+                title: 'Updated!',
+                text: `The ddo has been marked as ${ddo.isActive ? 'Active' : 'Inactive'}.`,
+                icon: 'success',
+                timer: 1500
+              });
+            },
+            (error) => {
+              // Handle error
+              Swal.fire({
+                title: 'Error!',
+                text: 'Failed to update ddo status. Please try again.',
+                icon: 'error'
+              });
+              console.error('Error updating ddo status:', error);
+            }
+          );
+        }
+      });
+    }
 
   // Save DDO (create or update)
   saveDDO(): void {

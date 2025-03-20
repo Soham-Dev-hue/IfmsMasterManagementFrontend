@@ -86,30 +86,45 @@ export class FinancialYearComponent implements OnInit {
     console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
     this.fetchFinancialYears();  // Fetch the data for the updated page
   }
-confirmToggleStatus(item: any) {
-  Swal.fire({
-    title: `Are you sure?`,
-    text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: item.isactive ? '#d33' : '#28a745',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Toggle status
-      item.isactive = !item.isactive;
-
-      // Show success message
-      Swal.fire({
-        title: 'Updated!',
-        text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
-        icon: 'success',
-        timer: 1500
-      });
-    }
-  });
-}
+ confirmToggleStatus(fy: any) {
+     Swal.fire({
+       title: `Are you sure?`,
+       text: `You are about to mark this fy as ${fy.isactive ? 'Inactive' : 'Active'}.`,
+       icon: 'warning',
+       showCancelButton: true,
+       confirmButtonColor: fy.isactive ? '#d33' : '#28a745',
+       cancelButtonColor: '#6c757d',
+       confirmButtonText: fy.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+     }).then((result) => {
+       if (result.isConfirmed) {
+         // Call the service to update status in the backend
+         this.commonService.UpdatefinancialYearStatus(fy).subscribe(
+           (response) => {
+             // Update the local object with the response from backend
+             // or toggle the status if backend doesn't return updated object
+             fy.isactive = !fy.isactive;
+             
+             // Show success message
+             Swal.fire({
+               title: 'Updated!',
+               text: `The fy has been marked as ${fy.isactive ? 'Active' : 'Inactive'}.`,
+               icon: 'success',
+               timer: 1500
+             });
+           },
+           (error) => {
+             // Handle error
+             Swal.fire({
+               title: 'Error!',
+               text: 'Failed to update fy status. Please try again.',
+               icon: 'error'
+             });
+             console.error('Error updating fy status:', error);
+           }
+         );
+       }
+     });
+   }
 openDialog(isEdit: boolean = false, index?: number): void {
   this.isEditMode = isEdit;
   this.displayDialog = true;

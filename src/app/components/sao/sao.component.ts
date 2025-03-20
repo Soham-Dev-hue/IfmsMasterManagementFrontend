@@ -205,30 +205,45 @@ console.log(data);
   // }
 
 
-confirmToggleStatus(sao: any) {
-  Swal.fire({
-    title: `Are you sure?`,
-    text: `You are about to mark this SAO as ${sao.isactive ? 'Inactive' : 'Active'}.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: sao.isactive ? '#d33' : '#28a745',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: sao.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Toggle status
-      sao.isactive = !sao.isactive;
-
-      // Show success message
-      Swal.fire({
-        title: 'Updated!',
-        text: `The SAO has been marked as ${sao.isactive ? 'Active' : 'Inactive'}.`,
-        icon: 'success',
-        timer: 1500
-      });
-    }
-  });
-}
+  confirmToggleStatus(sao: any) {
+    Swal.fire({
+      title: `Are you sure?`,
+      text: `You are about to mark this SAO as ${sao.isactive ? 'Inactive' : 'Active'}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: sao.isactive ? '#d33' : '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: sao.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Call the service to update status in the backend
+        this.saoService.UpdateSaoStatus(sao).subscribe(
+          (response) => {
+            // Update the local object with the response from backend
+            // or toggle the status if backend doesn't return updated object
+            sao.isactive = !sao.isactive;
+            
+            // Show success message
+            Swal.fire({
+              title: 'Updated!',
+              text: `The SAO has been marked as ${sao.isactive ? 'Active' : 'Inactive'}.`,
+              icon: 'success',
+              timer: 1500
+            });
+          },
+          (error) => {
+            // Handle error
+            Swal.fire({
+              title: 'Error!',
+              text: 'Failed to update SAO status. Please try again.',
+              icon: 'error'
+            });
+            console.error('Error updating SAO status:', error);
+          }
+        );
+      }
+    });
+  }
 
 openDialog(isEdit: boolean = false, index?: number): void {
   this.isEditMode = isEdit;

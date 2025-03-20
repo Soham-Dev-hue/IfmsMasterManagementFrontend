@@ -189,27 +189,42 @@ codes:any[]=[];
         }
       });
    }
-   confirmToggleStatus(item: any) {
+   confirmToggleStatus(treasury: any) {
      Swal.fire({
        title: `Are you sure?`,
-       text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
+       text: `You are about to mark this treasury as ${treasury.isactive ? 'Inactive' : 'Active'}.`,
        icon: 'warning',
        showCancelButton: true,
-       confirmButtonColor: item.isactive ? '#d33' : '#28a745',
+       confirmButtonColor: treasury.isactive ? '#d33' : '#28a745',
        cancelButtonColor: '#6c757d',
-       confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+       confirmButtonText: treasury.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
      }).then((result) => {
        if (result.isConfirmed) {
-         // Toggle status
-         item.isactive = !item.isactive;
-   
-         // Show success message
-         Swal.fire({
-           title: 'Updated!',
-           text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
-           icon: 'success',
-           timer: 1500
-         });
+         // Call the service to update status in the backend
+         this.commonService.UpdateTreasuryStatus(treasury).subscribe(
+           (response) => {
+             // Update the local object with the response from backend
+             // or toggle the status if backend doesn't return updated object
+             treasury.isactive = !treasury.isactive;
+             
+             // Show success message
+             Swal.fire({
+               title: 'Updated!',
+               text: `The treasury has been marked as ${treasury.isactive ? 'Active' : 'Inactive'}.`,
+               icon: 'success',
+               timer: 1500
+             });
+           },
+           (error) => {
+             // Handle error
+             Swal.fire({
+               title: 'Error!',
+               text: 'Failed to update treasury status. Please try again.',
+               icon: 'error'
+             });
+             console.error('Error updating treasury status:', error);
+           }
+         );
        }
      });
    }

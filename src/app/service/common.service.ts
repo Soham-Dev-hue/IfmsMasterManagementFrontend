@@ -31,7 +31,11 @@ export class CommonService {
        // Use id directly to update the URL dynamically
        return this.http.put<any>(`${this.apiUrl}FinancialYearMST`, formData);
      }
-
+     UpdatefinancialYearStatus( data: any): Observable<any> {
+      const updatedData = { ...data, isactive: !data.isactive };
+      console.log(updatedData);
+      return this.http.put<any>(`${this.apiUrl}FinancialYearMST`, updatedData);
+    }
      SoftDeleteFinancialYear(id: number): Observable<any> {
       return this.http.patch<any>(`${this.apiUrl}FinancialYearMST/${id}`, {
         isdeleted: true
@@ -67,7 +71,12 @@ export class CommonService {
        // Use id directly to update the URL dynamically
        return this.http.put<any>(`${this.apiUrl}TreasuryMaster`, formData);
      }
-
+     UpdateTreasuryStatus( data: any): Observable<any> {
+      // Use id directly to update the URL dynamically
+      const updatedData = { ...data, isactive: !data.isactive };
+      console.log(updatedData);
+      return this.http.put<any>(`${this.apiUrl}TreasuryMaster`, updatedData);
+    }
      SoftDeleteTreasury(id: number): Observable<any> {
       return this.http.patch<any>(`${this.apiUrl}TreasuryMaster/${id}`, {
         isdeleted: true
@@ -92,7 +101,11 @@ export class CommonService {
     updateDepartment(id: number, department: any): Observable<any> {
       return this.http.put(`${this.apiUrl}DepartmentsMaster/update/${id}`, department);
     }
-    
+    UpdateDepartmentStatus(id: number, data: any): Observable<any> {
+      const updatedData = { ...data, isactive: !data.isactive };
+      console.log(updatedData);
+      return this.http.put(`${this.apiUrl}DepartmentsMaster/update/${id}`, updatedData);
+    }
     deleteDepartment(id: number): Observable<any> {
       return this.http.patch(`${this.apiUrl}DepartmentsMaster/isdeleted/${id}`,{
         isdeleted: true
@@ -113,19 +126,24 @@ export class CommonService {
   createDesignation(designation: any): Observable<any> {
     return this.http.post<any>(this.apiUrl+"DesignationMaster", designation);
   }
-
+  UpdateDesignationStatus( data: any): Observable<any> {
+    // Use id directly to update the URL dynamically
+    const updatedData = { ...data, isActive: !data.isActive };
+    console.log(updatedData);
+    return this.http.put<any>(`${this.apiUrl}DesignationMaster`, updatedData);
+  }
   // Update an existing DDO
   public UpdateDesignation( formData: FormGroup): Observable<any> {
        // Use id directly to update the URL dynamically
    
        return this.http.put<any>(`${this.apiUrl}DesignationMaster`, formData);
      }
-     updateActiveStatusDesignation( data: any): Observable<any> {
-      const updatedData = { ...data, isActive: !data.isActive };
-      console.log(updatedData);
-      // Use id directly to update the URL dynamically
-      return this.http.put<any>(`${this.apiUrl}DesignationMaster`, updatedData);
-    }
+    //  updateActiveStatusDesignation( data: any): Observable<any> {
+    //   const updatedData = { ...data, isActive: !data.isActive };
+    //   console.log(updatedData);
+    //   // Use id directly to update the URL dynamically
+    //   return this.http.put<any>(`${this.apiUrl}DesignationMaster`, updatedData);
+    // }
      SoftDeleteDesignation(id: number): Observable<any> {
       return this.http.patch<any>(`${this.apiUrl}DesignationMaster/${id}`, {
         isdeleted: true
@@ -288,7 +306,7 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
   updateSaoLevel(id: number, data: any): Observable<any> {
     return this.http.put(`${this.apiUrl}SaoLevelMaster/update/${id}`, data);
   }
-  updateActiveStatusSaoLevel(id: number, data: any): Observable<any> {
+  UpdateSaoLevelStatus(id: number, data: any): Observable<any> {
     // Toggle `isactive` before sending the request
     const updatedData = { ...data, isactive: !data.isactive };
   console.log(updatedData);

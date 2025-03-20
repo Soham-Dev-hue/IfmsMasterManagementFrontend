@@ -50,6 +50,12 @@ public getDDOByTreasuryCode(code: string): Observable<any> {
   
  
 }
+UpdateDdoStatus( data: any,id:number): Observable<any> {
+  // Use id directly to update the URL dynamically
+  const updatedData = { ...data, isActive: !data.isActive };
+  console.log(updatedData);
+  return this.http.put<any>(`${this.apiUrl}Ddo/update/${id}`, updatedData);
+}
 public GetSaosByLevelValue(level: number): Observable<any> {
   return this.http.get<any>(this.apiUrl+"DdoMaster/GetSaosByLevelValue"+ level);
 

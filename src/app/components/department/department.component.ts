@@ -257,28 +257,43 @@ export class DepartmentComponent implements OnInit {
   }
   
   
-  confirmToggleStatus(item: any) {
-    Swal.fire({
-      title: `Are you sure?`,
-      text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: item.isactive ? '#d33' : '#28a745',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Toggle status
-        item.isactive = !item.isactive;
-  
-        // Show success message
-        Swal.fire({
-          title: 'Updated!',
-          text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
-          icon: 'success',
-          timer: 1500
-        });
-      }
-    });
-  }
+ confirmToggleStatus(dept: any) {
+      Swal.fire({
+        title: `Are you sure?`,
+        text: `You are about to mark this dept as ${dept.isactive ? 'Inactive' : 'Active'}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: dept.isactive ? '#d33' : '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: dept.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Call the service to update status in the backend
+          this.commonService.UpdateDepartmentStatus(dept.id,dept).subscribe(
+            (response) => {
+              // Update the local object with the response from backend
+              // or toggle the status if backend doesn't return updated object
+              dept.isactive = !dept.isactive;
+              
+              // Show success message
+              Swal.fire({
+                title: 'Updated!',
+                text: `The dept has been marked as ${dept.isactive ? 'Active' : 'Inactive'}.`,
+                icon: 'success',
+                timer: 1500
+              });
+            },
+            (error) => {
+              // Handle error
+              Swal.fire({
+                title: 'Error!',
+                text: 'Failed to update dept status. Please try again.',
+                icon: 'error'
+              });
+              console.error('Error updating dept status:', error);
+            }
+          );
+        }
+      });
+    }
 }

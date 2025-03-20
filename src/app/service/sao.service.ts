@@ -46,6 +46,12 @@ import { FormGroup } from "@angular/forms";
       // Use id directly to update the URL dynamically
       return this.http.put<any>(`${this.url}SaoMaster`, formData);
     }
+    UpdateSaoStatus( data: any): Observable<any> {
+      // Use id directly to update the URL dynamically
+      const updatedData = { ...data, isactive: !data.isactive };
+      console.log(updatedData);
+      return this.http.put<any>(`${this.url}SaoMaster`, updatedData);
+    }
    // Inside your anyervice (user-service.service.ts)
    softDeleteSao(id: number): Observable<any> {
     return this.http.patch<any>(`${this.url}SaoMaster/${id}`, {
