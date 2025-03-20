@@ -2,6 +2,20 @@
 .p-mb-0 {
   margin-bottom: 0 !important;
 }
+.p-inputtext,
+.p-dropdown {
+  border: 1px solid #d8dee9;
+  border-radius: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.p-fluid input[type="text"],
+.p-fluid input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
 
 .p-text-bold {
   font-weight: 600;

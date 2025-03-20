@@ -121,6 +121,8 @@ export class SaoLevelComponent implements OnInit {
   // Open dialog for editing an existing SAO level with pagination-aware index
   editSaoLevel(index: number): void {
     this.isEditMode = true;
+    console.log(index);
+    
     const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
     console.log("Actual Index:", actualIndex);
   
