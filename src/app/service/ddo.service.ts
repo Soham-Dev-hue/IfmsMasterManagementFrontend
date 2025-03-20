@@ -36,13 +36,13 @@ export class DdoService {
 
   // Create a new DDO
   createDDO(ddo: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl+"DdoMaster/create", ddo);
+    return this.http.post<any>(this.apiUrl+"Ddo/create", ddo);
   }
 
   // Update an existing DDO
-  public UpdateDdo( formData: FormGroup): Observable<any> {
+  public UpdateDdo( formData: FormGroup,id:number): Observable<any> {
        // Use id directly to update the URL dynamically
-       return this.http.put<any>(`${this.apiUrl}DdoMaster`, formData);
+       return this.http.put<any>(`${this.apiUrl}Ddo/update/${id}`, formData);
      }
 public getDDOByTreasuryCode(code: string): Observable<any> {
     return this.http.get<any>(this.apiUrl+"Ddo/DdoByTreasury/"+ code);
@@ -58,7 +58,7 @@ public GetSaosByLevelValue(level: number): Observable<any> {
 }
   // Delete a DDO
   SoftDeleteDDO(id: number): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}DdoMaster/${id}`, {
+    return this.http.patch<any>(`${this.apiUrl}Ddo/${id}`, {
       isDeleted: true
     });
   }

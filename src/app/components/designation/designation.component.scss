@@ -1,96 +1,103 @@
+/* General Styles */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.search-container input {
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.search-container input:focus {
+  border-color: #007bff;
+  box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.5);
+  outline: none;
+}
+
+.p-dropdown {
+  width: 180px !important;
+}
+
+/* Table Styling */
 .card {
-   
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.12);
-    text-align: center;
-  }
-  
-  // p-table {
-  //   width: 100%;
-  //   border-radius: 8px;
-  //   overflow: hidden;
-  // }
-  
-  th, td {
-    // padding: 12px;
-    text-align: left;
-    font-size: 16px;
-  }
-  
-  th {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    text-transform: uppercase;
-  }
-  /* Ensure table cells do not expand unevenly */
-.p-table th,
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: white;
+}
+
+.p-table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.p-table th {
+  background: #f4f6f8;
+  font-weight: bold;
+  text-align: left;
+  padding: 12px;
+}
+
 .p-table td {
-    text-align: center; /* Center everything */
-    vertical-align: middle; /* Ensure vertical centering */
-    padding: 12px;
-    width: auto; /* Let content define width */
+  padding: 10px;
+  vertical-align: middle;
 }
 
-/* Make Actions column a fixed size */
-.p-table th:nth-child(2), 
-.p-table td:nth-child(2) { 
-    width: 120px; /* Adjust as needed */
-}
-
-/* Stack buttons vertically */
 .actions-cell {
-    display: flex;
-    ; /* Stack buttons vertically */
-    justify-content: center;
-    align-items: center;
-    gap: 8px; /* Add space between buttons */
+  display: flex;
+  gap: 10px;
 }
 
-/* Reduce button size */
-.actions-cell button {
-    width: 36px; /* Make buttons smaller */
-    height: 36px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Button Styling */
+button.p-button {
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 8px 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-  tr:hover {
-    background: rgba(0, 123, 255, 0.12);
-  }
-  
-  p-progressSpinner {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  @media (max-width: 600px) {
-    .card {
-      width: 90%;
-      padding: 10px;
-    }
-  
-    th, td {
-      font-size: 14px;
-    }
-  }
-  .search-container {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-  }
-    input[pInputText] {
-      padding: 0.8rem 1rem;
-      font-size: 1rem;
-      color: black;
-      border: 2px solid #00dbde;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgb(0, 0, 0);  // Ensuring text is visible
-      outline: none;
-      transition: all 0.3s ease-in-out;
-      width: 250px;}
+button.p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+/* Status Tag Styling */
+p-tag {
+  font-size: 12px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+/* Dialog Styling */
+.custom-dialog {
+  border-radius: 10px !important;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.custom-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+  border-color: #007bff;
+  box-shadow: 0px 0px 8px rgba(0, 123, 255, 0.5);
+  outline: none;
+}
+
+/* Dialog Footer */
+.custom-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

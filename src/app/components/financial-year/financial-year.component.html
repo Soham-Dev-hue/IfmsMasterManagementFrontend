@@ -1,27 +1,28 @@
-<h2 class="p-text-bold p-mb-0">Financial-Years</h2>
-<div class="search-container">
-  <div class="search-container" style="display: flex; gap:20px;">
-    <input
-      pInputText
-      type="text"
-      placeholder="Search Financial-Years..."
-      [(ngModel)]="searchQuery"
-      (input)="onSearchChange()"
-    />
+<h2 class="p-text-bold p-mb-3 p-text-2xl p-text-primary">Financial Years</h2>
+<div class="search-container p-mb-3" style="display: flex; align-items: center; gap: 20px;">
+  <input
+    pInputText
+    type="text"
+    placeholder="Search Financial Years..."
+    class="p-inputtext p-inputtext-lg p-shadow-2"
+    [(ngModel)]="searchQuery"
+    (input)="onSearchChange()"
+  />
   
   <button
-  pButton
-  type="button"
-  label="Create Financial-Year"
-  icon="pi pi-plus"
-  class="p-button-success p-button-lg"
-  (click)="openDialog()"
-></button>
+    pButton
+    type="button"
+    label="Create Financial Year"
+    icon="pi pi-plus"
+    class="p-button-success p-button-lg p-shadow-3"
+    (click)="openDialog()"
+  ></button>
 </div>
-<div class="card">
-    <p-table   [value]="items"
+
+<div class="card p-shadow-4 p-p-3">
+  <p-table 
+    [value]="items"
     class="p-mt-3"
-    [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
     responsiveLayout="scroll"
     [paginator]="true"
     [rows]="pageSize"
@@ -30,84 +31,86 @@
     [totalRecords]="totalItems" 
     [rowsPerPageOptions]="[5, 10, 20, 50]"
     [showCurrentPageReport]="true" 
-    [loading]="loading">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Financial Years</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-item let-i="rowIndex">
-        <tr>
-          <td>{{ item.stringValue }}</td>
-          <td>
-            <p-tag 
-                (click)="confirmToggleStatus(item)" 
-                [value]="item.isactive ? 'Active' : 'Inactive'" 
-                [severity]="item.isactive ? 'success' : 'danger'" 
-                [style]="{ cursor: 'pointer' }"
-            >
-            </p-tag>
+    [loading]="loading"
+    [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="p-text-center">Financial Years</th>
+        <th class="p-text-center">Status</th>
+        <th class="p-text-center">Actions</th>
+      </tr>
+    </ng-template>
+    
+    <ng-template pTemplate="body" let-item let-i="rowIndex">
+      <tr>
+        <td class="p-text-center p-text-bold">{{ item.stringValue }}</td>
+        <td class="p-text-center">
+          <p-tag 
+            (click)="confirmToggleStatus(item)" 
+            [value]="item.isactive ? 'Active' : 'Inactive'" 
+            [severity]="item.isactive ? 'success' : 'danger'" 
+          
+          ></p-tag>
         </td>
-          <td class="actions-cell" style="gap:20px;">
-            <button
-              pButton
-              icon="pi pi-pencil"
-              class="p-button-rounded p-button-info"
-              (click)="openDialog(true, i)"
-              title="Edit"
-            ></button>
-            <button
-              pButton
-              icon="pi pi-trash"
-              class="p-button-rounded p-button-danger"
-              (click)="deleteFinancialYear(i)"
-              title="Delete"
-            ></button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-    <!-- Show spinner while loading -->
-    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
-    <p-dialog
-    [header]="isEditMode ? 'Edit FinancialYear' : 'Create FinancialYear'"
-    [(visible)]="displayDialog"
-    [modal]="true"
-    [closable]="true"
-    [style]="{ width: '500px' }"
-    class="custom-dialog"
-  >
-    <div class="p-fluid">
-      <div class="p-field">
-        <label for="FinancialYear">Financial-Year</label>
-        <input
-          id="FinancialYear"
-          type="text"
-          pInputText
-          [(ngModel)]="item.stringValue"
-          class="custom-input"
-        />
-      </div>
-    </div> <!-- Make sure this closing div is in the right place -->
+        <td class="actions-cell p-text-center" style="display: flex; justify-content: center; gap: 10px;">
+          <button
+            pButton
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-info p-shadow-2"
+            (click)="openDialog(true, i)"
+            title="Edit"
+          ></button>
+          <button
+            pButton
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-shadow-2"
+            (click)="deleteFinancialYear(i)"
+            title="Delete"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
   
-    <!-- Dialog Footer (Actions) -->
-    <p-footer class="custom-footer">
-      <button
-        pButton
-        icon="pi pi-check"
-        [label]="isEditMode ? 'Update FinancialYear' : 'Create FinancialYear'"
-        class="p-button-primary p-mr-2"
-        (click)="saveFinancialYear()"
-      ></button>
-      <button
-        pButton
-        label="Cancel"
-        icon="pi pi-times"
-        class="p-button-secondary"
-        (click)="displayDialog = false"
-      ></button>
-    </p-footer>
-  </p-dialog> <!-- Ensure this closing tag is correctly placed -->
+  <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+</div>
+
+<p-dialog
+  [header]="isEditMode ? 'Edit Financial Year' : 'Create Financial Year'"
+  [(visible)]="displayDialog"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: '450px' }"
+  class="custom-dialog p-shadow-4"
+>
+  <div class="p-fluid">
+    <div class="p-field">
+      <label for="FinancialYear" class="p-text-bold">Financial Year</label>
+      <input
+        id="FinancialYear"
+        type="text"
+        pInputText
+        [(ngModel)]="item.stringValue"
+        class="p-inputtext p-inputtext-lg p-shadow-2"
+      />
+    </div>
   </div>
+  
+  <p-footer class="custom-footer">
+    <button
+      pButton
+      icon="pi pi-check"
+      [label]="isEditMode ? 'Update Financial Year' : 'Create Financial Year'"
+      class="p-button-primary p-shadow-2 p-mr-2"
+      (click)="saveFinancialYear()"
+    ></button>
+    <button
+      pButton
+      label="Cancel"
+      icon="pi pi-times"
+      class="p-button-secondary p-shadow-2"
+      (click)="displayDialog = false"
+    ></button>
+  </p-footer>
+</p-dialog>

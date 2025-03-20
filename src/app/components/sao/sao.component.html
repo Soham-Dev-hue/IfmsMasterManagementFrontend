@@ -10,22 +10,24 @@
     (onChange)="onLevelChange()"
   ></p-dropdown> -->
   </div>
+<div>
+  <input
+  pInputText
+  type="text"
+  placeholder="Search SAOs..."
+  [(ngModel)]="searchQuery"
+  (input)="onSearchChange()"
+/>
+<p-dropdown
+  [options]="filterOptions"
+  [(ngModel)]="selectedFilter"
+  placeholder="Filter by..."
+  (onChange)="onFilterChange()"
+></p-dropdown>
 
- <input
-      pInputText
-      type="text"
-      placeholder="Search SAOs..."
-      [(ngModel)]="searchQuery"
-      (input)="onSearchChange()"
-    />
-    <p-dropdown
-      [options]="filterOptions"
-      [(ngModel)]="selectedFilter"
-      placeholder="Filter by..."
-      (onChange)="onFilterChange()"
-    ></p-dropdown>
 
-   
+</div>
+
     <p-dropdown 
     id="LevelCode"
     [options]="levelOptions"
@@ -33,7 +35,7 @@
     placeholder="Select Levels"
     [filter]="true"
     filterPlaceholder="Search Sao Levels..."
-    (onChange)="onLevelChange()"
+    (onChange)="onLevelChange($event)"
   ></p-dropdown>
   
     <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>

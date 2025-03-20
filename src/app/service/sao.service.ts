@@ -31,7 +31,7 @@ import { FormGroup } from "@angular/forms";
       });
     }
     GetSaosByLevelValue(level: number): Observable<any> {
-      return this.http.get<any>(`${this.url}SaoMaster/GetSaosByLevelValue/${level}`);
+      return this.http.get<any>(`${this.url}SaoMaster/GetSaosByLevel/${level}`);
     }
   
 

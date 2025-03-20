@@ -161,45 +161,48 @@ console.log(data);
   onFilterChange(): void {
     this.fetchSaos();
   }
-  // onLevelChange(event: any): void {
-  //   this.loading = true;
-  //   if(event?.value===1)
-  //   {
-  //     this.ngOnInit();
-  //   }
-  //   const selectedCode:number = event?.value; // Extract selected code
-  //   console.log(event);
-  //   console.log(typeof selectedCode);
+  onLevelChange(event: any): void {
+    this.loading = true;
+    console.log("event:",event);
     
-  //   console.log("Selected Level Code:", selectedCode);
+    if(event?.value===1)
+    {
+      this.ngOnInit();
+      return;
+    }
+    const selectedCode:number = event?.value; // Extract selected code
+    console.log(event);
+    console.log(typeof selectedCode);
     
-  //   if (!selectedCode) {
-  //     console.warn("No valid selection made.");
-  //     this.loading = false;
-  //     return;
-  //   }
+    console.log("Selected Level Code:", selectedCode);
+    
+    if (!selectedCode) {
+      console.warn("No valid selection made.");
+      this.loading = false;
+      return;
+    }
   
-  //   this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
-  //     next: (sao: any) => {
-  //       this.saos = Array.isArray(sao.result) ? sao.result : [];
-  //       console.log("SAO List:", this.saos);
-  //       this.loading = false;
-  //     },
-  //     error: (error: any) => {
-  //       console.error("Error fetching SAO:", error);
-  //       this.loading = false;
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Error!",
-  //         text: "Failed to fetch SAO. Please try again.",
-  //       });
-  //     },
-  //   });
-  // }
-  
-  onLevelChange(): void {
-    this.fetchSaos();
+    this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
+      next: (sao: any) => {
+        this.saos = Array.isArray(sao.result) ? sao.result : [];
+        console.log("SAO List:", this.saos);
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error("Error fetching SAO:", error);
+        this.loading = false;
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: "Failed to fetch SAO. Please try again.",
+        });
+      },
+    });
   }
+  
+  // onLevelChange(): void {
+  //   this.fetchSaos();
+  // }
 
 
 confirmToggleStatus(sao: any) {
@@ -227,64 +230,70 @@ confirmToggleStatus(sao: any) {
   });
 }
 
-  openDialog(isEdit: boolean = false, index?: number): void {
-    this.isEditMode = isEdit;
-    this.displayDialog = true;
+openDialog(isEdit: boolean = false, index?: number): void {
+  this.isEditMode = isEdit;
+  this.displayDialog = true;
 
-    if (isEdit && index !== undefined) {
-      const selectedSao = this.saos[index];
-      this.sao = {
-        id: selectedSao.id,
-        code: selectedSao.code,
-        name: selectedSao.name,
-        nextLevelCode: selectedSao.nextLevelCode,
-      };
-    } else {
-      this.sao = {
-        code: '',
-        name: '',
-        nextLevelCode: '',
-      };
+  if (isEdit && index !== undefined) {
+    const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index for pagination
+    console.log("Actual Index (Edit):", actualIndex);
+
+    const selectedSao = this.saos[actualIndex];
+    this.sao = {
+      id: selectedSao.id,
+      code: selectedSao.code,
+      name: selectedSao.name,
+      nextLevelCode: selectedSao.nextLevelCode,
+    };
+  } else {
+    this.sao = {
+      code: '',
+      name: '',
+      nextLevelCode: '',
+    };
+  }
+}
+
+deleteSao(index: number): void {
+  const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+  console.log("Actual Index (Delete):", actualIndex);
+
+  const saoId = this.saos[actualIndex].id;
+  const deletedSao = this.saos[actualIndex]; // Store for rollback
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'You will not be able to recover this SAO!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Yes, delete it!',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.saos.splice(actualIndex, 1); // Optimistically update UI
+
+      this.saoService.softDeleteSao(saoId).subscribe({
+        next: () => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'SAO deleted successfully.',
+          });
+        },
+        error: (error) => {
+          console.error('Error deleting SAO:', error);
+          this.saos.splice(actualIndex, 0, deletedSao); // Rollback UI change
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to delete SAO. Please try again.',
+          });
+        },
+      });
     }
-  }
-
-  deleteSao(index: number): void {
-    const saoId = this.saos[index].id;
-    const deletedSao = this.saos[index]; // Store for rollback
-  
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You will not be able to recover this SAO!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Yes, delete it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.saos.splice(index, 1); // Optimistically update UI
-  
-        this.saoService.softDeleteSao(saoId).subscribe({
-          next: () => {
-            Swal.fire({
-              icon: 'success',
-              title: 'Deleted!',
-              text: 'SAO deleted successfully.',
-            });
-          },
-          error: (error) => {
-            console.error('Error deleting SAO:', error);
-            this.saos.splice(index, 0, deletedSao); // Rollback UI change
-            Swal.fire({
-              icon: 'error',
-              title: 'Error!',
-              text: 'Failed to delete SAO. Please try again.',
-            });
-          },
-        });
-      }
-    });
-  }
+  });
+}
   
 
   saveSao(): void {

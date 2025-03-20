@@ -1,6 +1,7 @@
 <div class="p-m-4">
   <!-- Top Bar with Create Button -->
-  <div class="top-bar p-d-flex p-jc-between p-ai-center">
+  <div class="top-bar p-d-flex  p-jc-between p-ai-center" style="gap:80px
+  ">
  
     <h2 class="p-text-bold p-mb-0">Manage DDOs</h2>
     <div class="search-container">
@@ -37,6 +38,9 @@
       class="p-button-success p-button-lg"
       (click)="openDialog()"
     ></button>
+    <div>
+      <p-button (click)="resetFilters()">Reset Filters</p-button>
+    </div>
   </div>
 
   <!-- Table with Pagination -->

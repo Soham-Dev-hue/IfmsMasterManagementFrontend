@@ -1,6 +1,7 @@
 <h2 class="p-text-bold p-mb-0">Manage Designations</h2>
-<div class="search-container">
-  <input
+<div class="search-container" style="display: flexbox; gap: 80px;">
+  <div>
+    <input
     pInputText
     type="text"
     placeholder="Search items..."
@@ -13,6 +14,8 @@
     placeholder="Filter by..."
     (onChange)="onFilterChange()"
   ></p-dropdown>
+  </div>
+
   <button
   pButton
   type="button"
