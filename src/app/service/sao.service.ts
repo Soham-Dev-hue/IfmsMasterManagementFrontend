@@ -19,14 +19,28 @@ import { FormGroup } from "@angular/forms";
     constructor(private http: HttpClient) { }
 
     // In your user-service.service.ts
-    getAllany(search: string = '', filter: string = ''): Observable<any> {
+    getAllany(
+      search: string,
+      filter: string,
+      pageNumber: number,
+      pageSize: number,
+      soalevelCode?: string
+    ): Observable<any> {
+      let params: any = {
+        search: search,
+        filter: filter,
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+      };
+      if (soalevelCode) {
+        params.soalevelCode = soalevelCode;
+      }
       return this.http.get<any>(`${this.url}SaoMaster`, {
-        params: {
-          search: search,
-          filter: filter,
-        },
+        params,
       });
     }
+
+
     GetSaosByLevelValue(level: number): Observable<any> {
       return this.http.get<any>(`${this.url}SaoMaster/GetSaosByLevelValue/${level}`);
     }
