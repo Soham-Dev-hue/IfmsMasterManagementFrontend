@@ -3,11 +3,14 @@ import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
+import { NavbarComponent } from '../navbar/navbar.component';
+import { FooterComponent } from '../footer/footer.component';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, CardModule, RippleModule, ButtonModule],
+  imports: [CommonModule, CardModule, RippleModule, ButtonModule,],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })

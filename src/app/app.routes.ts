@@ -20,14 +20,34 @@ import { AdmissibleReappropriationComponent } from './components/admissible-reap
 import { MajorHeadRangeByTypeComponent } from './components/major-head-range-by-type/major-head-range-by-type.component';
 import { BankComponent } from './components/bank/bank.component';
 import { IfscComponent } from './components/ifsc/ifsc.component';
+import { LoginComponent } from './components/login/login.component';
+import { LayoutComponent } from './components/layout/layout.component';
+import { ngxPermissionsGuard } from 'ngx-permissions';
+
+
+
+
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent },
+
+
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'login', component: LoginComponent },
+  { path: 'login/:token', component: LoginComponent },
+  // { path: 'notfound', component: Error404Component },
+
+
+  {
+    path: '',
+    component: LayoutComponent,
+    children: [
+  //  { path: 'login', component: LoginComponent },
+  { path: 'dashboard', component: DashboardComponent },
   { path: 'master/sao', component: SaoComponent },
   { path: 'master/ddo', component: DdoComponent },
   { path: 'master/financial-year', component: FinancialYearComponent },
   { path: 'master/hoa', component: HoaComponent },
-  { path: 'master/treasury', component: TreasuryComponent },
+  { path: 'master/treasury', component: TreasuryComponent,  canActivate: [ngxPermissionsGuard]},
   { path: 'master/department', component: DepartmentComponent },
   { path: 'master/designation', component: DesignationComponent },
   { path: 'master/major-head', component: MajorHeadComponent },
@@ -43,4 +63,9 @@ export const routes: Routes = [
   { path: 'master/major-head-range', component: MajorHeadRangeByTypeComponent },
   { path: 'master/bank', component: BankComponent },
   { path: 'master/ifsc', component: IfscComponent }
+]
+  }
 ];
+
+
+// ,data: {permissions: {only: 'treasury', redirectTo: '/unauthorized', log: true} }

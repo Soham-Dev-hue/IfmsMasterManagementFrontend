@@ -4,6 +4,7 @@ import { MenuItem } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../service/theme.service';
+import { AuthService } from '../../service/auth/auth.service';
 
 @Component({
   selector: 'app-navbar',
@@ -15,10 +16,16 @@ import { ThemeService } from '../../service/theme.service';
 })
 export class NavbarComponent implements OnInit {
   items: MenuItem[] = [];
+  username:string='';
 
-  constructor(private router: Router,private themeService:ThemeService) {}
+
+  constructor(private router: Router,private themeService:ThemeService, private _authservice:AuthService) {}
 
   ngOnInit() {
+
+    const userDetails=this._authservice.getUserDetails();
+    this.username=userDetails.name||'Guest';
+
     this.items = [
       {
         label: 'Home', icon: 'pi pi-home', command: () => this.router.navigate(['/'])
@@ -76,7 +83,7 @@ export class NavbarComponent implements OnInit {
     return this.themeService.isDarkMode();
   }
   onLogout() {
-    console.log('User logged out');
-    this.router.navigate(['/login']);
+   this._authservice.userLogout();
   }
+  
 }
