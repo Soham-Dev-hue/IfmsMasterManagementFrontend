@@ -1,87 +1,13 @@
-.card {
-  // max-width: 1000px; // Adjusted for only 2 columns
-  // margin: 20px auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.12);
-  text-align: center;
+/* General Styling for Both Components */
+.p-mb-0 {
+  margin-bottom: 0 !important;
 }
-
-// p-table {
-//   width: 200%;
-//   border-radius: 8px;
-//   overflow: hidden;
-//   height: 200%;
-// }
-
-th, td {
-  padding: 12px;
-  text-align: left;
-  font-size: 16px;
+.p-inputtext,
+.p-dropdown {
+  border: 1px solid #d8dee9;
+  border-radius: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-th {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-  text-transform: uppercase;
-}
-
-tr:hover {
-  background: rgba(0, 123, 255, 0.12);
-}
-
-p-progressSpinner {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-.actions-cell {
-  display: flex;
-  ; /* Stack buttons vertically */
-  justify-content: center;
-  align-items: center;
-  gap: 8px; /* Add space between buttons */
-}
-
-/* Reduce button size */
-.actions-cell button {
-  width: 36px; /* Make buttons smaller */
-  height: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-@media (max-width: 600px) {
-  .card {
-    width: 90%;
-    padding: 10px;
-  }
-
-  th, td {
-    font-size: 14px;
-  }
-}
-.p-dialog .p-dialog-header {
-  background-color: #f0f0f0;
-  padding: 15px;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.p-dialog .p-dialog-content {
-  padding: 20px;
-}
-
-.p-fluid .p-field {
-  margin-bottom: 15px;
-}
-
-.p-fluid label {
-  font-weight: bold;
-  display: block;
-  margin-bottom: 5px;
-}
-
 .p-fluid input[type="text"],
 .p-fluid input[type="number"] {
   width: 100%;
@@ -91,34 +17,213 @@ p-progressSpinner {
   box-sizing: border-box;
 }
 
-.p-fluid input[type="text"]:focus,
-.p-fluid input[type="number"]:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+.p-text-bold {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  border-bottom: 2px solid #3f51b5;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+.top-bar {
+
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
-.p-dialog .p-dialog-footer {
-  padding: 15px;
-  border-top: 1px solid #dee2e6;
-  text-align: right;
+.top-bar input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  width: 200px;
+}
+/* Top Bar Styling */
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.p-dialog .p-dialog-footer button {
-  margin-left: 10px;
+/* Input and Dropdown Styling */
+.p-inputtext,
+.p-dropdown {
+  border: 1px solid #d8dee9;
+  border-radius: 4px;
+  padding: 0.5rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.p-inputtext:focus,
+.p-dropdown:focus {
+  border-color: #3f51b5;
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
 }
 
 /* Button Styling */
-.p-button-rounded {
-  border-radius: 50%;
+.p-button {
+  background-color: #3f51b5;
+  border-color: #3f51b5;
+  transition: background-color 0.2s;
 }
 
-.p-button-warning {
-  background-color: #ffc107;
-  border-color: #ffc107;
+.p-button:hover {
+  background-color: #303f9f;
+  border-color: #303f9f;
+}
+
+.p-button-success {
+  background-color: #4caf50;
+  border-color: #4caf50;
+}
+
+.p-button-success:hover {
+  background-color: #43a047;
+  border-color: #43a047;
+}
+
+.p-button-info {
+  background-color: #2196f3;
+  border-color: #2196f3;
+}
+
+.p-button-info:hover {
+  background-color: #1e88e5;
+  border-color: #1e88e5;
 }
 
 .p-button-danger {
-  background-color: #dc3545;
-  border-color: #dc3545;
+  background-color: #f44336;
+  border-color: #f44336;
+}
+
+.p-button-danger:hover {
+  background-color: #e53935;
+  border-color: #e53935;
+}
+
+.p-button-secondary {
+  background-color: #78909c;
+  border-color: #78909c;
+}
+
+.p-button-secondary:hover {
+  background-color: #607d8b;
+  border-color: #607d8b;
+}
+
+/* Table Styling */
+.p-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.p-table .p-datatable-thead > tr > th {
+  background-color: #f1f3f9;
+  color: #2c3e50;
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.p-table .p-datatable-tbody > tr {
+  background-color: #ffffff;
+  transition: background-color 0.2s;
+}
+
+.p-table .p-datatable-tbody > tr:hover {
+  background-color: #f8f9ff;
+}
+
+.p-table .p-datatable-tbody > tr > td {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+/* Status Tag Styling */
+.p-tag {
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  transition: transform 0.2s;
+}
+
+.p-tag:hover {
+  transform: scale(1.05);
+}
+
+.p-tag-success {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.p-tag-danger {
+  background-color: #f44336;
+  color: #ffffff;
+}
+
+/* Dialog Styling */
+.p-dialog .p-dialog-header {
+  background-color: #3f51b5;
+  color: #ffffff;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+.p-dialog .p-field {
+  margin-bottom: 1.5rem;
+}
+
+.p-dialog .p-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.p-dialog .p-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Progress Spinner Styling */
+.p-progress-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+}
+
+/* Card Styling */
+.card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions-cell {
+    flex-direction: column;
+    gap: 5px;
+  }
 }

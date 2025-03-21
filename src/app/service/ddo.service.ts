@@ -13,30 +13,48 @@ export class DdoService {
   constructor(private http: HttpClient) {}
 
   // Fetch all DDOs
-  getAllDDOs(search:string='',filter:string=''): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl+"DdoMaster",{
-      params: {
-        search: search,
-        filter: filter
-      }
+  getAllDDOs(
+    search: string,
+    filter: string,
+    pageNumber: number,
+    pageSize: number,
+    treasurycode?: string
+  ): Observable<any[]> {
+    let params: any = {
+      search: search,
+      filter: filter,
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+    };
+    if (treasurycode) {
+      params.treasurycode = treasurycode;
+    }
+    return this.http.get<any[]>(this.apiUrl + 'Ddo', {
+      params,
     });
   }
 
   // Create a new DDO
   createDDO(ddo: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl+"DdoMaster", ddo);
+    return this.http.post<any>(this.apiUrl+"Ddo/create", ddo);
   }
 
   // Update an existing DDO
-  public UpdateDdo( formData: FormGroup): Observable<any> {
+  public UpdateDdo( formData: FormGroup,id:number): Observable<any> {
        // Use id directly to update the URL dynamically
-       return this.http.put<any>(`${this.apiUrl}DdoMaster`, formData);
+       return this.http.put<any>(`${this.apiUrl}Ddo/update/${id}`, formData);
      }
 public getDDOByTreasuryCode(code: string): Observable<any> {
-    return this.http.get<any>(this.apiUrl+"DdoMaster/DdoByTreasury/"+ code);
+    return this.http.get<any>(this.apiUrl+"Ddo/DdoByTreasury/"+ code);
 
   
  
+}
+UpdateDdoStatus( data: any,id:number): Observable<any> {
+  // Use id directly to update the URL dynamically
+  const updatedData = { ...data, isActive: !data.isActive };
+  console.log(updatedData);
+  return this.http.put<any>(`${this.apiUrl}Ddo/update/${id}`, updatedData);
 }
 public GetSaosByLevelValue(level: number): Observable<any> {
   return this.http.get<any>(this.apiUrl+"DdoMaster/GetSaosByLevelValue"+ level);
@@ -46,7 +64,7 @@ public GetSaosByLevelValue(level: number): Observable<any> {
 }
   // Delete a DDO
   SoftDeleteDDO(id: number): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}DdoMaster/${id}`, {
+    return this.http.patch<any>(`${this.apiUrl}Ddo/${id}`, {
       isDeleted: true
     });
   }

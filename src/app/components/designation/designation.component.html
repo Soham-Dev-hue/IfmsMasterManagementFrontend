@@ -1,6 +1,7 @@
 <h2 class="p-text-bold p-mb-0">Manage Designations</h2>
-<div class="search-container">
-  <input
+<div class="search-container" style="display: flexbox; gap: 80px;">
+  <div>
+    <input
     pInputText
     type="text"
     placeholder="Search items..."
@@ -13,6 +14,8 @@
     placeholder="Filter by..."
     (onChange)="onFilterChange()"
   ></p-dropdown>
+  </div>
+
   <button
   pButton
   type="button"
@@ -23,7 +26,18 @@
 ></button>
 </div>
 <div class="card">
-    <p-table [value]="items" [paginator]="true" [rows]="10" [loading]="loading">
+    <p-table   [value]="items"
+    class="p-mt-3"
+    [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
+    responsiveLayout="scroll"
+    [paginator]="true"
+    [rows]="pageSize"
+    [lazy]="true" 
+    (onLazyLoad)="onPageChange($event)"
+    [totalRecords]="totalItems" 
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [showCurrentPageReport]="true" 
+    [loading]="loading">
       <ng-template pTemplate="header">
         <tr >
             <th>Designation Names</th>
@@ -37,8 +51,8 @@
           <td>
             <p-tag 
                 (click)="confirmToggleStatus(item)" 
-                [value]="item.isactive ? 'Active' : 'Inactive'" 
-                [severity]="item.isactive ? 'success' : 'danger'" 
+                [value]="item.isActive ? 'Active' : 'InActive'" 
+                [severity]="item.isActive ? 'success' : 'danger'" 
                 [style]="{ cursor: 'pointer' }"
             >
             </p-tag>

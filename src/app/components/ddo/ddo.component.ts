@@ -11,7 +11,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DropdownModule } from 'primeng/dropdown';
 import { TagModule } from 'primeng/tag';
 import { CommonService } from '../../service/common.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-ddo',
   standalone: true,
@@ -26,7 +26,7 @@ import { CommonService } from '../../service/common.service';
     DropdownModule,
     TagModule
   ],
-  providers: [DdoService,CommonService],
+  providers: [DdoService, CommonService],
   templateUrl: './ddo.component.html',
   styleUrls: ['./ddo.component.scss'],
 })
@@ -35,7 +35,6 @@ export class DdoComponent implements OnInit {
   displayDialog: boolean = false; // Controls dialog visibility
   isEditMode: boolean = false; // Tracks if dialog is in edit mode
   ddo: any = {}; // Current DDO being edited/created
-  ddos:any[] = []; //
   loading: boolean = false; // Loading state
   searchQuery: string = '';
   selectedFilter: string = '';
@@ -43,13 +42,17 @@ export class DdoComponent implements OnInit {
     { label: 'All', value: '' },
     { label: 'TreasuryCode', value: 'treasurycode' },
     { label: 'Designation', value: 'designation' },
+    { label: 'DDO-CODE', value: 'ddoCode' },
+    { label: 'Address', value: 'address' },
   ];
-  selectedCode: string ='';
-  codes: any[] = []; //
-  TreasuryCodeOptions: any[]=[];
+  pageNumber: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
+  selectedCode: string = '';
+  TreasuryCodeOptions: any[] = [];
 
-  constructor(private ddoService: DdoService, private commonService: CommonService) {}
-
+  constructor(private ddoService: DdoService, private commonService: CommonService,private router:Router) {}
 
   ngOnInit(): void {
     this.fetchDDOs();
@@ -59,13 +62,13 @@ export class DdoComponent implements OnInit {
   // Fetch DDOs from the backend
   fetchDDOs(): void {
     this.loading = true;
-    this.ddoService.getAllDDOs(this.searchQuery,this.selectedFilter).subscribe({
-      next: (data) => {
-        this.ddoList = data
-        .filter((ddo: any) => !ddo.isdeleted)
-        .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
-      
-        
+    this.ddoService.getAllDDOs(this.searchQuery, this.selectedFilter, this.pageNumber, this.pageSize).subscribe({
+      next: (response: any) => {
+        this.totalItems = response?.result?.totalRecords || 0;
+        this.totalPages = response?.result?.totalPages || 0;
+        this.ddoList = response.result.items
+          .filter((ddo: any) => !ddo.isDeleted)
+          .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
         this.loading = false;
       },
       error: (error) => {
@@ -79,14 +82,32 @@ export class DdoComponent implements OnInit {
       },
     });
   }
+
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
+
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchDDOs();
+  }
+
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    this.fetchDDOs();  // Fetch the data for the updated page
+  }
+  resetFilters(): void {
+    this.router.navigateByUrl("/master/ddo").then(() => {
+      window.location.reload();
+    });
+  }
   getTreasuryCodes(): void {
     this.commonService.getAllTreasuries().subscribe({
       next: (codes) => {
-
-console.log(this.codes);
-
         this.TreasuryCodeOptions = codes.map((code: any) => ({
-          label: code.code, 
+          label: code.code,
           value: code.code
         }));
       },
@@ -100,15 +121,12 @@ console.log(this.codes);
       }
     });
   }
-  getDdoByTreasuryCode(code: any): void{
+
+  getDdoByTreasuryCode(code: any): void {
     this.loading = true;
     this.ddoService.getDDOByTreasuryCode(code).subscribe({
       next: (ddo) => {
-        console.log(code);
-        
-        this.ddoList = ddo;
-        console.log(this.ddoList);
-        
+        this.ddoList = ddo.result;
         this.loading = false;
       },
       error: (error) => {
@@ -122,6 +140,7 @@ console.log(this.codes);
       },
     });
   }
+
   onSearchChange(): void {
     this.fetchDDOs();
   }
@@ -129,21 +148,24 @@ console.log(this.codes);
   onFilterChange(): void {
     this.fetchDDOs();
   }
+
   // Open dialog for create/edit
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;
     this.displayDialog = true;
 
     if (isEdit && index !== undefined) {
-      const selectedddo = this.ddoList[index];
-      this.ddo = {
-        id: selectedddo.id,
-        code: selectedddo.code,
-        name: selectedddo.name,
-        nextLevelCode: selectedddo.nextLevelCode,
-      };
+      const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust for pagination
+      if (actualIndex >= 0 && actualIndex < this.ddoList.length) {
+        const selectedDDO = this.ddoList[actualIndex];
+        this.ddo = { ...selectedDDO };
+      } else {
+        console.error("Invalid actual index:", actualIndex);
+      }
     } else {
+      // Reset form for new entry
       this.ddo = {
+        id: null,
         code: '',
         name: '',
         nextLevelCode: '',
@@ -153,9 +175,10 @@ console.log(this.codes);
 
   // Delete a DDO
   deleteDDO(index: number): void {
-    const ddoId = this.ddoList[index].id;
-    const deletedDDO = this.ddoList[index]; // Store for rollback
-  
+    const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+    const ddoId = this.ddoList[actualIndex].id;
+    const deletedDDO = this.ddoList[actualIndex]; // Store for rollback
+
     Swal.fire({
       title: 'Are you sure?',
       text: 'You won\'t be able to revert this!',
@@ -166,8 +189,8 @@ console.log(this.codes);
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.ddoList.splice(index, 1); // Optimistically update UI
-  
+        this.ddoList.splice(actualIndex, 1); // Optimistically update UI
+
         this.ddoService.SoftDeleteDDO(ddoId).subscribe({
           next: () => {
             Swal.fire({
@@ -178,7 +201,7 @@ console.log(this.codes);
           },
           error: (error) => {
             console.error('Error deleting DDO:', error);
-            this.ddoList.splice(index, 0, deletedDDO); // Rollback UI change
+            this.ddoList.splice(actualIndex, 0, deletedDDO); // Rollback UI change
             Swal.fire({
               icon: 'error',
               title: 'Error!',
@@ -189,81 +212,97 @@ console.log(this.codes);
       }
     });
   }
-  
-confirmToggleStatus(ddo: any) {
-  Swal.fire({
-    title: `Are you sure?`,
-    text: `You are about to mark this ddo as ${ddo.isactive ? 'Inactive' : 'Active'}.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: ddo.isactive ? '#d33' : '#28a745',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: ddo.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // Toggle status
-      ddo.isactive = !ddo.isactive;
 
-      // Show success message
+    confirmToggleStatus(ddo: any) {
       Swal.fire({
-        title: 'Updated!',
-        text: `The ddo has been marked as ${ddo.isactive ? 'Active' : 'Inactive'}.`,
-        icon: 'success',
-        timer: 1500
+        title: `Are you sure?`,
+        text: `You are about to mark this ddo as ${ddo.isActive ? 'Inactive' : 'Active'}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: ddo.isActive ? '#d33' : '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: ddo.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Call the service to update status in the backend
+          this.ddoService.UpdateDdoStatus(ddo,ddo.id).subscribe(
+            (response) => {
+              // Update the local object with the response from backend
+              // or toggle the status if backend doesn't return updated object
+              ddo.isActive = !ddo.isActive;
+              
+              // Show success message
+              Swal.fire({
+                title: 'Updated!',
+                text: `The ddo has been marked as ${ddo.isActive ? 'Active' : 'Inactive'}.`,
+                icon: 'success',
+                timer: 1500
+              });
+            },
+            (error) => {
+              // Handle error
+              Swal.fire({
+                title: 'Error!',
+                text: 'Failed to update ddo status. Please try again.',
+                icon: 'error'
+              });
+              console.error('Error updating ddo status:', error);
+            }
+          );
+        }
       });
     }
-  });
-}
+
   // Save DDO (create or update)
- saveDDO(): void {
-     if (this.isEditMode) {
-       this.ddoService.UpdateDdo(this.ddo).subscribe({
-         next: (updatedddo) => {
-           const index = this.ddoList.findIndex((s) => s.id === updatedddo.id);
- 
-           if (index !== -1) {
-             this.ddoList[index] = updatedddo;
-           }
-           this.displayDialog = false;
-           this.ddo = {};
-           Swal.fire({
-             icon: 'success',
-             title: 'Updated!',
-             text: 'ddo updated successfully.',
-           });
-           this.ngOnInit();
-         },
-         error: (error:any) => {
-           console.error('Error updating ddo:', error);
-           Swal.fire({
-             icon: 'error',
-             title: 'Error!',
-             text: 'Failed to update ddo. Please try again.',
-           });
-         },
-       });
-     } else {
-       this.ddoService.createDDO(this.ddo).subscribe({
-         next: (newddo) => {
-           this.ddos.push(newddo);
-           this.displayDialog = false;
-           this.ddo = {};
-           Swal.fire({
-             icon: 'success',
-             title: 'Created!',
-             text: 'ddo created successfully.',
-           });
-           this.ngOnInit();
-         },
-         error: (error) => {
-           console.error('Error creating ddo:', error);
-           Swal.fire({
-             icon: 'error',
-             title: 'Error!',
-             text: 'Failed to create ddo. Please try again.',
-           });
-         },
-       });
-     }
-   }
+  saveDDO(): void {
+    if (this.isEditMode) {
+      console.log(this.ddo);
+      
+      this.ddoService.UpdateDdo(this.ddo,this.ddo.id).subscribe({
+        next: (updatedddo) => {
+          const index = this.ddoList.findIndex((s) => s.id === updatedddo.id);
+          if (index !== -1) {
+            this.ddoList[index] = updatedddo;
+          }
+          this.displayDialog = false;
+          this.ddo = {};
+          Swal.fire({
+            icon: 'success',
+            title: 'Updated!',
+            text: 'DDO updated successfully.',
+          });
+          this.fetchDDOs(); // Refresh the list
+        },
+        error: (error: any) => {
+          console.error('Error updating DDO:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to update DDO. Please try again.',
+          });
+        },
+      });
+    } else {
+      this.ddoService.createDDO(this.ddo).subscribe({
+        next: (newddo) => {
+          this.displayDialog = false;
+          this.ddo = {};
+          Swal.fire({
+            icon: 'success',
+            title: 'Created!',
+            text: 'DDO created successfully.',
+          });
+          this.fetchDDOs(); // Refresh the list
+        },
+        error: (error) => {
+          console.error('Error creating DDO:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Failed to create DDO. Please try again.',
+          });
+        },
+      });
+    }
+  }
 }

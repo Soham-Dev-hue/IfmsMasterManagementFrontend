@@ -32,7 +32,7 @@ import { TagModule } from 'primeng/tag';
   styleUrls: ['./department.component.scss']
 })
 export class DepartmentComponent implements OnInit {
-  departments: any[] = [];
+ items : any[] = [];
   loading: boolean = false;
   searchQuery: string = '';
   selectedFilter: string = '';
@@ -43,10 +43,12 @@ export class DepartmentComponent implements OnInit {
   ];
   isEditMode: boolean = false;
   displayDialog: boolean = false;
-  department: any = {};
+  item: any = {};
   saving: boolean = false;
   pageNumber: number = 1;
-  pageSize: number = 100;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  totalPages: number = 0;
 
   constructor(private commonService: CommonService) { }
 
@@ -66,13 +68,20 @@ export class DepartmentComponent implements OnInit {
             title: "Error!",
             text: "Failed to fetch departments. Please try again.",
           });
-          this.departments = [];
+          this.items = [];
         } else {
-          this.departments = response.result.items
+
+          this.totalItems = response?.result?.totalRecords || 0;
+          console.log("totalItems", this.totalItems);
+          this.totalPages = response?.result?.totalPages || 0;
+          console.log("totalpages", this.totalPages);
+
+
+          this.items= response.result.items
           .filter((item: any) => !item.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
         }
-        console.log(this.departments);
+        console.log(this.items);
         
         this.loading = false;
       },
@@ -84,11 +93,25 @@ export class DepartmentComponent implements OnInit {
           title: "Error!",
           text: "Failed to fetch departments. Please try again.",
         });
-        this.departments = [];
+        this.items = [];
       },
     });
   }
+  get first(): number {
+    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+  }
 
+  // Setter: Update the pageNumber based on the first index value
+  set first(value: number) {
+    this.pageNumber = Math.floor(value / this.pageSize) + 1;
+    this.fetchDepartments();
+  }
+  onPageChange(event: any): void {
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageSize = event.rows;
+    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
+    this.fetchDepartments();  // Fetch the data for the updated page
+  }
   onSearchChange(): void {
     this.fetchDepartments();
   }
@@ -97,20 +120,23 @@ export class DepartmentComponent implements OnInit {
     this.fetchDepartments();
   }
 
-  onPageChange(event: any): void {
-    this.pageNumber = event.page + 1;
-    this.pageSize = event.rows;
-    this.fetchDepartments();
-  }
+ 
 
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;
     this.displayDialog = true;
-
-    if (isEdit && index !== undefined && this.departments[index]) {
-      this.department = { ...this.departments[index] };
+  console.log(index);
+  console.log(this.items);
+  
+    if (isEdit && index !== undefined) {
+      const actualIndex=index-((this.pageNumber-1)*this.pageSize); // Adjust index with pagination
+      console.log(actualIndex);
+  
+      if (this.items[actualIndex]) {
+        this.item = { ...this.items[actualIndex] };
+      }
     } else {
-      this.department = {
+      this.item = {
         name: '',
         code: '',
         demandCode: '',
@@ -118,14 +144,15 @@ export class DepartmentComponent implements OnInit {
       };
     }
   }
+  
 
   saveDepartment(): void {
     if (this.saving) return; // Prevent duplicate clicks
     this.saving = true;
 
     const request = this.isEditMode
-      ? this.commonService.updateDepartment(this.department.id, this.department)
-      : this.commonService.createDepartment(this.department);
+      ? this.commonService.updateDepartment(this.item.id, this.item)
+      : this.commonService.createDepartment(this.item);
 
     request.subscribe({
       next: (response: any) => {
@@ -160,15 +187,17 @@ export class DepartmentComponent implements OnInit {
   }
 
   deleteDepartment(index: number): void {
-    if (index < 0 || index >= this.departments.length) {
-      console.error("Invalid index for department deletion:", index);
+    const actualIndex = index - (this.pageNumber - 1) * this.pageSize; // Adjust index based on pagination
+    console.log("Clicked index:", index);
+    console.log("Actual index in items array:", actualIndex);
+  
+    if (actualIndex < 0 || actualIndex >= this.items.length) {
+      console.error("Invalid index for department deletion:", actualIndex);
       return;
     }
-  console.log(index);
   
-    const department = this.departments[index];
-console.log(department);
-
+    const department = this.items[actualIndex];
+    console.log("Department to delete:", department);
   
     if (!department || !department.id) {
       console.error("Department ID is undefined:", department);
@@ -181,7 +210,7 @@ console.log(department);
     }
   
     const departmentId = department.id;
-    console.log("Attempting to delete department:", department);
+    console.log("Attempting to delete department with ID:", departmentId);
   
     Swal.fire({
       title: 'Are you sure?',
@@ -193,13 +222,13 @@ console.log(department);
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.departments.splice(index, 1); // Optimistically update UI
+        this.items.splice(actualIndex, 1); // Optimistically update UI
   
         this.commonService.deleteDepartment(departmentId).subscribe({
           next: (response: any) => {
             if (response.apiResponseStatus === 'Error') {
               console.error("Error deleting department:", response);
-              this.departments.splice(index, 0, department); // Rollback UI change
+              this.items.splice(actualIndex, 0, department); // Rollback UI change
               Swal.fire({
                 icon: 'error',
                 title: 'Error!',
@@ -215,7 +244,7 @@ console.log(department);
           },
           error: (error) => {
             console.error('Error deleting department:', error);
-            this.departments.splice(index, 0, department); // Rollback UI change
+            this.items.splice(actualIndex, 0, department); // Rollback UI change
             Swal.fire({
               icon: 'error',
               title: 'Error!',
@@ -227,28 +256,44 @@ console.log(department);
     });
   }
   
-  confirmToggleStatus(item: any) {
-    Swal.fire({
-      title: `Are you sure?`,
-      text: `You are about to mark this item as ${item.isactive ? 'Inactive' : 'Active'}.`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: item.isactive ? '#d33' : '#28a745',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: item.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Toggle status
-        item.isactive = !item.isactive;
   
-        // Show success message
-        Swal.fire({
-          title: 'Updated!',
-          text: `The item has been marked as ${item.isactive ? 'Active' : 'Inactive'}.`,
-          icon: 'success',
-          timer: 1500
-        });
-      }
-    });
-  }
+ confirmToggleStatus(dept: any) {
+      Swal.fire({
+        title: `Are you sure?`,
+        text: `You are about to mark this dept as ${dept.isactive ? 'Inactive' : 'Active'}.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: dept.isactive ? '#d33' : '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: dept.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Call the service to update status in the backend
+          this.commonService.UpdateDepartmentStatus(dept.id,dept).subscribe(
+            (response) => {
+              // Update the local object with the response from backend
+              // or toggle the status if backend doesn't return updated object
+              dept.isactive = !dept.isactive;
+              
+              // Show success message
+              Swal.fire({
+                title: 'Updated!',
+                text: `The dept has been marked as ${dept.isactive ? 'Active' : 'Inactive'}.`,
+                icon: 'success',
+                timer: 1500
+              });
+            },
+            (error) => {
+              // Handle error
+              Swal.fire({
+                title: 'Error!',
+                text: 'Failed to update dept status. Please try again.',
+                icon: 'error'
+              });
+              console.error('Error updating dept status:', error);
+            }
+          );
+        }
+      });
+    }
 }

@@ -1,89 +1,111 @@
-<h2 class="p-text-bold p-mb-0">Manage Departments</h2>
-<div class="search-container" style="display: flex; gap:20px;">
-  <input
-    pInputText
-    type="text"
-    placeholder="Search Departments..."
-    [(ngModel)]="searchQuery"
-    (input)="onSearchChange()"
-  />
-  <p-dropdown
-    [options]="filterOptions"
-    [(ngModel)]="selectedFilter"
-    placeholder="Filter by..."
-    (onChange)="onFilterChange()"
-  ></p-dropdown>
+<div class="p-m-4">
+  <!-- Header -->
+  <h2 class="p-text-bold">Manage Departments</h2>
+
+  <!-- Top Bar for Search and Filter -->
+  <div class="top-bar" style="gap: 80px; display: flexbox;">
+    <div>
+      <input
+      pInputText
+      type="text"
+      class="p-inputtext"
+      placeholder="Search items..."
+      [(ngModel)]="searchQuery"
+      (input)="onSearchChange()"
+    />
+    <p-dropdown
+      [options]="filterOptions"
+      class="p-dropdown"
+      [(ngModel)]="selectedFilter"
+      placeholder="Filter by..."
+      (onChange)="onFilterChange()"
+    ></p-dropdown>
+    </div>
+   
+<div>
   <button type="button" pButton icon="pi pi-plus" (click)="openDialog()">Create Department</button>
 </div>
-<div class="card">
-  <p-table   [value]="departments"
-  [paginator]="true"
-  [rows]="10"
-  [rowsPerPageOptions]="[5, 10, 20]"
-  [loading]="loading"
-  [responsiveLayout]="'scroll'">
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Code</th>
-        <th>Name</th>
-        <th>Demand Code</th>
-        <th>Address</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-department let-index="rowIndex">
-      <tr>
-        <td>{{ department.code }}</td>
-        <td>{{ department.name }}</td>
-        <td>{{ department.demandCode }}</td>
-        <td>{{ department.address }}</td>
-        <td>
-          <p-tag 
-              (click)="confirmToggleStatus(department)" 
-              [value]="department.isactive ? 'Active' : 'Inactive'" 
-              [severity]="department.isactive ? 'success' : 'danger'" 
-              [style]="{ cursor: 'pointer' }"
-          >
-          </p-tag>
-      </td>
-        <td style="display: flex; gap: 10px;">
-          <button type="button" pButton icon="pi pi-pencil"   class="p-button-rounded p-button-info" (click)="openDialog(true, index)"></button>
-          <button type="button" pButton icon="pi pi-trash"    class="p-button-rounded p-button-danger" (click)="deleteDepartment(index)"></button>
-        </td>
-       
-      </tr>
-    </ng-template>
-  </p-table>
-  <!-- Show spinner while loading -->
-  <p-progressSpinner *ngIf="loading"></p-progressSpinner>
-</div>
+    
+  </div>
 
-<!-- Dialog for creating/updating departments -->
-<p-dialog [(visible)]="displayDialog" [modal]="true" [style]="{ width: '70vw' }">
-  <p-header>{{ isEditMode ? 'Update Department' : 'Create Department' }}</p-header>
-  <form>
-    <div class="p-fluid">
-      <div class="p-field">
-        <label for="name">Name</label>
-        <input id="name" type="text" [(ngModel)]="department.name" name="name" />
+  <!-- Table Container -->
+  <div class="card p-table">
+    <p-table
+      [value]="items"
+      class="p-mt-3"
+      [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
+      responsiveLayout="scroll"
+      [paginator]="true"
+      [rows]="pageSize"
+      [lazy]="true"
+      (onLazyLoad)="onPageChange($event)"
+      [totalRecords]="totalItems"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [showCurrentPageReport]="true"
+      [loading]="loading"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Code</th>
+          <th>Name</th>
+          <th>Demand Code</th>
+          <th>Address</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item let-index="rowIndex">
+        <tr>
+          <td>{{ item.code }}</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.demandCode }}</td>
+          <td>{{ item.address }}</td>
+          <td>
+            <p-tag 
+              (click)="confirmToggleStatus(item)" 
+              [value]="item.isactive ? 'Active' : 'Inactive'" 
+              [severity]="item.isactive ? 'success' : 'danger'" 
+              class="p-tag"
+            ></p-tag>
+          </td>
+          <td class="actions-cell">
+            <button type="button" pButton icon="pi pi-pencil" class="p-button-rounded p-button-info" (click)="openDialog(true, index)"></button>
+            <button type="button" pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteDepartment(index)"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    
+    <!-- Show spinner while loading -->
+    <p-progressSpinner *ngIf="loading"></p-progressSpinner>
+  </div>
+
+  <!-- Dialog for Creating/Updating Items -->
+  <p-dialog [(visible)]="displayDialog" [modal]="true" [style]="{ width: '70vw' }">
+    <p-header>{{ isEditMode ? 'Update Item' : 'Create Item' }}</p-header>
+    <form>
+      <div class="p-fluid">
+        <div class="p-field">
+          <label for="name">Name</label>
+          <input id="name" type="text" class="p-inputtext" [(ngModel)]="item.name" name="name" />
+        </div>
+        <div class="p-field">
+          <label for="code">Code</label>
+          <input id="code" type="text" class="p-inputtext" [(ngModel)]="item.code" name="code" />
+        </div>
+        <div class="p-field">
+          <label for="demandCode">Demand Code</label>
+          <input id="demandCode" type="text" class="p-inputtext" [(ngModel)]="item.demandCode" name="demandCode" />
+        </div>
+        <div class="p-field">
+          <label for="address">Address</label>
+          <input id="address" type="text" class="p-inputtext" [(ngModel)]="item.address" name="address" />
+        </div>
       </div>
-      <div class="p-field">
-        <label for="code">Code</label>
-        <input id="code" type="text" [(ngModel)]="department.code" name="code" />
-      </div>
-      <div class="p-field">
-        <label for="demandCode">Demand Code</label>
-        <input id="demandCode" type="text" [(ngModel)]="department.demandCode" name="demandCode" />
-      </div>
-      <div class="p-field">
-        <label for="address">Address</label>
-        <input id="address" type="text" [(ngModel)]="department.address" name="address" />
-      </div>
-    </div>
-  </form>
-  <p-footer>
-    <button type="button" pButton icon="pi pi-times" (click)="displayDialog = false">Cancel</button>
-    <button type="button" pButton icon="pi pi-check" (click)="saveDepartment()">Save</button>
-  </p-footer>
-</p-dialog>
+    </form>
+    <p-footer>
+      <button type="button" pButton icon="pi pi-times" class="p-button-secondary" (click)="displayDialog = false">Cancel</button>
+      <button type="button" pButton icon="pi pi-check" class="p-button" (click)="saveDepartment()">Save</button>
+    </p-footer>
+  </p-dialog>
+</div>

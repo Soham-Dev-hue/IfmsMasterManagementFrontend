@@ -108,43 +108,58 @@ selectedFilter:string = '';
     console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
     this.fetchSchemeTypes();  // Fetch the data for the updated page
   }
-   openDialog(isEdit: boolean = false, index?: number): void {
-      this.isEditMode = isEdit;
-      this.displayDialog = true;
+  openDialog(isEdit: boolean = false, index?: number): void {
+    this.isEditMode = isEdit;
+    this.displayDialog = true;
   
-      if (isEdit && index !== undefined && this.items[index]) {
-        this.item = { ...this.items[index] };
-      } else {
-        this.item = {
-          description: '',
-          type: '',
-        };
+    if (isEdit && index !== undefined) {
+      const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+      console.log("Actual Index:", actualIndex);
+  
+      if (this.items[actualIndex]) {
+        this.item = { ...this.items[actualIndex] };
       }
+    } else {
+      this.item = {
+        description: '',
+        type: '',
+      };
     }
-      confirmToggleStatus(item: any) {
-        Swal.fire({
-          title: `Are you sure?`,
-          text: `You are about to mark this item as ${item.isActive ? 'Inactive' : 'Active'}.`,
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: item.isActive ? '#d33' : '#28a745',
-          cancelButtonColor: '#6c757d',
-          confirmButtonText: item.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // Toggle status
-            item.isActive = !item.isActive;
-      
-            // Show success message
-            Swal.fire({
-              title: 'Updated!',
-              text: `The item has been marked as ${item.isActive ? 'Active' : 'Inactive'}.`,
-              icon: 'success',
-              timer: 1500
-            });
-          }
-        });
-      }
+  }
+      confirmToggleStatus(item: any): void {
+         Swal.fire({
+           title: `Are you sure?`,
+           text: `You are about to mark this item as ${item.isActive ? 'Inactive' : 'Active'}.`,
+           icon: 'warning',
+           showCancelButton: true,
+           confirmButtonColor: item.isActive ? '#d33' : '#28a745',
+           cancelButtonColor: '#6c757d',
+           confirmButtonText: item.isActive ? 'Yes, deactivate it!' : 'Yes, activate it!',
+         }).then((result) => {
+           if (result.isConfirmed) {
+             this.commonService.updateActiveStatusSchemeType(item.id, item).subscribe({
+               next: (response:any) => {
+                 console.log('Response:', response); // Debugging
+                 item.isActive = !item.isActive; // Update UI after successful API response
+                 Swal.fire({
+                   title: 'Updated!',
+                   text: `The item has been marked as ${item.isActive ? 'Active' : 'Inactive'}.`,
+                   icon: 'success',
+                   timer: 1500
+                 });
+               },
+               error: (error:any) => {
+                 console.error('Error updating item status:', error);
+                 Swal.fire({
+                   title: 'Error!',
+                   text: 'Failed to update item status. Please try again.',
+                   icon: 'error',
+                 });
+               }
+             });
+           }
+         });
+       }
   saveSchemeType(): void {
       if (this.saving) return; // Prevent duplicate clicks
       this.saving = true;
@@ -176,43 +191,51 @@ selectedFilter:string = '';
         }
       });
     }
-     deleteSchemeType(index: number): void {
-        const itemId = this.items[index].id;
-        const deleteditem = this.items[index]; // Store for rollback
-      
-        Swal.fire({
-          title: 'Are you sure?',
-          text: 'You won\'t be able to revert this!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            this.items.splice(index, 1); // Optimistically update UI
-      
-            this.commonService.deleteSchemeType(itemId).subscribe({
-              next: () => {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Deleted!',
-                  text: 'item deleted successfully.',
-                });
-              },
-              error: (error) => {
-                console.error('Error deleting item:', error);
-                this.items.splice(index, 0, deleteditem); // Rollback UI change
-                Swal.fire({
-                  icon: 'error',
-                  title: 'Error!',
-                  text: 'Failed to delete item. Please try again.',
-                });
-              },
-            });
-          }
-        });
-     }
+    deleteSchemeType(index: number): void {
+      const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
+      console.log("Actual Index:", actualIndex);
+    
+      if (actualIndex < 0 || actualIndex >= this.items.length) {
+        console.error("Invalid index for deletion.");
+        return;
+      }
+    
+      const itemId = this.items[actualIndex].id;
+      const deletedItem = this.items[actualIndex]; // Store for rollback
+    
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.items.splice(actualIndex, 1); // Optimistically update UI
+    
+          this.commonService.deleteSchemeType(itemId).subscribe({
+            next: () => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Deleted!',
+                text: 'Item deleted successfully.',
+              });
+            },
+            error: (error) => {
+              console.error('Error deleting item:', error);
+              this.items.splice(actualIndex, 0, deletedItem); // Rollback UI change
+              Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Failed to delete item. Please try again.',
+              });
+            },
+          });
+        }
+      });
+    }
      onFilterChange(): void {
       this.fetchSchemeTypes();
     }

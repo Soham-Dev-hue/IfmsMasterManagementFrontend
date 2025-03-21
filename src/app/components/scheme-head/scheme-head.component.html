@@ -23,6 +23,8 @@
       [options]="MajorHeadOptions"
       [(ngModel)]="selectedMajorHeadId"
       placeholder="Select Major Head"
+      [filter]="true"
+      filterPlaceholder="Search MajorHead"
       (onChange)="getSubMajorHeadByMajorHeadId()"
     ></p-dropdown>
   </div>
@@ -35,6 +37,8 @@
       [options]="subMajorHeadOptions"
       [(ngModel)]="selectedSubMajorHeadId"
       placeholder="Select Sub-Major Head"
+      [filter]="true"
+      filterPlaceholder="Search SubMajorHead"
       (onChange)="getMinorHeadBySubMajorHeadId()"
     ></p-dropdown>
   </div>
@@ -47,6 +51,8 @@
       [options]="minorHeadOptions"
       [(ngModel)]="selectedMinorHeadCode"
       placeholder="Select Minor Head Code"
+      [filter]="true"
+      filterPlaceholder="Search MinorHead"
       (onChange)="onMinorHeadCodeChange()"
     ></p-dropdown>
   </div>
@@ -59,14 +65,19 @@
       [options]="schemeHeadOptions"
       [(ngModel)]="selectedSchemeHeadCode"
       placeholder="Select Scheme Head Code"
+      [filter]="true"
+      filterPlaceholder="Search SchemeHead"
       (onChange)="onSchemeHeadCodeChange()"
     ></p-dropdown>
   </div>
 
   <!-- Reset Button -->
-  <p-button (click)="resetFilters()">Reset</p-button>
 </div>
 
+<br>
+
+<div>
+  <p-button (click)="resetFilters()">Reset</p-button></div>
 <!-- Table to Display Scheme Heads -->
 <div class="card">
   <p-table   [value]="items"

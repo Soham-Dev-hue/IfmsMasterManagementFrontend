@@ -12,6 +12,8 @@
       [options]="majorHeadOptions" 
       [(ngModel)]="selectedMajorHead" 
       placeholder="Select Major Head"
+      [filter]="true"
+      filterPlaceholder="Search MajorHead"
       (onChange)="onMajorHeadChange()">
     </p-dropdown>
   </div>
@@ -24,6 +26,8 @@
       [options]="subMajorHeadOptions"
       [(ngModel)]="selectedSubMajorHeadId" 
       placeholder="Select Sub-Major Head"
+      [filter]="true"
+      filterPlaceholder="Search SubmajorHead"
       (onChange)="getMinorHeadBySubMajorHeadId()">
     </p-dropdown>
   </div>
@@ -36,6 +40,8 @@
       [options]="minorHeadOptions"
       [(ngModel)]="selectedMinorHeadCode" 
       placeholder="Select Minor Head Code"
+      [filter]="true"
+      filterPlaceholder="Search MinorHead"
       (onChange)="onMinorHeadCodeChange()">
     </p-dropdown>
   </div>

@@ -19,30 +19,21 @@ import { FormGroup } from "@angular/forms";
     constructor(private http: HttpClient) { }
 
     // In your user-service.service.ts
-    getAllany(
-      search: string,
-      filter: string,
-      pageNumber: number,
-      pageSize: number,
-      soalevelCode?: string
-    ): Observable<any> {
-      let params: any = {
-        search: search,
-        filter: filter,
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-      };
-      if (soalevelCode) {
-        params.soalevelCode = soalevelCode;
-      }
-      return this.http.get<any>(`${this.url}SaoMaster`, {
-        params,
+    getAllany(search: string, filter: string,level:any, pageNumber: number, pageSize: number): Observable<any> {
+      return this.http.get<any>(`${this.url}SaoMaster/soas`, {
+        params: {
+          search: search,
+          filter: filter,
+          level: level,
+          pageNumber,
+          pageSize
+        },
       });
     }
 
 
     GetSaosByLevelValue(level: number): Observable<any> {
-      return this.http.get<any>(`${this.url}SaoMaster/GetSaosByLevelValue/${level}`);
+      return this.http.get<any>(`${this.url}SaoMaster/GetSaosByLevel/${level}`);
     }
   
 
@@ -56,6 +47,12 @@ import { FormGroup } from "@angular/forms";
     public UpdateSao( formData: FormGroup): Observable<any> {
       // Use id directly to update the URL dynamically
       return this.http.put<any>(`${this.url}SaoMaster`, formData);
+    }
+    UpdateSaoStatus( data: any): Observable<any> {
+      // Use id directly to update the URL dynamically
+      const updatedData = { ...data, isactive: !data.isactive };
+      console.log(updatedData);
+      return this.http.put<any>(`${this.url}SaoMaster`, updatedData);
     }
    // Inside your anyervice (user-service.service.ts)
    softDeleteSao(id: number): Observable<any> {
