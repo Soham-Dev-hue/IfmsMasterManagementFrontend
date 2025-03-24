@@ -1,64 +1,54 @@
+/* Card styling */
 .card {
-  // max-width: 1000px; // Adjusted for only 2 columns
-  // margin: 20px auto;
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.12);
-  text-align: center;
+  border-radius: 8px;
+  background-color: #ffffff;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-// p-table {
-//   width: 200%;
-//   border-radius: 8px;
-//   overflow: hidden;
-//   height: 200%;
-// }
-
-th, td {
-  padding: 12px;
-  text-align: center;
-  font-size: 16px;
+/* Table header styling */
+p-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #495057;
+  padding: 1rem;
+  border-bottom: 2px solid #dee2e6;
 }
 
-th {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-  text-transform: uppercase;
+/* Table row styling */
+p-table tr {
+  transition: background-color 0.2s;
 }
 
-tr:hover {
-  background: rgba(0, 123, 255, 0.12);
+p-table tr:hover {
+  background-color: #f8f9fa;
 }
 
-p-progressSpinner {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-}
-.actions-cell {
-  display: flex;
-  ; /* Stack buttons vertically */
-  justify-content: center;
-  align-items: center;
-  gap: 8px; /* Add space between buttons */
+/* Input and dropdown styling */
+.p-inputtext, .p-dropdown {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
 }
 
-/* Reduce button size */
-.actions-cell button {
-  width: 36px; /* Make buttons smaller */
-  height: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.p-inputtext:focus, .p-dropdown:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
-@media (max-width: 600px) {
-  .card {
-    width: 90%;
-    padding: 10px;
+
+/* Spinner styling */
+.p-progress-spinner {
+  width: 50px;
+  height: 50px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-container {
+    flex-direction: column;
+    gap: 10px;
   }
 
-  th, td {
-    font-size: 14px;
+  .p-dropdown {
+    width: 100%;
   }
 }

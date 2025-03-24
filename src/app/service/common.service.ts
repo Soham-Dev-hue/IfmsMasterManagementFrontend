@@ -42,8 +42,15 @@ export class CommonService {
       });
     }
 
-  getAllHOAs(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}HOA/get-hoa-details`);
+  getAllHOAs(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}Hoa/hoa-details`,{
+      params: {
+        search,
+        filter,
+        pageNumber,
+        pageSize
+      }
+    });
   }
 
 

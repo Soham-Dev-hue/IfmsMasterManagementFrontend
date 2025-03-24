@@ -27,7 +27,8 @@
 
 
 </div>
-
+<div class="p-mt-3 p-datatable-striped p-datatable-gridlines p-text-sm">
+  Search Sao-Level:
     <p-dropdown 
     id="LevelCode"
     [options]="levelOptions"
@@ -37,6 +38,8 @@
     filterPlaceholder="Search Sao Levels..."
     (onChange)="onLevelChange($event)"
   ></p-dropdown>
+</div>
+
   
     <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>
   </div>
