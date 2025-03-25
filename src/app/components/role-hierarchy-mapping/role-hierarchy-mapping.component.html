@@ -10,33 +10,41 @@
             (click)="openDialog()"
         ></button>
     </div>
-    
+    <br>
     <!-- Search and Filter Section -->
     <div class="search-container p-card p-fluid p-mb-3">
         <div class="grid p-fluid">
-            <div class="col-12 md:col-3">
-                <span class="p-float-label">
-                    <input
-                        pInputText
-                        type="text"
-                        id="searchQuery"
-                        [(ngModel)]="searchQuery"
-                    />
-                    <label for="searchQuery">Search Role Hierarchies</label>
-                </span>
+            <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                <!-- Search Bar: Bigger -->
+                <div class="col-12 md:col-8">
+                    <span class="p-float-label" [ngStyle]="{'width': '584px'}">
+                        <p-autoComplete 
+                            [(ngModel)]="searchQuery" 
+                            [suggestions]="roleHierarchies" 
+                            (completeMethod)="search($event)"
+                            placeholder="Search..."
+                            [ngStyle]="{'width': '100%', 'height': '45px', 'font-size': '16px'}"
+                        ></p-autoComplete>
+                        <label for="searchQuery">Search Role Hierarchies</label>
+                    </span>
+                </div>
+            
+                <!-- Filter Dropdown: Smaller -->
+                <div class="col-12 md:col-3">
+                    <span class="p-float-label" [ngStyle]="{'width': '100%'}">
+                        <p-dropdown
+                            id="selectedFilter"
+                            [options]="filterOptions"
+                            [(ngModel)]="selectedFilter"
+                            [ngStyle]="{'width': '100px', 'height': '35px', 'font-size': '14px'}"
+                        ></p-dropdown>
+                    </span>
+                </div>
             </div>
             
-            <div class="col-12 md:col-3">
-                <span class="p-float-label">
-                    <p-dropdown
-                        id="selectedFilter"
-                        [options]="filterOptions"
-                        [(ngModel)]="selectedFilter"
-                    ></p-dropdown>
-                    <label for="selectedFilter">Filter By</label>
-                </span>
-            </div>
             
+     
+            <br>
             <div class="col-12 md:col-3">
                 <span class="p-float-label">
                     <p-dropdown
@@ -47,8 +55,8 @@
                     <label for="selectedLevel">Level</label>
                 </span>
             </div>
-            
-            <div class="col-12 md:col-3 flex align-items-center gap-2">
+            <br>
+            <div class="col-12 md:col-3 flex align-items-center gap-2" >
                 <button
                     pButton
                     type="button"
@@ -68,7 +76,7 @@
             </div>
         </div>
     </div>
-
+<br>
     <!-- Role Hierarchies Table -->
     <div class="p-card">
         <p-table 
@@ -82,11 +90,11 @@
             [showCurrentPageReport]="true"
             [loading]="loading"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            *ngIf="hasSearched"
         >
             <!-- Table Header -->
             <ng-template pTemplate="header">
                 <tr>
-                    <th>Primary Role</th>
                     <th>Name</th>
                     <th>Code</th>
                     <th>Next Level Code</th>
@@ -99,7 +107,6 @@
             <!-- Table Body -->
             <ng-template pTemplate="body" let-roleHierarchy let-i="rowIndex">
                 <tr *ngIf="roleHierarchies.length > 0; else emptyMessage">
-                    <td>{{ roleHierarchy.primaryRole }}</td>
                     <td>{{ roleHierarchy.name }}</td>
                     <td>{{ roleHierarchy.code}}</td>
                     <td>{{ roleHierarchy.nextLevelCode }}</td>

@@ -33,7 +33,7 @@ export class NavbarComponent implements OnInit {
             label: 'DDO', icon: 'pi pi-user',
             items: [ 
               { label: 'View DDOs', icon: 'pi pi-eye', command: () => this.router.navigate(['/master/ddo']) },
-              { label: 'Role Hierarchy', icon: 'pi pi-sitemap', command: () => this.router.navigate(['/master/ddo/role-hierarchy-mapping']),
+              { label: 'Manage DDOs', icon: 'pi pi-sitemap', command: () => this.router.navigate(['/master/ddo/role-hierarchy-mapping']),
               }
             ]
           },

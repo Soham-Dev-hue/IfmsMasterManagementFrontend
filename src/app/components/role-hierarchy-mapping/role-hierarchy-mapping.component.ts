@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-
+import { AutoCompleteModule } from 'primeng/autocomplete';
 // PrimeNG Modules
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -28,6 +28,7 @@ import { Router } from '@angular/router';
     CommonModule,
     FormsModule,
     HttpClientModule,
+    AutoCompleteModule,
     TableModule,
     ButtonModule,
     InputTextModule,
@@ -56,7 +57,7 @@ export class RoleHierarchyMappingComponent implements OnInit {
     { label: 'Next Level Code', value: 'nextLevelCode' },
     { label: 'Own DDO', value: 'ownDdo' }
   ];
-
+hasSearched: boolean = false;
   // Level Filter properties
   levels: any[] = [];
   levelOptions: any[] = [];
@@ -68,6 +69,7 @@ export class RoleHierarchyMappingComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 0;
 
+  filteredSuggestions: string[] = [];
   // Dialog properties
   displayDialog: boolean = false;
   isEditMode: boolean = false;
@@ -113,7 +115,94 @@ export class RoleHierarchyMappingComponent implements OnInit {
       }
     });
   }
+  search(event: any) {
+    const query = event.query.trim(); // Trim unnecessary spaces
 
+    if (!query) {
+        this.hasSearched = false;
+        this.roleHierarchies = []; // Clear suggestions if query is empty
+        return;
+    }
+
+    this.saoService.getAllany(query, this.selectedFilter || '', '', 1, 1000).subscribe({
+        next: (data: any) => {
+            if (data?.result?.items?.length) {
+                this.roleHierarchies = data.result.items
+                    .map((item: { name: string; code: string; nextLevelCode: string; ownDdo: string }) => {
+                        switch (this.selectedFilter) {
+                            case 'code':
+                                return item.code?.trim();
+                            case 'nextLevelCode':
+                                return item.nextLevelCode?.trim();
+                            case 'ownDdo':
+                                return item.ownDdo?.trim();
+                            default:
+                                return item.name?.trim();
+                        }
+                    })
+                    .filter((value: string | any[]) => value && value.length > 0); // Remove empty values
+            } else {
+                this.roleHierarchies = []; // No results found
+            }
+        },
+        error: (err) => {
+            console.error("Error fetching search results:", err);
+            this.roleHierarchies = []; // Ensure suggestions don't persist on failure
+        }
+    });
+}
+
+
+
+
+
+// Mock API Call (Replace with actual HTTP request)
+
+
+  searchSuggestions(event: any): void {
+    const query = event.query;
+    if (!query) {
+      this.hasSearched=false
+      this.filteredSuggestions = [];
+      return;
+    }
+
+    this.saoService.getAllany(query,'','',this.pageNumber,this.pageSize).subscribe({
+      next: (response: any) => {
+        if (response && Array.isArray(response.items)) {
+          this.filteredSuggestions = response.items.map((item: any) => item.name);
+        } else {
+          this.filteredSuggestions = [];
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching search suggestions:', error);
+      }
+    });
+  }
+
+  /**
+   * Handle selection from autocomplete
+   */
+  onSearchSelect(event: any): void {
+    console.log('Selected search:', event);
+    this.searchQuery = event;
+  }
+
+  /**
+   * Handle clearing of search input
+   */
+  onSearchClear(): void {
+    this.searchQuery = '';
+    this.filteredSuggestions = [];
+  }
+
+  /**
+   * Handle blur event on search input
+   */
+  onSearchBlur(): void {
+    console.log('Search input lost focus');
+  }
   // Fetch SAO Codes for dropdowns
   getSaoCodes(): void {
     this.commonService.getAllSAOLevels('', '', 1, 100).subscribe({
@@ -197,7 +286,9 @@ export class RoleHierarchyMappingComponent implements OnInit {
     this.isUntagged = false;
 
     if (isEdit && index !== undefined) {
+
       const selectedRoleHierarchy = this.roleHierarchies[index];
+  
       this.roleHierarchy = { ...selectedRoleHierarchy };
     } else {
       // Reset form for new entry
@@ -317,6 +408,7 @@ export class RoleHierarchyMappingComponent implements OnInit {
 
 // Modify the fetchRoleHierarchies method to handle empty state
 onSearchClick(): void {
+  this.hasSearched=true;
   if (!this.searchQuery && !this.selectedLevel) {
     Swal.fire({
       icon: 'warning',
@@ -397,5 +489,6 @@ fetchRoleHierarchies(): void {
     this.selectedFilter = '';
     this.selectedLevel = null;
     this.fetchRoleHierarchies();
+    this.hasSearched=false;
   }
 }
