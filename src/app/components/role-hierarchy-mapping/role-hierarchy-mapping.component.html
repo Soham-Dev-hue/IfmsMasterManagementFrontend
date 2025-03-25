@@ -1,0 +1,274 @@
+<div class="p-m-4">
+    <!-- Top Bar with Title and Controls -->
+    <div class="flex justify-content-between align-items-center mb-4">
+        <h2 class="p-text-bold p-mb-0">Manage Role Hierarchy</h2>
+        <button 
+            pButton 
+            type="button" 
+            label="Create Role Hierarchy" 
+            icon="pi pi-plus" 
+            (click)="openDialog()"
+        ></button>
+    </div>
+    
+    <!-- Search and Filter Section -->
+    <div class="search-container p-card p-fluid p-mb-3">
+        <div class="grid p-fluid">
+            <div class="col-12 md:col-3">
+                <span class="p-float-label">
+                    <input
+                        pInputText
+                        type="text"
+                        id="searchQuery"
+                        [(ngModel)]="searchQuery"
+                    />
+                    <label for="searchQuery">Search Role Hierarchies</label>
+                </span>
+            </div>
+            
+            <div class="col-12 md:col-3">
+                <span class="p-float-label">
+                    <p-dropdown
+                        id="selectedFilter"
+                        [options]="filterOptions"
+                        [(ngModel)]="selectedFilter"
+                    ></p-dropdown>
+                    <label for="selectedFilter">Filter By</label>
+                </span>
+            </div>
+            
+            <div class="col-12 md:col-3">
+                <span class="p-float-label">
+                    <p-dropdown
+                        id="selectedLevel"
+                        [options]="levelOptions"
+                        [(ngModel)]="selectedLevel"
+                    ></p-dropdown>
+                    <label for="selectedLevel">Level</label>
+                </span>
+            </div>
+            
+            <div class="col-12 md:col-3 flex align-items-center gap-2">
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-search"
+                    label="Search"
+                    (click)="onSearchClick()"
+                    class="flex-grow-1"
+                ></button>
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-refresh"
+                    label="Reset"
+                    (click)="resetFilters()"
+                    class="p-button-secondary"
+                ></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Hierarchies Table -->
+    <div class="p-card">
+        <p-table 
+            [value]="roleHierarchies"
+            [paginator]="roleHierarchies.length > 0"
+            [rows]="pageSize"
+            [lazy]="true"
+            (onLazyLoad)="onPageChange($event)"
+            [totalRecords]="totalItems"
+            [rowsPerPageOptions]="[5, 10, 20, 50]"
+            [showCurrentPageReport]="true"
+            [loading]="loading"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        >
+            <!-- Table Header -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Primary Role</th>
+                    <th>Name</th>
+                    <th>Code</th>
+                    <th>Next Level Code</th>
+                    <th>Own DDO</th>
+                    <th>Treasury Code</th>
+                    <th style="width: 120px">Actions</th>
+                </tr>
+            </ng-template>
+
+            <!-- Table Body -->
+            <ng-template pTemplate="body" let-roleHierarchy let-i="rowIndex">
+                <tr *ngIf="roleHierarchies.length > 0; else emptyMessage">
+                    <td>{{ roleHierarchy.primaryRole }}</td>
+                    <td>{{ roleHierarchy.name }}</td>
+                    <td>{{ roleHierarchy.code}}</td>
+                    <td>{{ roleHierarchy.nextLevelCode }}</td>
+                    <td>{{ roleHierarchy.ownDdo }}</td>
+                    <td>{{ roleHierarchy.treasuryCode }}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button
+                                pButton
+                                icon="pi pi-pencil"
+                                class="p-button-rounded p-button-warning p-button-sm"
+                                (click)="openDialog(true, i)"
+                                pTooltip="Edit"
+                                tooltipPosition="top"
+                            ></button>
+                            <button
+                                pButton
+                                icon="pi pi-trash"
+                                class="p-button-rounded p-button-danger p-button-sm"
+                                (click)="deleteRoleHierarchy(i)"
+                                pTooltip="Delete"
+                                tooltipPosition="top"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Empty Message -->
+            <ng-template #emptyMessage>
+                <tr>
+                    <td colspan="6" class="text-center p-4">
+                        <div *ngIf="!loading" class="empty-state">
+                            <i class="pi pi-search" style="font-size: 2rem; color: #9a9a9a"></i>
+                            <h3>No Role Hierarchies Found</h3>
+                            <p class="text-color-secondary">
+                                {{
+                                    searchQuery || selectedFilter || selectedLevel
+                                        ? 'No results match your search criteria'
+                                        : 'Please perform a search to view role hierarchies'
+                                }}
+                            </p>
+                            <button
+                                pButton
+                                type="button"
+                                label="Search Again"
+                                icon="pi pi-refresh"
+                                class="p-button-text"
+                                (click)="resetFilters()"
+                            ></button>
+                        </div>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Loading Spinner -->
+            <ng-template pTemplate="loadingbody">
+                <tr>
+                    <td colspan="6" class="text-center p-4">
+                        <p-progressSpinner 
+                            *ngIf="loading"
+                            strokeWidth="4"
+                            animationDuration=".5s"
+                        ></p-progressSpinner>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+
+    <!-- Create/Edit Dialog -->
+    <p-dialog
+        [header]="isEditMode ? 'Edit Role Hierarchy' : 'Create Role Hierarchy'"
+        [(visible)]="displayDialog"
+        [modal]="true"
+        [style]="{ width: '450px' }"
+        [draggable]="false"
+        [resizable]="false"
+    >
+        <div class="p-fluid">
+            <!-- Primary Role Dropdown -->
+            <div class="p-field p-mb-4">
+                <label for="primaryRole">Primary Role *</label>
+                <p-dropdown
+                    id="primaryRole"
+                    [options]="saoCodes"
+                    [(ngModel)]="roleHierarchy.primaryRole"
+                    placeholder="Select Primary Role"
+                    (onChange)="onPrimaryRoleSelect($event)"
+                    [required]="true"
+                ></p-dropdown>
+            </div>
+
+            <!-- Name Input -->
+            <div class="p-field p-mb-4">
+                <label for="name">Name *</label>
+                <input 
+                    id="name" 
+                    type="text" 
+                    pInputText 
+                    [(ngModel)]="roleHierarchy.name" 
+                    [required]="true"
+                />
+            </div>
+
+            <!-- Next Level Code Dropdown -->
+            <div class="p-field p-mb-4">
+                <label for="nextLevelCode">Next Level Code *</label>
+                <p-dropdown
+                    id="nextLevelCode"
+                    [options]="availableNextLevelCodes"
+                    [(ngModel)]="roleHierarchy.nextLevelCode"
+                    placeholder="Select Next Level Code"
+                    [required]="true"
+                ></p-dropdown>
+            </div>
+
+            <!-- Untagged Checkbox -->
+            <div class="p-field-checkbox p-mb-4">
+                <p-checkbox 
+                    binary="true"
+                    [(ngModel)]="isUntagged" 
+                    (onClick)="toggleUntagged()"
+                    inputId="isUntagged"
+                ></p-checkbox>
+                <label for="isUntagged" class="p-ml-2">Untagged</label>
+            </div>
+
+            <!-- Conditionally render DDO and Treasury fields if untagged -->
+            <ng-container *ngIf="isUntagged">
+                <div class="p-field p-mb-4">
+                    <label for="ownDdo">Own DDO *</label>
+                    <input 
+                        id="ownDdo" 
+                        type="text" 
+                        pInputText 
+                        [(ngModel)]="roleHierarchy.ownDdo"
+                        [required]="isUntagged"
+                    />
+                </div>
+                <div class="p-field">
+                    <label for="treasuryCode">Treasury Code *</label>
+                    <input 
+                        id="treasuryCode" 
+                        type="text" 
+                        pInputText 
+                        [(ngModel)]="roleHierarchy.treasuryCode"
+                        [required]="isUntagged"
+                    />
+                </div>
+            </ng-container>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <div class="flex justify-content-between">
+                <button
+                    pButton
+                    label="Cancel"
+                    icon="pi pi-times"
+                    class="p-button-text"
+                    (click)="displayDialog = false"
+                ></button>
+                <button
+                    pButton
+                    [icon]="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
+                    [label]="isEditMode ? 'Update' : 'Create'"
+                    (click)="saveRoleHierarchy()"
+                ></button>
+            </div>
+        </ng-template>
+    </p-dialog>
+</div>

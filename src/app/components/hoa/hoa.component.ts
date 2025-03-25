@@ -33,6 +33,7 @@ import { SkeletonModule } from 'primeng/skeleton';
   templateUrl: './hoa.component.html',
   styleUrl: './hoa.component.scss'
 })
+//have a dropdown to choose demandcodes,then we get major head on basis of demand code then on selecting major head we get submajor dropown then minor then schemehead then 
 export class HoaComponent {
 items: any[] = [];
   loading: boolean = false;

@@ -20,11 +20,13 @@ import { AdmissibleReappropriationComponent } from './components/admissible-reap
 import { MajorHeadRangeByTypeComponent } from './components/major-head-range-by-type/major-head-range-by-type.component';
 import { BankComponent } from './components/bank/bank.component';
 import { IfscComponent } from './components/ifsc/ifsc.component';
+import { RoleHierarchyMappingComponent } from './components/role-hierarchy-mapping/role-hierarchy-mapping.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
   { path: 'master/sao', component: SaoComponent },
   { path: 'master/ddo', component: DdoComponent },
+  {path :'master/ddo/role-hierarchy-mapping',component:RoleHierarchyMappingComponent},
   { path: 'master/financial-year', component: FinancialYearComponent },
   { path: 'master/hoa', component: HoaComponent },
   { path: 'master/treasury', component: TreasuryComponent },
@@ -43,4 +45,5 @@ export const routes: Routes = [
   { path: 'master/major-head-range', component: MajorHeadRangeByTypeComponent },
   { path: 'master/bank', component: BankComponent },
   { path: 'master/ifsc', component: IfscComponent }
+
 ];

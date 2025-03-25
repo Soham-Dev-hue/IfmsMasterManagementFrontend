@@ -64,6 +64,7 @@
         <th>SAO Name</th>
         <th>SAO Code</th>
         <th>Next Level Code</th>
+        <th>Own DDO</th>
         <th>Status</th>
         <th>Actions</th>
       </tr>
@@ -75,6 +76,7 @@
         <td>{{ sao.name }}</td>
         <td>{{ sao.code }}</td>
         <td>{{ sao.nextLevelCode }}</td>
+        <td>{{ sao.ownDdo }}</td>
         <td>
           <p-tag 
               (click)="confirmToggleStatus(sao)" 

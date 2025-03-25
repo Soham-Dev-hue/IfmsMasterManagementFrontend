@@ -12,6 +12,138 @@ export class CommonService {
 
   constructor(private http: HttpClient) {}
 
+
+  //SAOS
+
+
+  getAllany(search: string, filter: string,soalevelCode:any, pageNumber: number, pageSize: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}SaoMaster/soas`, {
+      params: {
+        search: search,
+        filter: filter,
+        soalevelCode: soalevelCode,
+        pageNumber,
+        pageSize
+      },
+    });
+  }
+  GetSaosByLevelValue(level: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}SaoMaster/GetSaosByLevel/${level}`);
+  }
+
+
+    public AddSao(SaoData: any): Observable<any> {
+      return this.http.post<any>(this.apiUrl+"SaoMaster",SaoData);  // Send plain object instead of FormGroup
+    }
+    public GetSaoById(id: number): Observable<any>{
+      return this.http.get<any>(this.apiUrl+"GetSaoById/"+ id);
+  }
+ 
+  public UpdateSao( formData:any): Observable<any> {
+    // Use id directly to update the URL dynamically
+    return this.http.put<any>(`${this.apiUrl}SaoMaster`, formData);
+  }
+  UpdateSaoStatus( data: any): Observable<any> {
+    // Use id directly to update the URL dynamically
+    const updatedData = { ...data, isactive: !data.isactive };
+    console.log(updatedData);
+    return this.http.put<any>(`${this.apiUrl}SaoMaster`, updatedData);
+  }
+ // Inside your anyervice (user-service.service.ts)
+ softDeleteSao(id: number): Observable<any> {
+  return this.http.patch<any>(`${this.apiUrl}SaoMaster/${id}`, {
+    isDeleted: true
+  });
+}
+  ////////////////////////////////////////////////////
+
+//DDOS
+getAllDDOs(
+  search: string,
+  filter: string,
+  pageNumber: number,
+  pageSize: number,
+  treasurycode?: string
+): Observable<any[]> {
+  let params: any = {
+    search: search,
+    filter: filter,
+    pageNumber: pageNumber,
+    pageSize: pageSize,
+  };
+  if (treasurycode) {
+    params.treasurycode = treasurycode;
+  }
+  return this.http.get<any[]>(this.apiUrl + 'Ddo', {
+    params,
+  });
+}
+
+// Create a new DDO
+createDDO(ddo: any): Observable<any> {
+  return this.http.post<any>(this.apiUrl+"Ddo/create", ddo);
+}
+
+// Update an existing DDO
+public UpdateDdo( formData: FormGroup,id:number): Observable<any> {
+     // Use id directly to update the URL dynamically
+     return this.http.put<any>(`${this.apiUrl}Ddo/update/${id}`, formData);
+   }
+public getDDOByTreasuryCode(code: string): Observable<any> {
+  return this.http.get<any>(this.apiUrl+"Ddo/DdoByTreasury/"+ code);
+
+
+
+}
+UpdateDdoStatus( data: any,id:number): Observable<any> {
+// Use id directly to update the URL dynamically
+const updatedData = { ...data, isActive: !data.isActive };
+console.log(updatedData);
+return this.http.put<any>(`${this.apiUrl}Ddo/update/${id}`, updatedData);
+}
+
+// Delete a DDO
+SoftDeleteDDO(id: number): Observable<any> {
+  return this.http.patch<any>(`${this.apiUrl}Ddo/${id}`, {
+    isDeleted: true
+  });
+}
+////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   getAllFinancialYears(search: string, filter: string, pageNumber: number, pageSize: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}FinancialYearMST/FinancialYear`, {
       params: {

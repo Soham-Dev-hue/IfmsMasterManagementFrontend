@@ -29,7 +29,14 @@ export class NavbarComponent implements OnInit {
         items: [
           { label: 'SAO', icon: 'pi pi-user', command: () => this.router.navigate(['/master/sao']) },
           { label: 'Treasury', icon: 'pi pi-wallet', command: () => this.router.navigate(['/master/treasury']) },
-          { label: 'DDO', icon: 'pi pi-user', command: () => this.router.navigate(['/master/ddo']) },
+          { 
+            label: 'DDO', icon: 'pi pi-user',
+            items: [ 
+              { label: 'View DDOs', icon: 'pi pi-eye', command: () => this.router.navigate(['/master/ddo']) },
+              { label: 'Role Hierarchy', icon: 'pi pi-sitemap', command: () => this.router.navigate(['/master/ddo/role-hierarchy-mapping']),
+              }
+            ]
+          },
           { label: 'Financial Year', icon: 'pi pi-calendar', command: () => this.router.navigate(['/master/financial-year']) },          
           { label: 'Department', icon: 'pi pi-building', command: () => this.router.navigate(['/master/department']) },
           { label: 'Designation', icon: 'pi pi-id-card', command: () => this.router.navigate(['/master/designation']) }
@@ -80,3 +87,22 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
+// items: [
+//   { label: 'SAO', icon: 'pi pi-user', command: () => this.router.navigate(['/master/sao']) },
+//   { label: 'Treasury', icon: 'pi pi-wallet', command: () => this.router.navigate(['/master/treasury']) },
+//   { 
+//     label: 'DDO', icon: 'pi pi-user',
+//     items: [ // Submenu for DDO
+//       { label: 'View DDOs', icon: 'pi pi-eye', command: () => this.router.navigate(['/master/ddo']) },
+//       { label: 'Role Hierarchy', icon: 'pi pi-sitemap', items: [ // Nested dropdown for Role Hierarchy
+//           { label: 'Admin', icon: 'pi pi-shield', command: () => this.router.navigate(['/master/ddo/admin']) },
+//           { label: 'Manager', icon: 'pi pi-briefcase', command: () => this.router.navigate(['/master/ddo/manager']) },
+//           { label: 'Clerk', icon: 'pi pi-user', command: () => this.router.navigate(['/master/ddo/clerk']) }
+//         ]
+//       }
+//     ]
+//   },
+//   { label: 'Financial Year', icon: 'pi pi-calendar', command: () => this.router.navigate(['/master/financial-year']) },          
+//   { label: 'Department', icon: 'pi pi-building', command: () => this.router.navigate(['/master/department']) },
+//   { label: 'Designation', icon: 'pi pi-id-card', command: () => this.router.navigate(['/master/designation']) }
+// ]

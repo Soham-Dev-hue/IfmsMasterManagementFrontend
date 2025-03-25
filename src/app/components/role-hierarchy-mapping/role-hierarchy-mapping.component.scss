@@ -1,0 +1,90 @@
+/* General Styles */
+.p-m-4 {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.p-inputtext,
+.p-dropdown {
+  border: 1px solid #d8dee9;
+  border-radius: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.p-fluid input[type="text"],
+.p-fluid input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+/* Title and Controls */
+h2 {
+  font-size: 1.75rem;
+  color: #333;
+}
+
+/* Button Styles */
+button[pButton] {
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 5px;
+}
+
+/* Search and Filter Section */
+.search-container {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.p-float-label input, .p-dropdown {
+  width: 100%;
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  border-radius: 5px;
+}
+
+/* Table Styles */
+.p-card {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.p-table th {
+  background: #007ad9;
+  color: #ffffff;
+  padding: 1rem;
+}
+
+.p-table td {
+  padding: 0.75rem;
+}
+
+/* Actions Column */
+.p-button-sm {
+  font-size: 0.85rem;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  color: #888;
+}
+
+/* Dialog Styles */
+.p-dialog {
+  border-radius: 10px;
+}
+
+.p-dialog .p-field {
+  margin-bottom: 1rem;
+}
+
+.p-dialog label {
+  font-weight: bold;
+}
