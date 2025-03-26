@@ -472,6 +472,13 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
       isdeleted: true
     });
   }
+  updateAdmissibleReappropriationStatus(id: number, data: any): Observable<any> {
+    // Toggle `isactive` before sending the request
+    const updatedData = { ...data, isactive: !data.isactive };
+  console.log(updatedData);
+  
+    return this.http.put(`${this.apiUrl}AdmissibleReapp/update-admissible-reappropriation/${id}`, updatedData);
+  }
   getAllMajorHeadRanges(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}MajorHeadRangeByType`);
   }

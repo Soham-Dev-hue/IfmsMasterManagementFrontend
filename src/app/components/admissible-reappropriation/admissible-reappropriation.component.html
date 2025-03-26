@@ -46,6 +46,7 @@
           <th>To Dtl Head</th>
           <th>To Subdtl Head</th>
           <th>Created At</th>
+          <th>Status</th>
           <th style="width: 120px">Actions</th>
         </tr>
       </ng-template>
@@ -57,6 +58,14 @@
           <td>{{ item.toDtlHead }}</td>
           <td>{{ item.toSubdtlHead || '-' }}</td>
           <td>{{ item.createdAt | date:'medium' }}</td>
+          <td>
+            <p-tag 
+                (click)="confirmToggleStatus(item)" 
+                [value]="item.isactive ? 'Active' : 'Inactive'" 
+                [severity]="item.isactive ? 'success' : 'danger'" 
+                [style]="{ cursor: 'pointer' }"
+            >
+            </p-tag>
           <td>
             <div class="flex gap-2">
               <button

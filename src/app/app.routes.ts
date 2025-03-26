@@ -21,6 +21,7 @@ import { MajorHeadRangeByTypeComponent } from './components/major-head-range-by-
 import { BankComponent } from './components/bank/bank.component';
 import { IfscComponent } from './components/ifsc/ifsc.component';
 import { RoleHierarchyMappingComponent } from './components/role-hierarchy-mapping/role-hierarchy-mapping.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -43,7 +44,10 @@ export const routes: Routes = [
   { path: 'master/sao-level', component: SaoLevelComponent },
   { path: 'master/admissible-reappropriation', component: AdmissibleReappropriationComponent },
   { path: 'master/major-head-range', component: MajorHeadRangeByTypeComponent },
-  { path: 'master/bank', component: BankComponent },
-  { path: 'master/ifsc', component: IfscComponent }
+  { path: 'master/bank', component: PageNotFoundComponent },
+  { path: 'master/ifsc', component: PageNotFoundComponent },
+
+  // Wildcard Route for any other unknown routes
+  { path: '**', component: PageNotFoundComponent }
 
 ];

@@ -31,18 +31,19 @@
   <!-- Table Container -->
   <div class="card p-table">
     <p-table
-      [value]="items"
-      class="p-mt-3"
-      [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
-      responsiveLayout="scroll"
-      [paginator]="true"
-      [rows]="pageSize"
-      [lazy]="true"
-      (onLazyLoad)="onPageChange($event)"
-      [totalRecords]="totalItems"
-      [rowsPerPageOptions]="[5, 10, 20, 50]"
-      [showCurrentPageReport]="true"
-      [loading]="loading"
+    *ngIf="items.length > 0; else noDataTemplate"
+    [value]="items"
+    class="p-mt-3"
+    [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
+    responsiveLayout="scroll"
+    [paginator]="true"
+    [rows]="pageSize"
+    [lazy]="true"
+    (onLazyLoad)="onPageChange($event)"
+    [totalRecords]="totalItems"
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [showCurrentPageReport]="true"
+    [loading]="loading"
     >
       <ng-template pTemplate="header">
         <tr>
@@ -62,12 +63,12 @@
           <td>{{ item.address }}</td>
           <td>
             <p-tag 
-              (click)="confirmToggleStatus(item)" 
-              [value]="item.isactive ? 'Active' : 'Inactive'" 
-              [severity]="item.isactive ? 'success' : 'danger'" 
-              class="p-tag"
-            ></p-tag>
-          </td>
+                (click)="confirmToggleStatus(item)" 
+                [value]="item.isactive ? 'Active' : 'Inactive'" 
+                [severity]="item.isactive ? 'success' : 'danger'" 
+                [style]="{ cursor: 'pointer' }"
+            >
+            </p-tag>
           <td class="actions-cell">
             <button type="button" pButton icon="pi pi-pencil" class="p-button-rounded p-button-info" (click)="openDialog(true, index)"></button>
             <button type="button" pButton icon="pi pi-trash" class="p-button-rounded p-button-danger" (click)="deleteDepartment(index)"></button>
@@ -76,6 +77,14 @@
       </ng-template>
     </p-table>
     
+
+    <ng-template #noDataTemplate>
+      <div class="p-text-center p-mt-4">
+        <p>No data found. Ready to search...</p>
+      </div>
+    </ng-template>
+
+
     <!-- Show spinner while loading -->
     <p-progressSpinner *ngIf="loading"></p-progressSpinner>
   </div>
