@@ -106,6 +106,8 @@ export class DdoComponent implements OnInit {
   getTreasuryCodes(): void {
     this.commonService.getAllTreasuries().subscribe({
       next: (codes) => {
+        console.log(codes);
+        
         this.TreasuryCodeOptions = codes.map((code: any) => ({
           label: code.code,
           value: code.code

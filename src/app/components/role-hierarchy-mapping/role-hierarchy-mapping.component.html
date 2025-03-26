@@ -17,7 +17,7 @@
             <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
                 <!-- Search Bar: Bigger -->
                 <div class="col-12 md:col-8">
-                    <span class="p-float-label" [ngStyle]="{'width': '584px'}">
+                    <span class="p-float-label" [ngStyle]="{'width': '485px'}">
                         <p-autoComplete 
                             [(ngModel)]="searchQuery" 
                             [suggestions]="roleHierarchies" 
@@ -42,8 +42,6 @@
                 </div>
             </div>
             
-            
-     
             <br>
             <div class="col-12 md:col-3">
                 <span class="p-float-label">
@@ -65,6 +63,8 @@
                     (click)="onSearchClick()"
                     class="flex-grow-1"
                 ></button>
+                <br>
+                <br>
                 <button
                     pButton
                     type="button"
@@ -98,8 +98,9 @@
                     <th>Name</th>
                     <th>Code</th>
                     <th>Next Level Code</th>
-                    <th>Own DDO</th>
+                    <th>Is DDO</th>
                     <th>Treasury Code</th>
+                    <th>DDO Code</th>
                     <th style="width: 120px">Actions</th>
                 </tr>
             </ng-template>
@@ -110,8 +111,9 @@
                     <td>{{ roleHierarchy.name }}</td>
                     <td>{{ roleHierarchy.code}}</td>
                     <td>{{ roleHierarchy.nextLevelCode }}</td>
-                    <td>{{ roleHierarchy.ownDdo }}</td>
+                    <td>{{ roleHierarchy.isDdo ? 'Yes' : 'No' }}</td>
                     <td>{{ roleHierarchy.treasuryCode }}</td>
+                    <td>{{ roleHierarchy.ownDdo }}</td>
                     <td>
                         <div class="flex gap-2">
                             <button
@@ -138,7 +140,7 @@
             <!-- Empty Message -->
             <ng-template #emptyMessage>
                 <tr>
-                    <td colspan="6" class="text-center p-4">
+                    <td colspan="7" class="text-center p-4">
                         <div *ngIf="!loading" class="empty-state">
                             <i class="pi pi-search" style="font-size: 2rem; color: #9a9a9a"></i>
                             <h3>No Role Hierarchies Found</h3>
@@ -165,7 +167,7 @@
             <!-- Loading Spinner -->
             <ng-template pTemplate="loadingbody">
                 <tr>
-                    <td colspan="6" class="text-center p-4">
+                    <td colspan="7" class="text-center p-4">
                         <p-progressSpinner 
                             *ngIf="loading"
                             strokeWidth="4"
@@ -182,7 +184,7 @@
         [header]="isEditMode ? 'Edit Role Hierarchy' : 'Create Role Hierarchy'"
         [(visible)]="displayDialog"
         [modal]="true"
-        [style]="{ width: '450px' }"
+        [style]="{ width: '600px' }"
         [draggable]="false"
         [resizable]="false"
     >
@@ -224,38 +226,46 @@
                 ></p-dropdown>
             </div>
 
-            <!-- Untagged Checkbox -->
-            <div class="p-field-checkbox p-mb-4">
-                <p-checkbox 
-                    binary="true"
-                    [(ngModel)]="isUntagged" 
-                    (onClick)="toggleUntagged()"
-                    inputId="isUntagged"
-                ></p-checkbox>
-                <label for="isUntagged" class="p-ml-2">Untagged</label>
+            <!-- Is DDO Dropdown -->
+            <div class="p-field p-mb-4">
+                <label for="isDdo">Is DDO *</label>
+                <p-dropdown
+                    id="isDdo"
+                    [options]="isDdoOptions"
+                    [(ngModel)]="roleHierarchy.isDdo"
+                    placeholder="Select DDO Status"
+                    [required]="true"
+                ></p-dropdown>
             </div>
 
-            <!-- Conditionally render DDO and Treasury fields if untagged -->
-            <ng-container *ngIf="isUntagged">
+            <!-- Conditionally render Treasury and DDO fields if isDdo is true -->
+            <ng-container *ngIf="roleHierarchy.isDdo">
+                <!-- Treasury Code Dropdown -->
                 <div class="p-field p-mb-4">
-                    <label for="ownDdo">Own DDO *</label>
-                    <input 
-                        id="ownDdo" 
-                        type="text" 
-                        pInputText 
-                        [(ngModel)]="roleHierarchy.ownDdo"
-                        [required]="isUntagged"
-                    />
-                </div>
-                <div class="p-field">
                     <label for="treasuryCode">Treasury Code *</label>
-                    <input 
-                        id="treasuryCode" 
-                        type="text" 
-                        pInputText 
+                    <p-dropdown
+                        id="treasuryCode"
+                        [options]="treasuryCodes"
                         [(ngModel)]="roleHierarchy.treasuryCode"
-                        [required]="isUntagged"
-                    />
+                        placeholder="Select Treasury Code"
+                        (onChange)="onTreasuryCodeSelect($event)"
+                        [loading]="loadingTreasuries"
+                        [required]="roleHierarchy.isDdo"
+                    ></p-dropdown>
+                </div>
+
+                <!-- DDO Code Dropdown -->
+                <div class="p-field p-mb-4">
+                    <label for="ownDdo">DDO Code *</label>
+                    <p-dropdown
+                        id="ownDdo"
+                        [options]="ddoCodes"
+                        [(ngModel)]="roleHierarchy.ownDdo"
+                        placeholder="Select DDO Code"
+                        [loading]="loadingDdoCodes"
+                        [disabled]="!roleHierarchy.treasuryCode"
+                        [required]="roleHierarchy.isDdo"
+                    ></p-dropdown>
                 </div>
             </ng-container>
         </div>
@@ -277,5 +287,9 @@
                 ></button>
             </div>
         </ng-template>
+        <br>
+        <br>
+        <br>
+        <br>
     </p-dialog>
 </div>

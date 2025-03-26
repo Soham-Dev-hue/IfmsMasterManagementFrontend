@@ -5,6 +5,74 @@
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+/* Dialog Box - Enlarged */
+.p-dialog {
+  width: 55vw; /* Increase width */
+  max-width: 650px; /* Set max width */
+  min-height: 350px; /* Ensure enough height */
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+/* Dropdown Styling */
+.p-dropdown {
+  width: 100%; /* Full width inside dialog */
+  max-width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem; /* Increase font size */
+  border: 1px solid #d8dee9;
+  border-radius: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Dropdown Panel - Bigger and More Visible */
+.p-dropdown-panel {
+  max-height: 300px; /* Adjust height */
+  overflow-y: auto; /* Enable scrolling if needed */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+/* Dropdown Items */
+.p-dropdown-item {
+  padding: 0.75rem 1rem; /* Increase padding */
+  font-size: 1rem; /* Bigger text */
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.p-dropdown-item:hover {
+  background: #007ad9; /* Highlight on hover */
+  color: #ffffff;
+}
+
+/* Ensure Active Selection is Visible */
+.p-dropdown-item.p-highlight {
+  background: #005bb5;
+  color: #ffffff;
+}
+
+.p-dialog {
+  width: 50vw; /* Adjust width as needed */
+  max-width: 600px; /* Ensure dropdown fits */
+  min-height: 300px; /* Increase height if necessary */
+  border-radius: 10px;
+}
+
+.p-dialog .p-field {
+  margin-bottom: 1rem;
+}
+
+.p-dialog label {
+  font-weight: bold;
+}
+
+/* Ensure dropdown inside dialog is fully visible */
+.p-dialog .p-dropdown {
+  width: 100%;
+  max-width: 100%;
+}
 .p-inputtext,
 .p-dropdown {
   border: 1px solid #d8dee9;

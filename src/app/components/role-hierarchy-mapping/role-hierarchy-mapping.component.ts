@@ -57,7 +57,8 @@ export class RoleHierarchyMappingComponent implements OnInit {
     { label: 'Next Level Code', value: 'nextLevelCode' },
     { label: 'Own DDO', value: 'ownDdo' }
   ];
-hasSearched: boolean = false;
+  hasSearched: boolean = false;
+  
   // Level Filter properties
   levels: any[] = [];
   levelOptions: any[] = [];
@@ -70,6 +71,7 @@ hasSearched: boolean = false;
   totalPages: number = 0;
 
   filteredSuggestions: string[] = [];
+  
   // Dialog properties
   displayDialog: boolean = false;
   isEditMode: boolean = false;
@@ -79,8 +81,15 @@ hasSearched: boolean = false;
   saoCodes: any[] = [];
   availableNextLevelCodes: any[] = [];
   
-  // Untagged state
-  isUntagged: boolean = false;
+  // DDO related properties
+  isDdoOptions: any[] = [
+    { label: 'Yes', value: true },
+    { label: 'No', value: false }
+  ];
+  treasuryCodes: any[] = [];
+  ddoCodes: any[] = [];
+  loadingTreasuries: boolean = false;
+  loadingDdoCodes: boolean = false;
 
   constructor(
     private saoService: SaoService,
@@ -91,6 +100,7 @@ hasSearched: boolean = false;
   ngOnInit(): void {
     this.getSaoLevels();
     this.getSaoCodes();
+    this.loadTreasuryCodes();
   }
 
   // Fetch SAO Levels for dropdown
@@ -115,12 +125,12 @@ hasSearched: boolean = false;
       }
     });
   }
-  search(event: any) {
-    const query = event.query.trim(); // Trim unnecessary spaces
 
+  search(event: any) {
+    const query = event.query.trim();
     if (!query) {
         this.hasSearched = false;
-        this.roleHierarchies = []; // Clear suggestions if query is empty
+        this.roleHierarchies = [];
         return;
     }
 
@@ -140,82 +150,89 @@ hasSearched: boolean = false;
                                 return item.name?.trim();
                         }
                     })
-                    .filter((value: string | any[]) => value && value.length > 0); // Remove empty values
+                    .filter((value: string | any[]) => value && value.length > 0);
             } else {
-                this.roleHierarchies = []; // No results found
+                this.roleHierarchies = [];
             }
         },
         error: (err) => {
             console.error("Error fetching search results:", err);
-            this.roleHierarchies = []; // Ensure suggestions don't persist on failure
+            this.roleHierarchies = [];
         }
     });
-}
+  }
 
-
-
-
-
-// Mock API Call (Replace with actual HTTP request)
-
-
-  searchSuggestions(event: any): void {
-    const query = event.query;
-    if (!query) {
-      this.hasSearched=false
-      this.filteredSuggestions = [];
-      return;
-    }
-
-    this.saoService.getAllany(query,'','',this.pageNumber,this.pageSize).subscribe({
+  // Load Treasury Codes
+  loadTreasuryCodes(): void {
+    this.loadingTreasuries = true;
+    this.commonService.getAllTreasuries().subscribe({
       next: (response: any) => {
-        if (response && Array.isArray(response.items)) {
-          this.filteredSuggestions = response.items.map((item: any) => item.name);
-        } else {
-          this.filteredSuggestions = [];
-        }
+        console.log(response);
+ 
+          this.treasuryCodes =  response.map((code: any) => ({
+            label: code.code,
+            value: code.code
+          }));
+         
+        this.loadingTreasuries = false;
       },
       error: (error) => {
-        console.error('Error fetching search suggestions:', error);
+        console.error('Error fetching treasury codes:', error);
+        this.loadingTreasuries = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to fetch treasury codes. Please try again.',
+        });
       }
     });
   }
 
-  /**
-   * Handle selection from autocomplete
-   */
-  onSearchSelect(event: any): void {
-    console.log('Selected search:', event);
-    this.searchQuery = event;
+  // Load DDO Codes by Treasury Code
+  loadDdoCodesByTreasury(treasuryCode: string): void {
+    if (!treasuryCode) return;
+    
+    this.loadingDdoCodes = true;
+    this.commonService.getDDOByTreasuryCode(treasuryCode).subscribe({
+      next: (response: any) => {
+        if (response && Array.isArray(response.result)) {
+          this.ddoCodes = response.result.map((ddo: any) => ({
+            label: ddo.ddoCode,
+            value: ddo.ddoCode
+          }));
+        }
+        this.loadingDdoCodes = false;
+      },
+      error: (error) => {
+        console.error('Error fetching DDO codes:', error);
+        this.loadingDdoCodes = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to fetch DDO codes for the selected treasury. Please try again.',
+        });
+      }
+    });
   }
 
-  /**
-   * Handle clearing of search input
-   */
-  onSearchClear(): void {
-    this.searchQuery = '';
-    this.filteredSuggestions = [];
+  // On Treasury Code Selection
+  onTreasuryCodeSelect(event: any): void {
+    const selectedTreasuryCode = event.value;
+    this.loadDdoCodesByTreasury(selectedTreasuryCode);
   }
 
-  /**
-   * Handle blur event on search input
-   */
-  onSearchBlur(): void {
-    console.log('Search input lost focus');
-  }
   // Fetch SAO Codes for dropdowns
   getSaoCodes(): void {
     this.commonService.getAllSAOLevels('', '', 1, 100).subscribe({
       next: (response: any) => {
         if (response && Array.isArray(response.result?.items)) {
-          // Filter active and non-deleted SAO levels
           this.saoCodes = response.result.items
             .filter((level: any) => !level.isdeleted && level.isactive)
             .map((level: any) => ({
               label: level.name,
               value: level.code
             }))
-            .sort((a: any, b: any) => a.value - b.value); // Optional: sort by code
+            .sort((a: any, b: any) => a.value - b.value);
         }
       },
       error: (error) => {
@@ -232,11 +249,11 @@ hasSearched: boolean = false;
   // On Primary Role Selection
   onPrimaryRoleSelect(event: any): void {
     const selectedCode = event.value;
-    // Filter next level codes to be less than selected primary role code
     this.availableNextLevelCodes = this.saoCodes.filter(
       code => code.value < selectedCode
     );
   }
+
   deleteRoleHierarchy(index: number): void {
     const actualIndex = index - ((this.pageNumber - 1) * this.pageSize);
     const roleHierarchyId = this.roleHierarchies[actualIndex].id;
@@ -252,10 +269,7 @@ hasSearched: boolean = false;
       confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
-        // Optimistically remove from UI
         this.roleHierarchies.splice(actualIndex, 1);
-
-        // Call service method to soft delete
         this.saoService.softDeleteSao(roleHierarchyId).subscribe({
           next: () => {
             Swal.fire({
@@ -266,9 +280,7 @@ hasSearched: boolean = false;
           },
           error: (error) => {
             console.error('Error deleting Role Hierarchy:', error);
-            // Rollback UI change if deletion fails
             this.roleHierarchies.splice(actualIndex, 0, deletedRoleHierarchy);
-            
             Swal.fire({
               icon: 'error',
               title: 'Error!',
@@ -279,46 +291,39 @@ hasSearched: boolean = false;
       }
     });
   }
+
   // Open Create/Edit Dialog
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;
     this.displayDialog = true;
-    this.isUntagged = false;
 
     if (isEdit && index !== undefined) {
-
       const selectedRoleHierarchy = this.roleHierarchies[index];
-  
       this.roleHierarchy = { ...selectedRoleHierarchy };
+      
+      // If editing and has treasury code, load DDO codes
+      if (this.roleHierarchy.treasuryCode) {
+        this.loadDdoCodesByTreasury(this.roleHierarchy.treasuryCode);
+      }
     } else {
       // Reset form for new entry
       this.roleHierarchy = {
         primaryRole: null,
         name: '',
         nextLevelCode: null,
-        ownDdo: '',
-        treasuryCode: ''
+        isDdo: false,
+        treasuryCode: null,
+        ownDdo: null
       };
-    }
-  }
-
-  // Toggle Untagged State
-  toggleUntagged(): void {
-    this.isUntagged = !this.isUntagged;
-    if (!this.isUntagged) {
-      // Reset DDO and Treasury codes if not untagged
-      this.roleHierarchy.ownDdo = '';
-      this.roleHierarchy.treasuryCode = '';
+      this.ddoCodes = [];
     }
   }
 
   // Save Role Hierarchy
   saveRoleHierarchy(): void {
-    // Validation
     if (!this.validateForm()) return;
 
     if (this.isEditMode) {
-      // Update existing role hierarchy
       this.saoService.UpdateSao(this.roleHierarchy).subscribe({
         next: (updatedRoleHierarchy) => {
           this.handleSuccessResponse('updated');
@@ -326,7 +331,6 @@ hasSearched: boolean = false;
         error: this.handleErrorResponse
       });
     } else {
-      // Add new role hierarchy
       this.saoService.AddSao(this.roleHierarchy).subscribe({
         next: (newRoleHierarchy) => {
           this.handleSuccessResponse('created');
@@ -338,7 +342,7 @@ hasSearched: boolean = false;
 
   // Form Validation
   validateForm(): boolean {
-    const { primaryRole, name, nextLevelCode } = this.roleHierarchy;
+    const { primaryRole, name, nextLevelCode, isDdo, treasuryCode, ownDdo } = this.roleHierarchy;
     
     if (!primaryRole) {
       Swal.fire({
@@ -367,13 +371,22 @@ hasSearched: boolean = false;
       return false;
     }
 
-    // Additional untagged validation
-    if (this.isUntagged) {
-      if (!this.roleHierarchy.ownDdo || !this.roleHierarchy.treasuryCode) {
+    // Additional validation if isDdo is true
+    if (isDdo) {
+      if (!treasuryCode) {
         Swal.fire({
           icon: 'warning',
-          title: 'Untagged Fields Required',
-          text: 'Please fill in Own DDO and Treasury Code.'
+          title: 'Treasury Code Required',
+          text: 'Please select a treasury code.'
+        });
+        return false;
+      }
+
+      if (!ownDdo) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'DDO Code Required',
+          text: 'Please select a DDO code.'
         });
         return false;
       }
@@ -390,7 +403,7 @@ hasSearched: boolean = false;
       title: action === 'created' ? 'Created!' : 'Updated!',
       text: `Role Hierarchy ${action} successfully.`
     });
-    this.ngOnInit(); // Refresh data
+    this.ngOnInit();
   }
 
   // Error Response Handler
@@ -404,64 +417,47 @@ hasSearched: boolean = false;
   }
 
   // Fetching Role Hierarchies based on search and filters
- // Add this method to handle search button click
-
-// Modify the fetchRoleHierarchies method to handle empty state
-onSearchClick(): void {
-  this.hasSearched=true;
-  if (!this.searchQuery && !this.selectedLevel) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Search Criteria Required',
-      text: 'Please enter a search query or select a level to filter by.'
-    });
-    return;
-  }
-  
-  this.pageNumber = 1; // Reset to first page on new search
-  this.fetchRoleHierarchies();
-}
-
-// Modify the fetchRoleHierarchies method to handle empty state
-fetchRoleHierarchies(): void {
-  this.loading = true;
-  console.log("Selected Level:", this.selectedLevel);
-
-  // Ensure selectedLevel is formatted correctly (prepend "0" if necessary)
-  const formattedLevel = this.selectedLevel < 10 ? `0${this.selectedLevel}` : `${this.selectedLevel}`;
-
-  console.log("Formatted Level:", formattedLevel);
-  console.log(typeof formattedLevel);
-
-  this.saoService.getAllany(
-    this.searchQuery,
-    this.selectedFilter,
-    formattedLevel, // Use formattedLevel here
-    this.pageNumber,
-    this.pageSize
-  ).subscribe({
-    next: (data) => {
-      this.roleHierarchies = data.result?.items || [];
-      this.totalItems = data.result?.totalRecords || 0;
-      this.totalPages = data.result?.totalPages || 0;
-      this.loading = false;
-      console.log("Role Hierarchies Data:", data); // Log the received data
-      console.log("Role Hierarchies:", this.roleHierarchies);
-      console.log("Total Items:", this.totalItems);
-      console.log("Total Pages:", this.totalPages);
-    },
-    error: (error) => {
-      console.error('Error fetching Role Hierarchies:', error);
-      this.roleHierarchies = [];
-      this.totalItems = 0;
-      this.totalPages = 0;
-      this.loading = false;
-      console.log("Role Hierarchies:", this.roleHierarchies);
-      console.log("Total Items:", this.totalItems);
-      console.log("Total Pages:", this.totalPages);
+  onSearchClick(): void {
+    this.hasSearched = true;
+    if (!this.searchQuery && !this.selectedLevel) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Search Criteria Required',
+        text: 'Please enter a search query or select a level to filter by.'
+      });
+      return;
     }
-  });
-}
+    
+    this.pageNumber = 1;
+    this.fetchRoleHierarchies();
+  }
+
+  fetchRoleHierarchies(): void {
+    this.loading = true;
+    const formattedLevel = this.selectedLevel < 10 ? `0${this.selectedLevel}` : `${this.selectedLevel}`;
+
+    this.saoService.getAllany(
+      this.searchQuery,
+      this.selectedFilter,
+      formattedLevel,
+      this.pageNumber,
+      this.pageSize
+    ).subscribe({
+      next: (data) => {
+        this.roleHierarchies = data.result?.items || [];
+        this.totalItems = data.result?.totalRecords || 0;
+        this.totalPages = data.result?.totalPages || 0;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching Role Hierarchies:', error);
+        this.roleHierarchies = [];
+        this.totalItems = 0;
+        this.totalPages = 0;
+        this.loading = false;
+      }
+    });
+  }
 
   // Search and Filter Methods
   onSearchChange(): void {
@@ -489,6 +485,6 @@ fetchRoleHierarchies(): void {
     this.selectedFilter = '';
     this.selectedLevel = null;
     this.fetchRoleHierarchies();
-    this.hasSearched=false;
+    this.hasSearched = false;
   }
 }
