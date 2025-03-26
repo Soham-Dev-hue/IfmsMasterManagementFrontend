@@ -459,9 +459,19 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
   }
 
   getAllAdmissibleReappropriations(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}AdmissibleReappropriationMaster`);
+    return this.http.get<any[]>(`${this.apiUrl}AdmissibleReapp/get-all-admissible-reappropriation`);
   }
-
+  createAdmissibleReappropriations(data:any): Observable<any> {
+    return this.http.post<any[]>(`${this.apiUrl}AdmissibleReapp/create-admissible-reappropriation`,data);
+  }
+  updateAdmissibleReappropriations(data:any,id:any): Observable<any> {
+    return this.http.put<any[]>(`${this.apiUrl}AdmissibleReapp/update-admissible-reappropriation/${id}`,data);
+  }
+  softDeleteAdmissibleReappropriations(id:any): Observable<any> {
+    return this.http.patch(`${this.apiUrl}AdmissibleReapp/softDelete-admissible-reappropriation/${id}`,{
+      isdeleted: true
+    });
+  }
   getAllMajorHeadRanges(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}MajorHeadRangeByType`);
   }
