@@ -7,14 +7,12 @@ import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { SaoService } from '../../service/sao.service';
 import { HttpClientModule } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { TagModule } from 'primeng/tag';
-import Swal from 'sweetalert2';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { SaoCodes } from './sao-codes.enum';
 import { CommonService } from '../../service/common.service';
-
+import Swal from 'sweetalert2';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-sao',
@@ -29,9 +27,10 @@ import { CommonService } from '../../service/common.service';
     ProgressSpinnerModule,
     DropdownModule,
     TableModule,
-    TagModule
+    TagModule,
+    InputTextModule
   ],
-  providers: [SaoService,CommonService],
+  providers: [SaoService, CommonService],
   templateUrl: './sao.component.html',
   styleUrls: ['./sao.component.scss'],
 })
@@ -41,7 +40,6 @@ export class SaoComponent implements OnInit {
   isEditMode: boolean = false;
   sao: any = {};
   loading: boolean = false;
-  saoCodes = Object.values(SaoCodes);
   searchQuery: string = '';
   selectedFilter: string = '';
   pageNumber: number = 1;
@@ -49,11 +47,14 @@ export class SaoComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 0;
   
+  // Level related properties
   levels: any[] = [];
-  selectedLevel: number | null = null;
-
+  selectedLevel: any;
   
-
+  // For create/edit dialog
+  primaryRoleOptions: any[] = [];
+  nextLevelCodeOptions: any[] = [];
+  
   filterOptions: any[] = [
     { label: 'All', value: '' },
     { label: 'Code', value: 'code' },
@@ -61,9 +62,11 @@ export class SaoComponent implements OnInit {
     { label: 'Next Level Code', value: 'nextLevelCode' },
   ];
 
-  levelOptions:any[] = [];
-
-  constructor(private saoService: SaoService,private commonService:CommonService,private router:Router) {}
+  constructor(
+    private saoService: SaoService,
+    private commonService: CommonService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.fetchSaos();
@@ -72,26 +75,18 @@ export class SaoComponent implements OnInit {
  
   fetchSaos(): void {
     this.loading = true;
-
-    this.saoService.getAllany(this.searchQuery, this.selectedFilter,this.selectedLevel,this.pageNumber,this.pageSize).subscribe({
+    const formattedLevel = this.selectedLevel < 10 ? `0${this.selectedLevel}` : `${this.selectedLevel}`;
+    this.saoService.getAllany(this.searchQuery, this.selectedFilter, formattedLevel, this.pageNumber, this.pageSize).subscribe({
       next: (data) => {
-
-        this.totalItems = data?.result?.totalRecords || 0;
-        console.log("totalItems", this.totalItems);
-        this.totalPages = data?.result?.totalPages || 0;
-        console.log("totalpages", this.totalPages);
-
-
-
-        this.saos = data.result.items
+        this.totalItems = data.result?.totalRecords || 0;
+        this.totalPages = data.result?.totalPages || 0;
+        this.saos = data.result.items || []
           .filter((sao: any) => !sao.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
-console.log(data);
-
         this.loading = false;
       },
       error: (error) => {
-        console.error('There was an error!', error);
+        console.error('Error fetching SAOs:', error);
         this.loading = false;
         Swal.fire({
           icon: 'error',
@@ -101,46 +96,42 @@ console.log(data);
       },
     });
   }
+
   get first(): number {
-    return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
+    return (this.pageNumber - 1) * this.pageSize;
   }
 
-  // Setter: Update the pageNumber based on the first index value
   set first(value: number) {
     this.pageNumber = Math.floor(value / this.pageSize) + 1;
     this.fetchSaos();
   }
+
   onPageChange(event: any): void {
-    this.pageNumber = Math.floor(event.first / event.rows) + 1;  // Correct the pageNumber to be 1-based
+    this.pageNumber = Math.floor(event.first / event.rows) + 1;
     this.pageSize = event.rows;
-    console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
-    this.fetchSaos();  // Fetch the data for the updated page
+    this.fetchSaos();
   }
+
   resetFilters(): void {
     this.router.navigateByUrl("/master/sao").then(() => {
       window.location.reload();
     });
   }
+
   getSaoLevels(): void {
-    this.commonService.getAllSAOLevels('','',1,100).subscribe({
-      next: (response:any) => {
-        console.log("API Response:", response);
-  
+    this.commonService.getAllSAOLevels('', '', 1, 100).subscribe({
+      next: (response: any) => {
         if (response && Array.isArray(response.result?.items)) {
-          this.levels = response.result?.items.filter((saolevel: any) => !saolevel.isdeleted);
-          this.levelOptions = this.levels.map((level: any) => ({
-
-
-
-            label: level.name === 'Department'? 'ALL' : level.name, // Use 'Department' instead of 'Department Level' for better UX
-           
-         
-            value: level.code, // Value should remain as 'code'
-          }));
-        } else {
-          console.error("Invalid API Response format:", response);
-          this.levels = [];
-          this.levelOptions = [];
+          this.levels = response.result.items.filter((level: any) => !level.isdeleted);
+          
+          // Prepare primary role options
+          this.primaryRoleOptions = this.levels
+            .filter(level => level.isactive)
+            .map(level => ({
+              label: level.name,
+              value: level.code
+            }))
+            .sort((a, b) => b.value - a.value); // Sort descending for hierarchy
         }
       },
       error: (error) => {
@@ -154,39 +145,35 @@ console.log(data);
     });
   }
   
-  
-    onSearchChange(): void {
+  onSearchChange(): void {
     this.fetchSaos();
   }
 
   onFilterChange(): void {
     this.fetchSaos();
   }
+
   onLevelChange(event: any): void {
     this.loading = true;
-    console.log("event:",event);
-    
-    if(event?.value===1)
-    {
+    if (event?.value === 1) {
       this.ngOnInit();
       return;
     }
-    const selectedCode:number = event?.value; // Extract selected code
-    console.log(event);
-    console.log(typeof selectedCode);
     
-    console.log("Selected Level Code:", selectedCode);
-    
-    if (!selectedCode) {
-      console.warn("No valid selection made.");
-      this.loading = false;
-      return;
-    }
-  
-    this.saoService['GetSaosByLevelValue'](selectedCode).subscribe({
+    const selectedCode: number = event?.value;
+    const formattedLevel = selectedCode < 10 ? `0${selectedCode}` : `${selectedCode}`;
+
+    this.saoService.getAllany(
+      this.searchQuery,
+      this.selectedFilter,
+      formattedLevel,
+      this.pageNumber,
+      this.pageSize
+    ).subscribe({
       next: (sao: any) => {
-        this.saos = Array.isArray(sao.result) ? sao.result : [];
-        console.log("SAO List:", this.saos);
+        this.saos = sao.result?.items || [];
+        this.totalItems = sao.result?.totalRecords || 0;
+        this.totalPages = sao.result?.totalPages || 0;
         this.loading = false;
       },
       error: (error: any) => {
@@ -200,11 +187,30 @@ console.log(data);
       },
     });
   }
-  
-  // onLevelChange(): void {
-  //   this.fetchSaos();
-  // }
 
+  // When primary role is selected in dialog
+  onPrimaryRoleSelect(event: any): void {
+    const selectedCode = event.value;
+    
+    // Filter next level codes to only show higher levels (lower numeric values)
+    this.nextLevelCodeOptions = this.levels
+      .filter(level => level.code < selectedCode && level.isactive)
+      .map(level => ({
+        label: level.name,
+        value: level.code
+      }))
+      .sort((a, b) => b.value - a.value); // Sort descending for hierarchy
+  }
+
+  // Handle SAO code field click
+  onSaoCodeClick(): void {
+    Swal.fire({
+      icon: 'info',
+      title: 'SAO Code',
+      text: 'SAO Code will be system generated based on your selections.',
+      confirmButtonText: 'OK'
+    });
+  }
 
   confirmToggleStatus(sao: any) {
     Swal.fire({
@@ -217,14 +223,9 @@ console.log(data);
       confirmButtonText: sao.isactive ? 'Yes, deactivate it!' : 'Yes, activate it!',
     }).then((result) => {
       if (result.isConfirmed) {
-        // Call the service to update status in the backend
         this.saoService.UpdateSaoStatus(sao).subscribe(
           (response) => {
-            // Update the local object with the response from backend
-            // or toggle the status if backend doesn't return updated object
             sao.isactive = !sao.isactive;
-            
-            // Show success message
             Swal.fire({
               title: 'Updated!',
               text: `The SAO has been marked as ${sao.isactive ? 'Active' : 'Inactive'}.`,
@@ -233,7 +234,6 @@ console.log(data);
             });
           },
           (error) => {
-            // Handle error
             Swal.fire({
               title: 'Error!',
               text: 'Failed to update SAO status. Please try again.',
@@ -246,121 +246,146 @@ console.log(data);
     });
   }
 
-openDialog(isEdit: boolean = false, index?: number): void {
-  this.isEditMode = isEdit;
-  this.displayDialog = true;
+  openDialog(isEdit: boolean = false, index?: number): void {
+    this.isEditMode = isEdit;
+    this.displayDialog = true;
 
-  if (isEdit && index !== undefined) {
-    const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index for pagination
-    console.log("Actual Index (Edit):", actualIndex);
-
-    const selectedSao = this.saos[actualIndex];
-    this.sao = {
-      id: selectedSao.id,
-      code: selectedSao.code,
-      name: selectedSao.name,
-      nextLevelCode: selectedSao.nextLevelCode,
-    };
-  } else {
-    this.sao = {
-      code: '',
-      name: '',
-      nextLevelCode: '',
-    };
-  }
-}
-
-deleteSao(index: number): void {
-  const actualIndex = index - ((this.pageNumber - 1) * this.pageSize); // Adjust index with pagination
-  console.log("Actual Index (Delete):", actualIndex);
-
-  const saoId = this.saos[actualIndex].id;
-  const deletedSao = this.saos[actualIndex]; // Store for rollback
-
-  Swal.fire({
-    title: 'Are you sure?',
-    text: 'You will not be able to recover this SAO!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Yes, delete it!',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.saos.splice(actualIndex, 1); // Optimistically update UI
-
-      this.saoService.softDeleteSao(saoId).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Deleted!',
-            text: 'SAO deleted successfully.',
-          });
-        },
-        error: (error) => {
-          console.error('Error deleting SAO:', error);
-          this.saos.splice(actualIndex, 0, deletedSao); // Rollback UI change
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to delete SAO. Please try again.',
-          });
-        },
-      });
+    if (isEdit && index !== undefined) {
+      const actualIndex = index - ((this.pageNumber - 1) * this.pageSize);
+      const selectedSao = this.saos[actualIndex];
+      
+      this.sao = {
+        id: selectedSao.id,
+        code: selectedSao.code,
+        name: selectedSao.name,
+        primaryRole: selectedSao.primaryRole,
+        nextLevelCode: selectedSao.nextLevelCode,
+      };
+      
+      // Set next level options based on current primary role
+      if (this.sao.primaryRole) {
+        this.onPrimaryRoleSelect({ value: this.sao.primaryRole });
+      }
+    } else {
+      this.sao = {
+        code: '',
+        name: '',
+        primaryRole: null,
+        nextLevelCode: null,
+      };
+      this.nextLevelCodeOptions = [];
     }
-  });
-}
-  
+  }
 
+  deleteSao(index: number): void {
+    const actualIndex = index - ((this.pageNumber - 1) * this.pageSize);
+    const saoId = this.saos[actualIndex].id;
+    const deletedSao = this.saos[actualIndex];
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this SAO!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.saos.splice(actualIndex, 1);
+        this.saoService.softDeleteSao(saoId).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: 'SAO deleted successfully.',
+            });
+          },
+          error: (error) => {
+            console.error('Error deleting SAO:', error);
+            this.saos.splice(actualIndex, 0, deletedSao);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Failed to delete SAO. Please try again.',
+            });
+          },
+        });
+      }
+    });
+  }
+  
   saveSao(): void {
+    if (!this.validateForm()) return;
+
     if (this.isEditMode) {
       this.saoService.UpdateSao(this.sao).subscribe({
         next: (updatedSao) => {
-          const index = this.saos.findIndex((s) => s.id === updatedSao.id);
-
-          if (index !== -1) {
-            this.saos[index] = updatedSao;
-          }
-          this.displayDialog = false;
-          this.sao = {};
-          Swal.fire({
-            icon: 'success',
-            title: 'Updated!',
-            text: 'SAO updated successfully.',
-          });
-          this.ngOnInit();
+          this.handleSuccessResponse('updated');
         },
         error: (error) => {
-          console.error('Error updating SAO:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to update SAO. Please try again.',
-          });
-        },
+          this.handleErrorResponse(error);
+        }
       });
     } else {
       this.saoService.AddSao(this.sao).subscribe({
         next: (newSao) => {
-          this.saos.push(newSao);
-          this.displayDialog = false;
-          this.sao = {};
-          Swal.fire({
-            icon: 'success',
-            title: 'Created!',
-            text: 'SAO created successfully.',
-          });
-          this.ngOnInit();
+          this.handleSuccessResponse('created');
         },
         error: (error) => {
-          console.error('Error creating SAO:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: 'Failed to create SAO. Please try again.',
-          });
-        },
+          this.handleErrorResponse(error);
+        }
       });
     }
+  }
+
+  private validateForm(): boolean {
+    if (!this.sao.primaryRole) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Primary Role Required',
+        text: 'Please select a primary role.'
+      });
+      return false;
+    }
+
+    if (!this.sao.name || this.sao.name.trim() === '') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Name Required',
+        text: 'Please enter a name.'
+      });
+      return false;
+    }
+
+    if (!this.sao.nextLevelCode) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Next Level Code Required',
+        text: 'Please select a next level code.'
+      });
+      return false;
+    }
+
+    return true;
+  }
+
+  private handleSuccessResponse(action: 'created' | 'updated'): void {
+    this.displayDialog = false;
+    Swal.fire({
+      icon: 'success',
+      title: action === 'created' ? 'Created!' : 'Updated!',
+      text: `SAO ${action} successfully.`,
+    });
+    this.ngOnInit();
+  }
+
+  private handleErrorResponse(error: any): void {
+    console.error('Error:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error!',
+      text: 'Failed to process SAO. Please try again.',
+    });
   }
 }

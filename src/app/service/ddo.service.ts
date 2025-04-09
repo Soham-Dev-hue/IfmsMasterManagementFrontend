@@ -18,7 +18,7 @@ export class DdoService {
     filter: string,
     pageNumber: number,
     pageSize: number,
-    treasurycode?: string
+    treasurycode?: string,
   ): Observable<any[]> {
     let params: any = {
       search: search,
@@ -27,7 +27,7 @@ export class DdoService {
       pageSize: pageSize,
     };
     if (treasurycode) {
-      params.treasurycode = treasurycode;
+      params.treasuryCode = treasurycode;
     }
     return this.http.get<any[]>(this.apiUrl + 'Ddo', {
       params,

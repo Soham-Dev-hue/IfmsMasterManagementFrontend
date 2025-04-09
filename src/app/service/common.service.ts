@@ -458,8 +458,13 @@ getSubDetailHeadByDetailHeadId(id:any): Observable<any>{
     });
   }
 
-  getAllAdmissibleReappropriations(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}AdmissibleReapp/get-all-admissible-reappropriation`);
+  getAllAdmissibleReappropriations(search: string, filter: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}AdmissibleReapp/get-all-admissible-reappropriation`,{
+      params: {
+        search: search,
+        filter: filter
+      }
+    });
   }
   createAdmissibleReappropriations(data:any): Observable<any> {
     return this.http.post<any[]>(`${this.apiUrl}AdmissibleReapp/create-admissible-reappropriation`,data);

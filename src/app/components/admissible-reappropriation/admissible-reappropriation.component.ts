@@ -48,7 +48,14 @@ export class AdmissibleReappropriationComponent implements OnInit {
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 0;
-
+  filterOptions: any[] = [
+    { label: 'All', value: '' },
+    { label: 'FromDtlhead', value: 'fromDtlHead' },
+    { label: 'FromSubdtlHead', value: 'fromSubdtlHead' },
+    { label: 'ToDtlHead', value: 'toDtlHead' },
+    { label: 'ToSubdtlHead', value: 'toSubdtlHead' },
+  ];
+selectedFilter: string ='';
   // For dropdowns (you may need to populate these from your service)
   dtlHeadOptions: any[] = [];
   subdtlHeadOptions: any[] = [];
@@ -68,7 +75,7 @@ export class AdmissibleReappropriationComponent implements OnInit {
     this.loading = true;
     this.cdr.markForCheck(); // Mark for change detection
 
-    this.commonService.getAllAdmissibleReappropriations().subscribe({
+    this.commonService.getAllAdmissibleReappropriations(this.searchQuery,this.selectedFilter).subscribe({
       next: (response: any) => {
         const data = response || [];
         
@@ -284,10 +291,14 @@ confirmToggleStatus(item: any) {
         }
       });
     }
-   onSearchChange(): void {
-  //   this.fetchItems();
-   }
-
+    onSearchChange(): void {
+      this.fetchItems();
+    }
+  
+    onFilterChange(): void {
+      this.fetchItems();
+    }
+  
   // // Optional: Load dropdown options from service
   loadDropdownOptions(): void {
     this.commonService.getAllDetailHeads('','',1,1000).subscribe({

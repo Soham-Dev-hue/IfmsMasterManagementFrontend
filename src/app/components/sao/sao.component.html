@@ -1,62 +1,53 @@
 <div class="p-m-4">
   <!-- Top Bar with Create Button and Search/Filter -->
   <h2 class="p-text-bold p-mb-0">Manage SAOs</h2>
-  <div class="top-bar"  style="display: flex; gap:20p;">
-  <div class="levelContainer">
-    <!-- <p-dropdown
-    [options]="levelOptions"
-    [(ngModel)]="selectedLevel"
-    placeholder="SaoLevels by..."
-    (onChange)="onLevelChange()"
-  ></p-dropdown> -->
-  </div>
-<div>
-  <input
-  pInputText
-  type="text"
-  placeholder="Search SAOs..."
-  [(ngModel)]="searchQuery"
-  (input)="onSearchChange()"
-/>
-<p-dropdown
-  [options]="filterOptions"
-  [(ngModel)]="selectedFilter"
-  placeholder="Filter by..."
-  (onChange)="onFilterChange()"
-></p-dropdown>
+  <div class="top-bar" style="display: flex; gap: 20px;">
+    <div>
+      <input
+        pInputText
+        type="text"
+        placeholder="Search SAOs..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearchChange()"
+      />
+      <p-dropdown
+        [options]="filterOptions"
+        [(ngModel)]="selectedFilter"
+        placeholder="Filter by..."
+        (onChange)="onFilterChange()"
+      ></p-dropdown>
+    </div>
+    
+    <div class="p-mt-3 p-datatable-striped p-datatable-gridlines p-text-sm">
+      Search Sao-Level:
+      <p-dropdown 
+        id="LevelCode"
+        [options]="primaryRoleOptions"
+        [(ngModel)]="selectedLevel"
+        placeholder="Select Levels"
+        [filter]="true"
+        filterPlaceholder="Search Sao Levels..."
+        (onChange)="onLevelChange($event)"
+      ></p-dropdown>
+    </div>
 
-
-</div>
-<div class="p-mt-3 p-datatable-striped p-datatable-gridlines p-text-sm">
-  Search Sao-Level:
-    <p-dropdown 
-    id="LevelCode"
-    [options]="levelOptions"
-    [(ngModel)]="selectedLevel"
-    placeholder="Select Levels"
-    [filter]="true"
-    filterPlaceholder="Search Sao Levels..."
-    (onChange)="onLevelChange($event)"
-  ></p-dropdown>
-</div>
-
-  
     <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>
   </div>
   <p-button (click)="resetFilters()">Reset</p-button>
+  
   <!-- Table with Pagination -->
-  <p-table   [value]="saos"
-  class="p-mt-3"
-  [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
-  responsiveLayout="scroll"
-  [paginator]="true"
-  [rows]="pageSize"
-  [lazy]="true" 
-  (onLazyLoad)="onPageChange($event)"
-  [totalRecords]="totalItems" 
-  [rowsPerPageOptions]="[5, 10, 20, 50]"
-  [showCurrentPageReport]="true" 
-  [loading]="loading"
+  <p-table [value]="saos"
+    class="p-mt-3"
+    [currentPageReportTemplate]="'Showing {first} to {last} of {totalRecords} entries'"
+    responsiveLayout="scroll"
+    [paginator]="true"
+    [rows]="pageSize"
+    [lazy]="true" 
+    (onLazyLoad)="onPageChange($event)"
+    [totalRecords]="totalItems" 
+    [rowsPerPageOptions]="[5, 10, 20, 50]"
+    [showCurrentPageReport]="true" 
+    [loading]="loading"
   >
     <!-- Table Header -->
     <ng-template pTemplate="header">
@@ -64,7 +55,6 @@
         <th>SAO Name</th>
         <th>SAO Code</th>
         <th>Next Level Code</th>
-        <th>Own DDO</th>
         <th>Status</th>
         <th>Actions</th>
       </tr>
@@ -76,39 +66,36 @@
         <td>{{ sao.name }}</td>
         <td>{{ sao.code }}</td>
         <td>{{ sao.nextLevelCode }}</td>
-        <td>{{ sao.ownDdo }}</td>
         <td>
           <p-tag 
               (click)="confirmToggleStatus(sao)" 
               [value]="sao.isactive ? 'Active' : 'Inactive'" 
               [severity]="sao.isactive ? 'success' : 'danger'" 
               [style]="{ cursor: 'pointer' }"
-          >
-          </p-tag>
-      </td>
+          ></p-tag>
+        </td>
       
-      <td class="actions-cell" style="display: flex; gap: 10px;">
-        <button
-          pButton
-          icon="pi pi-pencil"
-          class="p-button-rounded p-button-warning"
-          (click)="openDialog(true, i)"
-        ></button>
-        <button
-          pButton
-          icon="pi pi-trash"
-          class="p-button-rounded p-button-danger"
-          (click)="deleteSao(i)"
-        ></button>
-      </td>
-      
+        <td class="actions-cell" style="display: flex; gap: 10px;">
+          <button
+            pButton
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-warning"
+            (click)="openDialog(true, i)"
+          ></button>
+          <button
+            pButton
+            icon="pi pi-trash"
+            class="p-button-rounded p-button-danger"
+            (click)="deleteSao(i)"
+          ></button>
+        </td>
       </tr>
     </ng-template>
 
     <!-- Loading Spinner -->
     <ng-template pTemplate="loadingbody">
       <tr>
-        <td colspan="4" class="text-center">
+        <td colspan="6" class="text-center">
           <p-progressSpinner *ngIf="loading"></p-progressSpinner>
         </td>
       </tr>
@@ -124,35 +111,56 @@
     [style]="{ width: '450px' }"
   >
     <div class="p-fluid">
+      <!-- Primary Role Dropdown -->
+      <div class="p-field">
+        <label for="primaryRole">Primary Role</label>
+        <p-dropdown
+          id="primaryRole"
+          [options]="primaryRoleOptions"
+          [(ngModel)]="sao.primaryRole"
+          placeholder="Select Primary Role"
+          (onChange)="onPrimaryRoleSelect($event)"
+          [autoDisplayFirst]="false"
+          [required]="true"
+        ></p-dropdown>
+      </div>
+<br>
       <!-- SAO Name -->
       <div class="p-field">
         <label for="name">SAO Name</label>
-        <input id="name" type="text" pInputText [(ngModel)]="sao.name" />
+        <input id="name" type="text" pInputText [(ngModel)]="sao.name" required />
       </div>
-
-      <!-- SAO Code -->
-      <div class="p-field">
-        <label for="code">SAO Code</label>
-        <input id="code" type="text" pInputText [(ngModel)]="sao.code" />
-      </div>
-
+<br>
       <!-- Next Level Code Dropdown -->
       <div class="p-field">
         <label for="nextLevelCode">Next Level Code</label>
         <p-dropdown
           id="nextLevelCode"
-          [options]="saoCodes"
+          [options]="nextLevelCodeOptions"
           [(ngModel)]="sao.nextLevelCode"
           placeholder="Select Next Level Code"
-          scrollHeight="250px"
+          [disabled]="!sao.primaryRole"
+          [autoDisplayFirst]="false"
+          [required]="true"
         ></p-dropdown>
       </div>
+<br>
+      <!-- SAO Code (readonly) -->
+      <div class="p-field">
+        <label for="code">SAO Code</label>
+        <input 
+          id="code" 
+          type="text" 
+          pInputText 
+          [(ngModel)]="sao.code" 
+          readonly 
+          (click)="onSaoCodeClick()"
+          placeholder="Will be system generated"
+        />
+      </div>
     </div>
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
+<br>
+<br>
     <div>
       <p-footer>
         <button
@@ -170,5 +178,7 @@
         ></button>
       </p-footer>
     </div>
+    <br>
+
   </p-dialog>
 </div>
