@@ -39,6 +39,7 @@ export class TreasuryComponent implements OnInit {
   displayDialog: boolean = false;
   saving: boolean = false; // To prevent multiple clicks
 TreasuryCodeOptions:any[]=[];
+showInactiveOnly: boolean = false;
   filterOptions = [
     { label: 'All', value: '' },
     { label: 'Code', value: 'code' },
@@ -83,7 +84,45 @@ codes:any[]=[];
   onFilterChange(): void {
     this.fetchItems();
   }
+  fetchAllItems(): void {
+    this.loading = true;
 
+    
+    // Fetch all records by setting pageSize to a very large number
+    this.commonService.getAllTreasuries(
+      this.searchQuery,
+    ).subscribe({
+      next: (data) => {
+     
+        
+        // Apply inactive filter on frontend
+        this.items = (data || [])
+          .filter((sao: any) => !sao.isdeleted)
+          .filter((sao: any) => this.showInactiveOnly ? !sao.isactive : true)
+          .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+        console.log(this.items);
+        
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error fetching SAOs:', error);
+        this.loading = false;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: 'Failed to fetch SAOs. Please try again.',
+        });
+      },
+    });
+  }
+  toggleInactive(): void {
+    this.showInactiveOnly = !this.showInactiveOnly;
+    if (this.showInactiveOnly) {
+      this.fetchAllItems(); // Fetch all when showing inactive
+    } else {
+      this.fetchItems(); // Normal paginated fetch for active/all
+    }
+  }
   openDialog(isEdit: boolean = false, index?: number): void {
     this.isEditMode = isEdit;
     this.displayDialog = true;

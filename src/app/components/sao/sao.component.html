@@ -33,7 +33,14 @@
 
     <button pButton type="button" label="Create SAO" icon="pi pi-plus" (click)="openDialog()"></button>
   </div>
-  <p-button (click)="resetFilters()">Reset</p-button>
+  <div style="display: flex ;gap: 20px;">
+    <p-button (click)="resetFilters()">Reset</p-button>
+    <p-button (click)="toggleInactive()" 
+              [label]="showInactiveOnly ? 'Show Active' : 'Show Inactive'"
+              [severity]="showInactiveOnly ? 'danger' : 'warning'">
+    </p-button>
+  </div>
+
   
   <!-- Table with Pagination -->
   <p-table [value]="saos"

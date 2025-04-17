@@ -46,15 +46,16 @@ export class SaoComponent implements OnInit {
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 0;
-  
+  state: boolean = false;
   // Level related properties
   levels: any[] = [];
   selectedLevel: any;
-  
+  showActiveOnly: boolean = true;
+  showInactiveOnly: boolean = false;
   // For create/edit dialog
   primaryRoleOptions: any[] = [];
   nextLevelCodeOptions: any[] = [];
-  
+  activeFilter: string = 'active'; 
   filterOptions: any[] = [
     { label: 'All', value: '' },
     { label: 'Code', value: 'code' },
@@ -76,11 +77,17 @@ export class SaoComponent implements OnInit {
   fetchSaos(): void {
     this.loading = true;
     const formattedLevel = this.selectedLevel < 10 ? `0${this.selectedLevel}` : `${this.selectedLevel}`;
-    this.saoService.getAllany(this.searchQuery, this.selectedFilter, formattedLevel, this.pageNumber, this.pageSize).subscribe({
+    this.saoService.getAllany(
+      this.searchQuery,
+      this.selectedFilter,
+      formattedLevel,
+      this.pageNumber,
+      this.pageSize
+    ).subscribe({
       next: (data) => {
         this.totalItems = data.result?.totalRecords || 0;
         this.totalPages = data.result?.totalPages || 0;
-        this.saos = data.result.items || []
+        this.saos = (data.result.items || [])
           .filter((sao: any) => !sao.isdeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
         this.loading = false;
@@ -96,7 +103,56 @@ export class SaoComponent implements OnInit {
       },
     });
   }
+// Add this property to track if we're showing inactive
 
+
+// Add this method to fetch all SAOs without pagination
+fetchAllSaos(): void {
+  this.loading = true;
+  const formattedLevel = this.selectedLevel < 10 ? `0${this.selectedLevel}` : `${this.selectedLevel}`;
+  
+  // Fetch all records by setting pageSize to a very large number
+  this.saoService.getAllany(
+    this.searchQuery,
+    this.selectedFilter,
+    formattedLevel,
+    1,  // pageNumber
+    10000  // large pageSize to get all records
+  ).subscribe({
+    next: (data) => {
+      this.totalItems = data.result?.totalRecords || 0;
+      this.totalPages = data.result?.totalPages || 0;
+      
+      // Apply inactive filter on frontend
+      this.saos = (data.result.items || [])
+        .filter((sao: any) => !sao.isdeleted)
+        .filter((sao: any) => this.showInactiveOnly ? !sao.isactive : true)
+        .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+      console.log(this.saos);
+      
+      this.loading = false;
+    },
+    error: (error) => {
+      console.error('Error fetching SAOs:', error);
+      this.loading = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'Failed to fetch SAOs. Please try again.',
+      });
+    },
+  });
+}
+
+// Modify toggle method
+toggleInactive(): void {
+  this.showInactiveOnly = !this.showInactiveOnly;
+  if (this.showInactiveOnly) {
+    this.fetchAllSaos(); // Fetch all when showing inactive
+  } else {
+    this.fetchSaos(); // Normal paginated fetch for active/all
+  }
+}
   get first(): number {
     return (this.pageNumber - 1) * this.pageSize;
   }
@@ -111,7 +167,16 @@ export class SaoComponent implements OnInit {
     this.pageSize = event.rows;
     this.fetchSaos();
   }
-
+  toggleActiveStatus(): void {
+    if (this.activeFilter === 'active') {
+      this.activeFilter = 'inactive';
+    } else if (this.activeFilter === 'inactive') {
+      this.activeFilter = 'all';
+    } else {
+      this.activeFilter = 'active';
+    }
+    this.fetchSaos();
+  }
   resetFilters(): void {
     this.router.navigateByUrl("/master/sao").then(() => {
       window.location.reload();
@@ -144,7 +209,7 @@ export class SaoComponent implements OnInit {
       }
     });
   }
-  
+
   onSearchChange(): void {
     this.fetchSaos();
   }

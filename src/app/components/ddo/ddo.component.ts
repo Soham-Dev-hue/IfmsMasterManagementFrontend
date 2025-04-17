@@ -51,7 +51,10 @@ export class DdoComponent implements OnInit {
   totalPages: number = 0;
   selectedCode: string = '';
   TreasuryCodeOptions: any[] = [];
+  showInactiveOnly: boolean = false;
 
+
+  
   constructor(private ddoService: DdoService, private commonService: CommonService,private router:Router) {}
 
   ngOnInit(): void {
@@ -69,6 +72,10 @@ export class DdoComponent implements OnInit {
         this.ddoList = response.result.items
           .filter((ddo: any) => !ddo.isDeleted)
           .sort((a: { id: number }, b: { id: number }) => a.id - b.id);
+
+
+       console.log("ddolist before status selection",this.ddoList);
+          
         this.loading = false;
       },
       error: (error) => {
@@ -83,6 +90,65 @@ export class DdoComponent implements OnInit {
     });
   }
 
+  fetchAllDdos(): void {
+    this.loading = true;
+    
+    this.ddoService.getAllDDOs(
+      this.searchQuery,
+      this.selectedFilter,
+      1,
+      15000
+    ).subscribe({
+      next: (data: any) => {
+        console.log('Full API response:', data); // Debug - check exact property names
+        
+        // First filter out deleted items
+        const allItems = (data.result.items || [])
+          .filter((ddo: any) => !ddo.isDeleted);
+        
+        // Then apply active status filter based on actual property name
+        this.ddoList = this.showInactiveOnly 
+          ? allItems.filter((ddo: any) => {
+              // Check all possible inactive states
+              return ddo.isActive === false || 
+                     ddo.isactive === false ||
+                     ddo.active === false ||
+                     ddo.status === 'inactive';
+            })
+          : allItems.filter((ddo: any) => {
+              // Show active only when not in inactive mode
+              return !this.showInactiveOnly && 
+                    (ddo.isActive === true || 
+                     ddo.isactive === true ||
+                     ddo.active === true ||
+                     ddo.status === 'active');
+            });
+        
+        console.log('Filtered DDOs:', this.ddoList);
+        
+        // Update pagination info
+        this.totalItems = this.ddoList.length;
+        this.totalPages = 1;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error:', error);
+        this.loading = false;
+        Swal.fire('Error', 'Failed to load DDOs', 'error');
+      }
+    });
+}
+
+toggleInactive(): void {
+  this.showInactiveOnly = !this.showInactiveOnly;
+  this.pageNumber = 1; // Always reset to first page
+  
+  if (this.showInactiveOnly) {
+      this.fetchAllDdos(); // Get all records for inactive filter
+  } else {
+      this.fetchDDOs(); // Normal paginated fetch
+  }
+}
   get first(): number {
     return (this.pageNumber - 1) * this.pageSize; // Adjusting for 1-based pageNumber
   }

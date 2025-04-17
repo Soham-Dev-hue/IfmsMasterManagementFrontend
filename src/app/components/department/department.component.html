@@ -25,7 +25,11 @@
 <div>
   <button type="button" pButton icon="pi pi-plus" (click)="openDialog()">Create Department</button>
 </div>
-    
+
+<p-button (click)="toggleInactive()" 
+[label]="showInactiveOnly ? 'Show Active' : 'Show Inactive'"
+[severity]="showInactiveOnly ? 'danger' : 'warning'">
+</p-button>
   </div>
 
   <!-- Table Container -->

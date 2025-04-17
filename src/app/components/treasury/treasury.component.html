@@ -12,6 +12,7 @@
         (input)="onSearchChange()"
       />
       <p-dropdown
+      label="Treasury-Status"
         [options]="filterOptions"
         [(ngModel)]="selectedFilter"
         placeholder="Filter by..."
@@ -19,6 +20,12 @@
       ></p-dropdown>
     </div>
   
+
+    <p-button (click)="toggleInactive()" 
+              [label]="showInactiveOnly ? 'Show Active' : 'Show Inactive'"
+              [severity]="showInactiveOnly ? 'danger' : 'warning'">
+    </p-button>
+
     <button
       pButton
       type="button"
@@ -27,9 +34,10 @@
       class="p-button-success p-button-lg"
       (click)="openDialog()"
     ></button>
+
   </div>
   
-
+  
   <!-- Loading Spinner -->
   <p-progressSpinner *ngIf="loading" class="spinner"></p-progressSpinner>
 
