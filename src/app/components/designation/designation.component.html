@@ -24,6 +24,11 @@
   class="p-button-success p-button-lg"
   (click)="openDialog()"
 ></button>
+
+<p-button (click)="toggleInactive()" 
+[label]="showInactiveOnly ? 'Show Active' : 'Show Inactive'"
+[severity]="showInactiveOnly ? 'danger' : 'warning'">
+</p-button>
 </div>
 <div class="card">
     <p-table   [value]="items"

@@ -35,6 +35,10 @@ items: any[] = [];
   pageSize: number = 10;
   totalItems: number = 0;
   totalPages: number = 0;
+  showInactiveOnly: boolean = false;
+
+
+
   constructor(private commonService: CommonService) {}
 
   ngOnInit(): void {
@@ -93,6 +97,69 @@ items: any[] = [];
     console.log(`Updated pageNumber: ${this.pageNumber}, pageSize: ${this.pageSize}`);
     this.fetchDesignations();  // Fetch the data for the updated page
   }
+
+
+  
+     fetchAllDesignations(): void {
+        this.loading = true;
+        
+        this.commonService.getAllDesignations(
+          this.searchQuery,
+          this.selectedFilter,
+          1,
+          15000
+        ).subscribe({
+          next: (data: any) => {
+            console.log('Full API response:', data); // Debug - check exact property names
+            
+            // First filter out deleted items
+            const allItems = (data.result.items || [])
+              .filter((item: any) => !item.isdeleted);
+            
+            // Then apply active status filter based on actual property name
+            this.items = this.showInactiveOnly 
+              ? allItems.filter((item: any) => {
+                  // Check all possible inactive states
+                  return item.isActive === false || 
+                         item.isactive === false ||
+                         item.active === false ||
+                         item.status === 'inactive';
+                })
+              : allItems.filter((item: any) => {
+                  // Show active only when not in inactive mode
+                  return !this.showInactiveOnly && 
+                        (item.isActive === true || 
+                         item.isactive === true ||
+                         item.active === true ||
+                         item.status === 'active');
+                });
+            
+            console.log('Filtered items:', this.items);
+            
+            // Update pagination info
+            this.totalItems = this.items.length;
+            this.totalPages = 1;
+            this.loading = false;
+          },
+          error: (error) => {
+            console.error('Error:', error);
+            this.loading = false;
+            Swal.fire('Error', 'Failed to load items', 'error');
+          }
+        });
+    }
+    
+    toggleInactive(): void {
+      this.showInactiveOnly = !this.showInactiveOnly;
+      this.pageNumber = 1; // Always reset to first page
+      
+      if (this.showInactiveOnly) {
+          this.fetchAllDesignations(); // Get all records for inactive filter
+      } else {
+          this.fetchDesignations(); // Normal paginated fetch
+      }
+    }
+    
    confirmToggleStatus(designation: any) {
         Swal.fire({
           title: `Are you sure?`,
